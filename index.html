@@ -1,0 +1,2659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>평생 월 300만원 현금흐름 역산 계산기 · 똑재TV</title>
+<meta name="description" content="은퇴 후 월 얼마가 필요한지 입력하면, 모아야 할 자산과 매달 적립금을 역산해드립니다. 4% Rule + 한국 통계 데이터 기반.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<style>
+  :root {
+    --bg: #F5EFE6;
+    --bg-alt: #EFE7DA;
+    --ink: #1A1A1A;
+    --ink-soft: #4A4A4A;
+    --ink-mute: #8B8276;
+    --accent: #D9542B;
+    --accent-soft: #F4D5C4;
+    --border: #E5DCC8;
+    --white: #FBF7F0;
+    --brown: #8B6F47;
+    --beige-gold: #C4A57B;
+    --dark-warm: #3A2F26;
+    --dark-warm-soft: #5A4A3D;
+    --green-deep: #4A5A4A;
+    --red-warn: #C44;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 32px 24px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  /* 헤더 */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 48px;
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--dark-warm);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white);
+    font-weight: 900; font-size: 18px;
+  }
+  .logo-name { font-size: 16px; font-weight: 900; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 10px; color: var(--ink-mute); font-weight: 700; letter-spacing: 1px; }
+
+  /* 히어로 */
+  .hero { text-align: center; margin-bottom: 56px; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--white);
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 28px;
+  }
+  .tag .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+  .hero-title {
+    font-size: 64px; font-weight: 900;
+    letter-spacing: -2.5px; line-height: 1.05;
+    margin-bottom: 24px;
+  }
+  .underline-mark {
+    background: linear-gradient(transparent 60%, var(--accent-soft) 60%);
+    padding: 0 4px;
+  }
+  .hero-desc {
+    font-size: 17px; color: var(--ink-soft);
+    line-height: 1.7; font-weight: 500;
+    max-width: 640px; margin: 0 auto;
+  }
+
+  /* 카드 */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 32px;
+  }
+
+  .step-label {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 24px;
+  }
+  .step-line { width: 28px; height: 2px; background: var(--accent); }
+  .step-text {
+    font-size: 12px; font-weight: 800;
+    letter-spacing: 1.5px; color: var(--accent);
+  }
+
+  /* 결과 카드 내부 섹션 헤더 (CORE METRICS / SUPPORTING DATA) */
+  .results-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .results-header-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .results-header-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 0 4px;
+  }
+  .results-header-label {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.8px;
+    color: var(--accent);
+  }
+  .results-header-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  /* results-card는 진단 박스와 그리드 간격 보정 */
+  .results-card {
+    margin-top: -8px;
+  }
+  /* 보조 카드는 작게 (위계 표현) */
+  .results-card .grid-3 .stat-card {
+    padding: 18px 20px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+  }
+  .results-card .grid-3 .stat-card .stat-value {
+    font-size: 22px;
+  }
+  .results-card .grid-3 .stat-card .stat-label {
+    font-size: 10px;
+  }
+
+  .card-title {
+    font-size: 22px; font-weight: 900;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .card-subtitle {
+    font-size: 14px; color: var(--ink-mute);
+    margin-bottom: 24px; font-weight: 600;
+    line-height: 1.6;
+  }
+
+  .label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; color: var(--ink-mute);
+    text-transform: uppercase;
+    margin-bottom: 6px; display: block;
+  }
+
+  input, select {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: inherit; font-size: 15px;
+    color: var(--ink); font-weight: 600;
+    transition: all 0.15s ease;
+    width: 100%;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  select { font-size: 14px; cursor: pointer; }
+  .input-hint {
+    font-size: 12px; color: var(--ink-mute);
+    margin-top: 6px; font-weight: 600;
+    line-height: 1.5;
+  }
+
+  /* 입력값 환산 표시 (만원 → 억/만 변환) */
+  .input-wrap {
+    position: relative;
+  }
+  .input-wrap input {
+    padding-right: 130px;
+  }
+  .input-currency {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 800;
+    padding: 5px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .input-currency.empty {
+    background: transparent;
+    color: var(--ink-mute);
+    font-weight: 600;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  /* 서브카드 내부 2열 (모바일에서도 유지) */
+  .grid-mini { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 14px; 
+    margin-bottom: 16px;
+    align-items: start;
+  }
+
+  /* 입력 필드 그룹 (라벨 + 입력 + 힌트를 하나의 블록으로) */
+  .input-group {
+    display: flex;
+    flex-direction: column;
+  }
+  .input-group + .input-group {
+    margin-top: 20px;
+  }
+  /* grid 컨테이너 안에서는 인접 형제 margin 무효 (열 정렬 보호) */
+  .grid-mini > .input-group + .input-group,
+  .grid-2 > .input-group + .input-group,
+  .grid-3 > .input-group + .input-group {
+    margin-top: 0;
+  }
+
+  /* 서브카드 (STEP 01의 좌/우 입력 영역을 시각적으로 분리) */
+  .sub-card {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 22px 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .sub-card-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.2px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sub-card-title::before {
+    content: '';
+    width: 4px;
+    height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  .sub-card-desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    font-weight: 500;
+    margin-bottom: 16px;
+    margin-top: -6px;
+  }
+  .sub-card-desc strong {
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  /* 총수익률 디스플레이 (배당 + 시세차익 합계) */
+  .total-return-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--accent);
+    color: var(--white);
+    border-radius: 12px;
+    padding: 16px 22px;
+    margin-top: 18px;
+    box-shadow: 0 4px 12px rgba(217, 84, 43, 0.18);
+  }
+  .total-return-label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+    color: var(--accent-soft);
+  }
+  .total-return-value {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  #total-return-display {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -0.8px;
+  }
+  .total-return-formula {
+    font-size: 12px;
+    color: var(--accent-soft);
+    font-weight: 600;
+  }
+
+  /* ETF 프리셋 버튼 (active 시 약간 다른 톤) */
+  .preset-btn.etf-preset {
+    padding: 13px 6px;
+  }
+  .preset-btn.etf-preset .preset-sub {
+    font-size: 10px;
+    margin-top: 3px;
+  }
+  /* 커스텀 (직접 입력) 버튼 - 점선 보더로 시각적 구분 */
+  .preset-btn.etf-custom {
+    background: var(--bg-alt);
+    border-style: dashed;
+    border-color: var(--ink-mute);
+    color: var(--ink-soft);
+  }
+  .preset-btn.etf-custom:hover {
+    background: var(--accent-soft);
+    border-style: solid;
+  }
+  .preset-btn.etf-custom.active {
+    background: var(--dark-warm);
+    border-color: var(--dark-warm);
+    border-style: solid;
+    color: var(--white);
+    box-shadow: 0 2px 6px rgba(58, 47, 38, 0.25);
+  }
+  .preset-btn.etf-custom.active .preset-sub {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* 프리셋 버튼 그룹 - 그리드로 균등 분할 */
+  .preset-row {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .preset-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .preset-row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .preset-row.cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .preset-row.cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .preset-btn {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    color: var(--ink-soft);
+    padding: 11px 6px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 13px; font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: -0.3px;
+    line-height: 1.3;
+  }
+  .preset-btn .preset-sub {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-mute);
+    margin-top: 2px;
+    letter-spacing: 0;
+  }
+  .preset-btn.active .preset-sub {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .preset-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .preset-btn.active {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+    box-shadow: 0 2px 6px rgba(217, 84, 43, 0.25);
+  }
+  .preset-source {
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin-top: 10px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  /* 결과 카드 */
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .stat-card.accent {
+    background: var(--dark-warm);
+    color: var(--white);
+    border-color: var(--dark-warm);
+  }
+  .stat-card.accent .stat-label { color: var(--accent-soft); }
+  .stat-card.accent .stat-sub { color: var(--accent-soft); }
+  .stat-card.accent-orange {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+  }
+  .stat-card.accent-orange .stat-label { color: rgba(255,255,255,0.85); }
+  .stat-card.accent-orange .stat-sub { color: rgba(255,255,255,0.85); }
+  .stat-card.accent-green {
+    background: var(--green-deep) !important;
+    color: var(--white);
+    border-color: var(--green-deep) !important;
+  }
+  .stat-card.accent-green .stat-label { color: #B8C4B8 !important; }
+  .stat-card.accent-green .stat-value { color: var(--white) !important; }
+  .stat-card.accent-green .stat-sub { color: #B8C4B8 !important; }
+  .stat-card.accent-beige {
+    background: var(--beige-gold) !important;
+    color: var(--dark-warm);
+    border-color: var(--beige-gold) !important;
+  }
+  .stat-card.accent-beige .stat-label { color: var(--dark-warm) !important; opacity: 0.8; }
+  .stat-card.accent-beige .stat-value { color: var(--dark-warm) !important; }
+  .stat-card.accent-beige .stat-sub { color: var(--dark-warm) !important; opacity: 0.75; }
+  .stat-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1px; color: var(--ink-mute);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 28px; font-weight: 900;
+    letter-spacing: -1px; line-height: 1.1;
+  }
+  .stat-sub {
+    font-size: 13px; color: var(--ink-mute);
+    margin-top: 6px; font-weight: 500;
+  }
+
+  /* 진단 박스 (도달 가능 여부) */
+  .verdict-box {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 36px;
+    margin-bottom: 32px;
+    text-align: center;
+    border: 2px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .verdict-box.success {
+    background: linear-gradient(135deg, #4A5A4A 0%, #3D4D3D 100%);
+    border-color: #3D4D3D;
+    color: var(--white);
+  }
+  .verdict-box.warning {
+    background: linear-gradient(135deg, #D9542B 0%, #B8431F 100%);
+    border-color: #B8431F;
+    color: var(--white);
+  }
+  .verdict-box.danger {
+    background: linear-gradient(135deg, #3A2F26 0%, #2A211A 100%);
+    border-color: #2A211A;
+    color: var(--white);
+  }
+  .verdict-icon {
+    width: 64px; height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: 900;
+  }
+  .verdict-label {
+    font-size: 12px; font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+  .verdict-title {
+    font-size: 36px; font-weight: 900;
+    letter-spacing: -1.2px;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .verdict-desc {
+    font-size: 16px;
+    line-height: 1.7;
+    font-weight: 500;
+    max-width: 600px;
+    margin: 0 auto;
+    opacity: 0.92;
+  }
+  .verdict-desc strong { font-weight: 800; opacity: 1; }
+
+  /* 진단 박스 항목별 정렬 (도달 / 미달 모두 깔끔한 리스트 형태) */
+  .verdict-intro {
+    font-size: 16px;
+    line-height: 1.7;
+    font-weight: 500;
+    margin-bottom: 18px;
+    opacity: 0.95;
+  }
+  .verdict-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .verdict-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+    padding: 12px 16px;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .verdict-num {
+    font-weight: 900;
+    font-size: 16px;
+    flex-shrink: 0;
+    opacity: 0.9;
+  }
+  .verdict-item strong {
+    font-weight: 800;
+    opacity: 1;
+  }
+  .verdict-sub {
+    display: block;
+    font-size: 13px;
+    opacity: 0.78;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .verdict-footer {
+    margin-top: 18px;
+    font-size: 14px;
+    opacity: 0.85;
+    line-height: 1.6;
+    font-weight: 500;
+  }
+
+  /* 게이지 (진행률) */
+  .gauge-wrap {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .gauge-label-row {
+    display: flex; justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .gauge-bar {
+    height: 14px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  .gauge-fill {
+    height: 100%;
+    background: var(--white);
+    border-radius: 999px;
+    transition: width 0.6s ease;
+  }
+  .verdict-box.warning .gauge-fill { background: var(--white); }
+  .verdict-box.danger .gauge-fill { background: var(--accent); }
+
+  /* 차트 */
+  .chart-title {
+    font-size: 18px; font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 4px;
+    letter-spacing: -0.3px;
+  }
+  .chart-subtitle {
+    font-size: 13px; color: var(--ink-mute);
+    margin-bottom: 24px; font-weight: 500;
+  }
+  .chart-container {
+    position: relative;
+    height: 380px;
+    width: 100%;
+  }
+  .chart-container.lg { height: 420px; }
+  .chart-container.sm { height: 300px; }
+
+  /* 데이터 테이블 */
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 16px;
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 700px;
+  }
+  .data-table th {
+    background: var(--bg-alt);
+    padding: 12px 10px;
+    text-align: right;
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    border-bottom: 1.5px solid var(--border);
+    white-space: nowrap;
+  }
+  .data-table th:first-child { text-align: center; }
+  .data-table th.group-accumulate {
+    background: var(--accent-soft);
+    color: var(--accent);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .data-table th.group-withdraw {
+    background: #DCE5DC;
+    color: var(--green-deep);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .data-table td {
+    padding: 11px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .data-table td:first-child {
+    text-align: center;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .data-table td.col-accumulate { color: var(--accent); }
+  .data-table td.col-withdraw { color: var(--green-deep); }
+  .data-table td.col-depleted { color: var(--red-warn); font-weight: 800; }
+
+  /* 명목/실질 통합 셀 (위아래 스택) */
+  .th-sub {
+    display: block;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ink-mute);
+    margin-top: 2px;
+    letter-spacing: 0;
+  }
+  .data-table td.col-stack {
+    padding: 8px 10px;
+    line-height: 1.3;
+  }
+  .cell-nominal {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .cell-real {
+    font-weight: 600;
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin-top: 2px;
+  }
+  .data-table td.col-depleted .cell-nominal,
+  .data-table td.col-depleted .cell-real {
+    color: var(--red-warn);
+  }
+  /* 적립기 셀: 둘 다 주황 톤 */
+  .data-table td.col-stack.col-accumulate .cell-nominal { color: var(--accent); }
+  /* 인출기 셀에서 인출액(월): 명목만 진녹색, 실질은 회색 */
+  .data-table td.col-stack .cell-nominal.col-withdraw { color: var(--green-deep); }
+  .data-table tbody tr:hover { background: var(--bg-alt); }
+  .data-table tbody tr.row-retire {
+    background: var(--accent-soft);
+  }
+  .data-table tbody tr.row-retire td { font-weight: 800; }
+  .data-table tbody tr.row-retire td:first-child::after {
+    content: ' 🎯';
+    font-size: 11px;
+  }
+
+  /* 인사이트 박스 */
+  .insight-box {
+    background: var(--dark-warm);
+    color: var(--white);
+    border-radius: 20px;
+    padding: 36px;
+    margin-bottom: 24px;
+  }
+  .insight-label {
+    display: flex; align-items: center;
+    gap: 8px; margin-bottom: 16px;
+  }
+  .insight-label-text {
+    font-size: 12px; font-weight: 800;
+    letter-spacing: 1.5px;
+    color: var(--accent-soft);
+  }
+  .insight-title {
+    font-size: 24px; font-weight: 900;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+    line-height: 1.3;
+  }
+  .insight-desc {
+    font-size: 15px; line-height: 1.75;
+    color: #D9D2C5; font-weight: 500;
+  }
+  .insight-desc strong { color: var(--white); font-weight: 800; }
+
+  /* (legacy) 인사이트 박스 안에 위치하던 추가 정보 카드용 - 현재 미사용 */
+  .course-cta-card {
+    background: rgba(217, 84, 43, 0.12);
+    border: 1.5px solid rgba(217, 84, 43, 0.4);
+    border-radius: 14px;
+    padding: 20px;
+    margin-top: 24px;
+  }
+  .course-cta-tag {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  .course-cta-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--white);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .course-cta-desc {
+    font-size: 13px;
+    color: #D9D2C5;
+    line-height: 1.6;
+    font-weight: 500;
+  }
+
+  /* 인사이트 CTA */
+  .insight-cta {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .insight-cta-text {
+    font-size: 14px;
+    color: #D9D2C5;
+    font-weight: 600;
+    margin-right: 8px;
+  }
+  .cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    letter-spacing: -0.2px;
+  }
+  .cta-link.primary {
+    background: var(--accent);
+    color: var(--white);
+  }
+  .cta-link.primary:hover {
+    background: #E66740;
+    transform: translateY(-1px);
+  }
+  .cta-link.secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .cta-link.secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+  }
+
+  /* 상단 CTA */
+  .top-cta {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 24px;
+    margin-bottom: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .top-cta-text {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .top-cta-text strong { color: var(--ink); font-weight: 800; }
+  .top-cta-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .top-cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    color: var(--ink);
+  }
+  .top-cta-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .top-cta-link.primary {
+    background: var(--accent);
+    color: var(--white);
+    border-color: var(--accent);
+  }
+  .top-cta-link.primary:hover {
+    background: #E66740;
+    border-color: #E66740;
+  }
+
+  /* 네이버 N 마크 */
+  .naver-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px; height: 16px;
+    background: #03C75A;
+    color: #FFFFFF;
+    font-weight: 900;
+    font-size: 11px;
+    border-radius: 3px;
+    line-height: 1;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+
+  /* 통계 알림 박스 (한국 데이터 강조) */
+  .stat-alert {
+    background: var(--white);
+    border: 1px solid var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .stat-alert-icon {
+    flex-shrink: 0;
+    width: 26px; height: 26px;
+    background: var(--accent);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+    font-size: 14px;
+  }
+  .stat-alert-text {
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .stat-alert-text strong {
+    color: var(--accent);
+    font-weight: 800;
+  }
+
+  /* 트레이드오프 비교 박스 (인출률 양면 설명) */
+  .tradeoff-box {
+    margin-top: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .tradeoff-title {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--ink-mute);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tradeoff-title::before {
+    content: '';
+    width: 14px; height: 2px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  .tradeoff-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: stretch;
+  }
+  .tradeoff-side {
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--bg-alt);
+  }
+  .tradeoff-side.low {
+    border-left: 3px solid var(--green-deep);
+  }
+  .tradeoff-side.high {
+    border-left: 3px solid var(--accent);
+  }
+  .tradeoff-side-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .tradeoff-side.low .tradeoff-side-label { color: var(--green-deep); }
+  .tradeoff-side.high .tradeoff-side-label { color: var(--accent); }
+  .tradeoff-side-headline {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.45;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
+  }
+  .tradeoff-side-detail {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .tradeoff-side-detail strong {
+    font-weight: 800;
+  }
+  .tradeoff-side.low .tradeoff-side-detail strong { color: var(--green-deep); }
+  .tradeoff-side.high .tradeoff-side-detail strong { color: var(--accent); }
+  .tradeoff-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-mute);
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: -0.3px;
+  }
+  .tradeoff-conclusion {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--accent-soft);
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--dark-warm);
+    line-height: 1.55;
+    text-align: center;
+  }
+  .tradeoff-conclusion strong {
+    color: var(--accent);
+    font-weight: 900;
+  }
+
+  /* 푸터 */
+  footer {
+    text-align: center;
+    padding: 40px 0 20px;
+    color: var(--ink-mute);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.7;
+  }
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  /* 모바일 */
+  @media (max-width: 768px) {
+    body { padding: 16px 12px; }
+
+    .card {
+      padding: 18px 16px !important;
+      margin-bottom: 20px !important;
+      border-radius: 16px !important;
+    }
+    header { margin-bottom: 28px; }
+    .hero { margin-bottom: 32px; }
+    .hero-title {
+      font-size: 32px !important;
+      letter-spacing: -1.2px !important;
+      line-height: 1.18 !important;
+    }
+    .hero-desc { font-size: 14px; line-height: 1.6; }
+    .hero-desc br { display: none; }
+    .tag { font-size: 11px; padding: 5px 12px; margin-bottom: 20px; }
+
+    .top-cta {
+      flex-direction: column;
+      align-items: stretch;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .top-cta-text { font-size: 13px; line-height: 1.5; }
+    .top-cta-links {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .top-cta-link {
+      justify-content: center;
+      font-size: 12px;
+      padding: 10px 8px;
+    }
+
+    .grid-3, .grid-2 {
+      grid-template-columns: 1fr !important;
+      gap: 14px !important;
+    }
+    .grid-4 {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 10px !important;
+    }
+
+    /* 서브카드 - 모바일에서 패딩 축소 */
+    .sub-card {
+      padding: 18px 16px 16px !important;
+      border-radius: 12px !important;
+    }
+    .sub-card-title { font-size: 12px; margin-bottom: 12px; }
+    .input-group + .input-group { margin-top: 16px; }
+
+    /* 프리셋 그리드 - 모바일에서도 그대로 유지하되 폰트만 살짝 축소 */
+    .preset-row.cols-5 { grid-template-columns: repeat(2, 1fr) !important; }
+    .preset-row.cols-6 { grid-template-columns: repeat(2, 1fr) !important; }
+
+    input, select { padding: 9px 12px; font-size: 14px; }
+    .input-wrap input { padding-right: 105px; }
+    .input-currency {
+      font-size: 11px;
+      padding: 4px 8px;
+      max-width: 95px;
+    }
+    /* grid-mini 내 좁은 입력 (나이 등) - 칩 더 작게 */
+    .grid-mini .input-wrap input { padding-right: 75px; }
+    .grid-mini .input-currency {
+      font-size: 10px;
+      padding: 3px 6px;
+      max-width: 65px;
+    }
+    .label { font-size: 10px; }
+    .card-title { font-size: 18px; }
+    .card-subtitle { font-size: 13px; line-height: 1.6; }
+
+    .preset-btn { font-size: 11px; padding: 8px 6px; line-height: 1.3; }
+    .preset-source { font-size: 10px; line-height: 1.5; }
+
+    /* 진단 박스 */
+    .verdict-box { padding: 24px 18px; border-radius: 16px; }
+    .verdict-icon { width: 52px; height: 52px; font-size: 26px; margin-bottom: 16px; }
+    .verdict-title { font-size: 24px !important; letter-spacing: -0.6px !important; }
+    .verdict-desc { font-size: 14px; line-height: 1.65; }
+    .verdict-intro { font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+    .verdict-item { font-size: 13px; padding: 10px 12px; gap: 8px; line-height: 1.55; }
+    .verdict-num { font-size: 14px; }
+    .verdict-sub { font-size: 11.5px; }
+    .verdict-footer { font-size: 12px; margin-top: 14px; }
+    .verdict-label { font-size: 11px; letter-spacing: 1.5px; }
+    .gauge-wrap { margin-top: 20px; padding-top: 18px; }
+
+    /* stat 카드 */
+    .stat-card { padding: 16px !important; border-radius: 14px !important; }
+    .stat-label { font-size: 10px; }
+    .stat-value { font-size: 22px !important; letter-spacing: -0.5px !important; }
+    .stat-sub { font-size: 11px; }
+
+    /* 차트 */
+    .chart-title { font-size: 15px; line-height: 1.4; }
+    .chart-subtitle { font-size: 12px; line-height: 1.5; margin-bottom: 16px; }
+    .chart-container { height: 280px !important; }
+    .chart-container.lg { height: 320px !important; }
+    .chart-container.sm { height: 240px !important; }
+
+    .step-label { margin-bottom: 18px; }
+    .step-text { font-size: 11px; }
+
+    /* 인사이트 */
+    .insight-box { padding: 24px 18px; border-radius: 16px; }
+    .insight-title { font-size: 18px !important; line-height: 1.35; }
+    .insight-desc { font-size: 13px; line-height: 1.65; }
+    .insight-cta {
+      flex-direction: column;
+      align-items: stretch;
+      padding-top: 18px;
+      margin-top: 20px;
+      gap: 10px;
+    }
+    .insight-cta-text { font-size: 13px; margin-right: 0; margin-bottom: 4px; }
+    .cta-link {
+      justify-content: center;
+      font-size: 13px;
+      padding: 12px 16px;
+    }
+    .course-cta-card { padding: 16px; }
+    .course-cta-title { font-size: 14px; }
+    .course-cta-desc { font-size: 12px; }
+
+    .table-wrap {
+      margin: 16px -16px 0;
+      padding: 0 16px;
+      overflow-x: auto;
+    }
+    .data-table {
+      font-size: 11px;
+      min-width: 600px;
+    }
+    .data-table th { padding: 8px 6px; font-size: 10px; }
+    .data-table td { padding: 8px 6px; }
+
+    .stat-alert { padding: 14px 16px; gap: 10px; }
+    .stat-alert-icon { width: 28px; height: 28px; font-size: 14px; }
+    .stat-alert-text { font-size: 12px; line-height: 1.6; }
+
+    /* 트레이드오프 박스: 모바일에서 위아래 스택 */
+    .tradeoff-box { padding: 14px 14px; }
+    .tradeoff-grid {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .tradeoff-divider {
+      padding: 2px 0;
+      font-size: 11px;
+    }
+    .tradeoff-side { padding: 11px 12px; }
+    .tradeoff-side-headline { font-size: 13px; }
+    .tradeoff-side-detail { font-size: 11px; }
+    .tradeoff-conclusion { font-size: 11.5px; padding: 9px 12px; }
+  }
+
+  @media (max-width: 380px) {
+    .hero-title { font-size: 28px !important; }
+    .verdict-title { font-size: 22px !important; }
+    .grid-4 { grid-template-columns: 1fr !important; }
+    .top-cta-links { grid-template-columns: 1fr !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ========== 헤더 ========== -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">똑</div>
+      <div>
+        <div class="logo-name">똑재TV</div>
+        <div class="logo-sub">RETIREMENT REVERSE CALCULATOR</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== 히어로 ========== -->
+  <div class="hero">
+    <span class="tag">
+      <span class="dot"></span>
+      평생 월 300만원 현금흐름 시뮬레이터
+    </span>
+    <h1 class="hero-title">
+      나는 은퇴까지<br>
+      <span class="underline-mark">얼마</span>를 모아야 할까?
+    </h1>
+    <p class="hero-desc">
+      "은퇴 후 매달 받고 싶은 금액"을 입력하면<br>
+      필요한 자산·매월 적립금·도달 가능 여부를 즉시 역산해드립니다.
+    </p>
+  </div>
+
+  <!-- ========== 상단 CTA ========== -->
+  <div class="top-cta">
+    <div class="top-cta-text">
+      💡 <strong>한국 통계청·국민연금공단 실제 데이터</strong> 기반으로 설계된 시뮬레이터입니다.
+    </div>
+    <div class="top-cta-links">
+      <a href="https://www.youtube.com/@ttok_jae" target="_blank" rel="noopener" class="top-cta-link primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        똑재TV 구독하기
+      </a>
+      <a href="https://cafe.naver.com/ttokjae" target="_blank" rel="noopener" class="top-cta-link">
+        <span class="naver-mark">N</span>
+        부의 자유 카페
+      </a>
+    </div>
+  </div>
+
+  <!-- ========== STEP 01: 목표 현금흐름 ========== -->
+  <div class="card">
+    <div class="step-label">
+      <div class="step-line"></div>
+      <span class="step-text">STEP 01 / 목표 현금흐름</span>
+    </div>
+    <h2 class="card-title">은퇴 후 매달 얼마를 받고 싶으세요?</h2>
+    <p class="card-subtitle">
+      국민연금공단·통계청이 발표한 한국인 평균 노후 생활비를 참고하세요. 직접 입력도 가능합니다.
+    </p>
+
+    <div class="grid-2">
+      <!-- 좌측: 목표 금액 -->
+      <div class="sub-card">
+        <div class="sub-card-title">목표 월 현금흐름</div>
+        <div class="input-group">
+          <label class="label">월 목표 (현재 가치 기준)</label>
+          <div class="input-wrap">
+            <input type="number" id="target-monthly" value="300" step="10" min="50" max="3000">
+            <span class="input-currency" id="target-monthly-display">월 300만원</span>
+          </div>
+          <div class="input-hint">단위: 만원 · 한국 평균 노후 생활비 기준</div>
+        </div>
+
+        <div class="preset-row cols-3" style="margin-top: 16px;">
+          <button class="preset-btn" data-target="240">240만<br><span class="preset-sub">최소</span></button>
+          <button class="preset-btn" data-target="298">298만<br><span class="preset-sub">국연 적정</span></button>
+          <button class="preset-btn active" data-target="300">300만<br><span class="preset-sub">목표 월 현금흐름</span></button>
+          <button class="preset-btn" data-target="336">336만<br><span class="preset-sub">통계청</span></button>
+          <button class="preset-btn" data-target="405">405만<br><span class="preset-sub">은퇴 경험자</span></button>
+          <button class="preset-btn" data-target-custom="1">직접 입력<br><span class="preset-sub">커스텀</span></button>
+        </div>
+        <div class="preset-source">
+          ※ 출처: 통계청 「2024 가계금융복지조사」, 국민연금연구원 「국민노후보장패널 10차」
+        </div>
+
+        <div class="stat-alert">
+          <div class="stat-alert-icon">!</div>
+          <div class="stat-alert-text">
+            은퇴를 <strong>이미 경험한 사람</strong>이 답한 적정 생활비는 <strong>월 405만원</strong>이었습니다.
+            은퇴 전 예상(월 348만원)보다 약 60만원 더 필요했죠. 현실은 늘 예상보다 큽니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 인플레이션 + 은퇴 기간 -->
+      <div class="sub-card">
+        <div class="sub-card-title">기간 & 인플레이션</div>
+
+        <div class="input-group">
+          <label class="label">예상 인플레이션 (연)</label>
+          <div class="input-wrap">
+            <input type="number" id="inflation" value="2.5" step="0.1" min="0" max="10">
+            <span class="input-currency" id="inflation-display">연 2.5%</span>
+          </div>
+          <div class="input-hint">한국은행 물가안정목표 2.0% · 장기 평균 ~2.0~2.5%</div>
+          <div class="preset-row cols-4" style="margin-top: 12px;">
+            <button class="preset-btn" data-inflation="1.5">1.5%<br><span class="preset-sub">디플레 우려</span></button>
+            <button class="preset-btn" data-inflation="2.0">2.0%<br><span class="preset-sub">한은 목표</span></button>
+            <button class="preset-btn active" data-inflation="2.5">2.5%<br><span class="preset-sub">장기 평균</span></button>
+            <button class="preset-btn" data-inflation="3.5">3.5%<br><span class="preset-sub">고물가 시기</span></button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="label">은퇴 기간 (몇 년 동안 받을지)</label>
+          <div class="input-wrap">
+            <input type="number" id="retire-years" value="30" step="1" min="10" max="60">
+            <span class="input-currency" id="retire-years-display">30년</span>
+          </div>
+          <div class="input-hint">2024 생명표 60세 기대여명: 남 23.7년 · 여 28.4년</div>
+          <div class="preset-row cols-3" style="margin-top: 12px;">
+            <button class="preset-btn" data-retire-years="20">20년<br><span class="preset-sub">보수적</span></button>
+            <button class="preset-btn active" data-retire-years="30">30년<br><span class="preset-sub">표준</span></button>
+            <button class="preset-btn" data-retire-years="40">40년<br><span class="preset-sub">장수 대비</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 02: 인출률 (4% Rule) ========== -->
+  <div class="card">
+    <div class="step-label">
+      <div class="step-line"></div>
+      <span class="step-text">STEP 02 / 인출 전략</span>
+    </div>
+    <h2 class="card-title">자산의 몇 %씩 인출할까요?</h2>
+    <p class="card-subtitle">
+      Trinity Study가 제시한 '4% Rule'은 30년 은퇴 기준 95% 성공률을 보였습니다. 기간이 길수록 인출률은 낮춰야 안전합니다.
+    </p>
+
+    <div class="sub-card">
+      <div class="sub-card-title">연간 인출률</div>
+      <div class="input-group">
+        <label class="label">인출률 (%)</label>
+        <div class="input-wrap">
+          <input type="number" id="withdrawal-rate" value="4" step="0.1" min="2" max="10">
+          <span class="input-currency" id="withdrawal-rate-display">연 4.0%</span>
+        </div>
+        <div class="input-hint">기본값 4% (Trinity Study) · <span id="multiplier-display">자산의 25배 필요</span></div>
+      </div>
+
+      <div class="preset-row cols-5" style="margin-top: 16px;">
+        <button class="preset-btn" data-rate="3">3%<br><span class="preset-sub">매우 보수</span></button>
+        <button class="preset-btn" data-rate="3.5">3.5%<br><span class="preset-sub">보수</span></button>
+        <button class="preset-btn active" data-rate="4">4%<br><span class="preset-sub">표준</span></button>
+        <button class="preset-btn" data-rate="5">5%<br><span class="preset-sub">공격</span></button>
+        <button class="preset-btn" data-rate="6">6%<br><span class="preset-sub">매우 공격</span></button>
+      </div>
+      <div class="preset-source">
+        ※ 출처: Cooley·Hubbard·Walz (1998) Trinity Study, Bengen (1994) SAFEMAX 4.15%
+      </div>
+
+      <div class="tradeoff-box">
+        <div class="tradeoff-title">인출률 트레이드오프</div>
+        <div class="tradeoff-grid">
+          <div class="tradeoff-side low">
+            <div class="tradeoff-side-label">↓ 인출률 낮추면</div>
+            <div class="tradeoff-side-headline">자산 더 많이 필요<br>대신 평생 안 망함</div>
+            <div class="tradeoff-side-detail">
+              월 300만 기준 3% → <strong>12억원</strong> 필요<br>
+              (자산의 33.3배 · 성공률 ≈ 100%)
+            </div>
+          </div>
+          <div class="tradeoff-divider">VS</div>
+          <div class="tradeoff-side high">
+            <div class="tradeoff-side-label">↑ 인출률 높이면</div>
+            <div class="tradeoff-side-headline">자산 적게 필요<br>대신 빨리 떨어질 위험</div>
+            <div class="tradeoff-side-detail">
+              월 300만 기준 6% → <strong>6억원</strong> 필요<br>
+              (자산의 16.7배 · 30년 성공률 50% 수준)
+            </div>
+          </div>
+        </div>
+        <div class="tradeoff-conclusion">
+          ✓ 같은 월 300만원이라도 인출률에 따라 필요 자산이 <strong>2배 차이</strong>납니다.
+          그래서 Trinity Study가 제시한 <strong>4% (95% 성공률)</strong>가 표준이 된 것입니다.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== STEP 03: 현재 상황 ========== -->
+  <div class="card">
+    <div class="step-label">
+      <div class="step-line"></div>
+      <span class="step-text">STEP 03 / 현재 나의 상황</span>
+    </div>
+    <h2 class="card-title">지금부터 얼마나 모을 수 있나요?</h2>
+    <p class="card-subtitle">
+      현재 나이·기존 자산·매월 적립 가능 금액·예상 수익률을 입력하면 도달 가능 여부를 진단해드립니다.
+    </p>
+
+    <div class="grid-2" style="align-items: start;">
+      <!-- 좌측: 시점 정보 -->
+      <div class="sub-card">
+        <div class="sub-card-title">언제 은퇴할까요?</div>
+        <div class="grid-mini">
+          <div class="input-group">
+            <label class="label">현재 나이</label>
+            <div class="input-wrap">
+              <input type="number" id="current-age" value="35" step="1" min="20" max="70">
+              <span class="input-currency" id="current-age-display">만 35세</span>
+            </div>
+            <div class="input-hint">만 나이 기준</div>
+          </div>
+          <div class="input-group">
+            <label class="label">은퇴 희망 나이</label>
+            <div class="input-wrap">
+              <input type="number" id="retire-age" value="60" step="1" min="40" max="85">
+              <span class="input-currency" id="retire-age-display">만 60세</span>
+            </div>
+            <div class="input-hint">국민연금 수급 65세~</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 자산 정보 -->
+      <div class="sub-card">
+        <div class="sub-card-title">얼마를 적립할 수 있나요?</div>
+        <div class="input-group">
+          <label class="label">현재 보유 투자자산</label>
+          <div class="input-wrap">
+            <input type="number" id="current-assets" value="3000" step="100" min="0">
+            <span class="input-currency" id="current-assets-display">3,000만원</span>
+          </div>
+          <div class="input-hint">단위: 만원 · 현금/예금 제외, 투자만</div>
+        </div>
+        <div class="input-group">
+          <label class="label">매월 적립 가능 금액</label>
+          <div class="input-wrap">
+            <input type="number" id="monthly-saving" value="100" step="10" min="0">
+            <span class="input-currency" id="monthly-saving-display">월 100만원</span>
+          </div>
+          <div class="input-hint">단위: 만원 · 연금저축+IRP+ISA+일반계좌 전체</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 투자 자산 프리셋 (배당률 + 배당성장 + 시세차익) -->
+    <div class="sub-card" style="margin-top: 20px;">
+      <div class="sub-card-title">투자 포트폴리오 (배당 + 시세차익)</div>
+      <p class="sub-card-desc">
+        실제 ETF 데이터 기반 프리셋을 선택하거나 직접 입력하세요. <strong>총수익률 = 배당률 + 시세차익</strong>으로
+        은퇴 시점 자산이 결정되고, <strong>배당성장률</strong>은 인출기에 매년 받는 월배당이 늘어나는 속도입니다.
+      </p>
+
+      <div class="preset-row cols-6" style="margin-bottom: 18px;">
+        <button class="preset-btn etf-preset" data-yield="3.5" data-growth="7.0" data-price="5.5">
+          SCHD<br><span class="preset-sub">배당성장 ETF</span>
+        </button>
+        <button class="preset-btn etf-preset" data-yield="7.0" data-growth="1.0" data-price="1.0">
+          JEPI<br><span class="preset-sub">고배당 ETF</span>
+        </button>
+        <button class="preset-btn etf-preset" data-yield="0.6" data-growth="8.0" data-price="9.4">
+          QQQ<br><span class="preset-sub">성장형 ETF</span>
+        </button>
+        <button class="preset-btn etf-preset" data-yield="1.5" data-growth="5.0" data-price="6.0">
+          S&amp;P500<br><span class="preset-sub">시장 평균</span>
+        </button>
+        <button class="preset-btn etf-preset active" data-yield="2.5" data-growth="5.0" data-price="3.5">
+          균형<br><span class="preset-sub">2.5·5·3.5</span>
+        </button>
+        <button class="preset-btn etf-preset etf-custom" data-custom="true">
+          커스텀<br><span class="preset-sub">직접 입력</span>
+        </button>
+      </div>
+
+      <div class="grid-3">
+        <div class="input-group">
+          <label class="label">배당수익률 (%)</label>
+          <div class="input-wrap">
+            <input type="number" id="dividend-yield" value="2.5" step="0.1" min="0" max="20">
+            <span class="input-currency" id="dividend-yield-display">연 2.5%</span>
+          </div>
+          <div class="input-hint">현재 매수 시점 기준 연 배당</div>
+        </div>
+        <div class="input-group">
+          <label class="label">배당성장률 (연 %)</label>
+          <div class="input-wrap">
+            <input type="number" id="dividend-growth" value="5.0" step="0.1" min="0" max="20">
+            <span class="input-currency" id="dividend-growth-display">연 5.0%</span>
+          </div>
+          <div class="input-hint">미래 배당이 매년 늘어나는 속도<br>※ 자산 총액 X, 인출기 월배당 ↑</div>
+        </div>
+        <div class="input-group">
+          <label class="label">시세차익 (연 %)</label>
+          <div class="input-wrap">
+            <input type="number" id="price-appreciation" value="3.5" step="0.1" min="-5" max="20">
+            <span class="input-currency" id="price-appreciation-display">연 3.5%</span>
+          </div>
+          <div class="input-hint">주가 상승률 (배당 제외)</div>
+        </div>
+      </div>
+
+      <div class="total-return-display">
+        <div class="total-return-label">예상 총수익률</div>
+        <div class="total-return-value">
+          <span id="total-return-display">6.0%</span>
+          <span class="total-return-formula" id="total-return-formula">배당 2.5% + 시세차익 3.5%</span>
+        </div>
+      </div>
+
+      <div class="preset-source" style="margin-top: 12px;">
+        ※ 한국 투자자 관점 보수적 추정 (환율·세금·수수료 반영) · 미국 ETF 장기 평균 대비 약 2~3%p 하향 · 2026년 4월 기준
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 결과: 진단 박스 ========== -->
+  <div class="verdict-box" id="verdict-box">
+    <div class="verdict-icon" id="verdict-icon">?</div>
+    <div class="verdict-label" id="verdict-label">진단 결과</div>
+    <div class="verdict-title" id="verdict-title">계산 중...</div>
+    <div class="verdict-desc" id="verdict-desc"></div>
+    <div class="gauge-wrap" id="gauge-wrap" style="display: none;">
+      <div class="gauge-label-row">
+        <span id="gauge-label-left">현재 도달 가능 자산</span>
+        <span id="gauge-label-right">목표 자산 대비 0%</span>
+      </div>
+      <div class="gauge-bar">
+        <div class="gauge-fill" id="gauge-fill" style="width: 0%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 결과: 핵심 + 보조 통합 카드 ========== -->
+  <div class="card results-card">
+    <!-- 핵심 4지표 -->
+    <div class="results-header">
+      <div class="results-header-line"></div>
+      <div class="results-header-text">
+        <span class="results-header-label">CORE METRICS</span>
+        <span class="results-header-title">진단 핵심 지표</span>
+      </div>
+    </div>
+    <div class="grid-4">
+      <div class="stat-card accent-orange">
+        <div class="stat-label">은퇴 시점 필요 자산</div>
+        <div class="stat-value" id="r-required">-</div>
+        <div class="stat-sub" id="r-required-sub">-</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label">현재 계획대로 모이는 자산</div>
+        <div class="stat-value" id="r-projected">-</div>
+        <div class="stat-sub" id="r-projected-sub">-</div>
+      </div>
+      <div class="stat-card accent-green">
+        <div class="stat-label">필요한 매월 적립금</div>
+        <div class="stat-value" id="r-needed-saving">-</div>
+        <div class="stat-sub" id="r-needed-saving-sub">-</div>
+      </div>
+      <div class="stat-card accent-beige">
+        <div class="stat-label">은퇴까지 남은 기간</div>
+        <div class="stat-value" id="r-years-left">-</div>
+        <div class="stat-sub" id="r-years-left-sub">-</div>
+      </div>
+    </div>
+
+    <!-- 보조 3지표 -->
+    <div class="results-header" style="margin-top: 28px;">
+      <div class="results-header-line"></div>
+      <div class="results-header-text">
+        <span class="results-header-label">SUPPORTING DATA</span>
+        <span class="results-header-title">보조 검증 지표</span>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="stat-card">
+        <div class="stat-label">월 목표 금액 (인플레 반영 후)</div>
+        <div class="stat-value" id="r-future-monthly">-</div>
+        <div class="stat-sub" id="r-future-monthly-sub">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">은퇴 기간 누적 수령액</div>
+        <div class="stat-value" id="r-total-withdraw">-</div>
+        <div class="stat-sub" id="r-total-withdraw-sub">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">실질 인출률 검증</div>
+        <div class="stat-value" id="r-actual-rate">-</div>
+        <div class="stat-sub" id="r-actual-rate-sub">-</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 차트 1: 자산 적립 + 인출 곡선 ========== -->
+  <div class="card">
+    <h3 class="chart-title">📈 자산 곡선 (적립기 → 인출기)</h3>
+    <p class="chart-subtitle">
+      현재 나이부터 은퇴 후 자산 소진 시점까지의 흐름. 명목가치 vs 실질가치(물가 반영)를 함께 보여줍니다.
+    </p>
+    <div class="chart-container lg">
+      <canvas id="lifecycle-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- ========== 차트 2: 현재 vs 필요 비교 ========== -->
+  <div class="card">
+    <h3 class="chart-title">📊 현재 계획 vs 목표 자산 비교</h3>
+    <p class="chart-subtitle">
+      지금 입력한 적립 계획대로 갔을 때와 목표 달성에 필요한 자산을 명목·실질가치로 비교합니다.
+    </p>
+    <div class="chart-container">
+      <canvas id="compare-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- ========== 차트 3: 부족분 시나리오 ========== -->
+  <div class="card">
+    <h3 class="chart-title">🎯 매월 적립금별 도달 가능 자산</h3>
+    <p class="chart-subtitle">
+      매월 얼마씩 적립하느냐에 따라 은퇴 시점 자산이 어떻게 달라지는지 시나리오별로 보여줍니다.
+    </p>
+    <div class="chart-container">
+      <canvas id="scenario-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- ========== Raw Data 테이블 ========== -->
+  <div class="card">
+    <h3 class="chart-title">📋 연차별 자산 흐름표 (Raw Data)</h3>
+    <p class="chart-subtitle">
+      적립기와 인출기 전체 연도별 자산 변화. 명목·실질가치, 연 인출액까지 포함합니다.
+    </p>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>나이</th>
+            <th>연차</th>
+            <th>국면</th>
+            <th>연 변동</th>
+            <th>총자산<br><span class="th-sub">명목 / 실질</span></th>
+            <th>월 인출액<br><span class="th-sub">명목 / 실질</span></th>
+          </tr>
+        </thead>
+        <tbody id="data-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== 인사이트 박스 ========== -->
+  <div class="insight-box">
+    <div class="insight-label">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D9542B" stroke-width="2"><path d="M12 3l1.9 5.8L20 10l-4.5 3.3L17 20l-5-3.5L7 20l1.5-6.7L4 10l6.1-1.2L12 3z"/></svg>
+      <span class="insight-label-text">KEY INSIGHT</span>
+    </div>
+    <h3 class="insight-title" id="insight-title">월 300만원의 진짜 의미</h3>
+    <p class="insight-desc" id="insight-desc">
+      계산이 끝나면 여기에 핵심 인사이트가 표시됩니다.
+    </p>
+
+    <div class="insight-cta">
+      <div class="insight-cta-text">
+        📊 노후 준비 콘텐츠 더 보기
+      </div>
+      <a href="https://www.youtube.com/@ttok_jae" target="_blank" rel="noopener" class="cta-link primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        똑재TV 구독하기
+      </a>
+      <a href="https://cafe.naver.com/ttokjae" target="_blank" rel="noopener" class="cta-link secondary">
+        <span class="naver-mark">N</span>
+        부의 자유 카페
+      </a>
+    </div>
+  </div>
+
+  <!-- ========== 푸터 ========== -->
+  <footer>
+    ※ 본 시뮬레이터는 단순 계산 도구로 세금·수수료·환율 변동을 반영하지 않습니다.<br>
+    실제 투자 결과와는 차이가 있을 수 있으며, 투자 판단의 책임은 본인에게 있습니다.<br>
+    <br>
+    데이터 출처: 통계청 「2024 가계금융복지조사」 · 국민연금연구원 「2024 국민노후보장패널 10차」 ·
+    국가데이터처 「2024 생명표」 · Trinity Study (1998)
+  </footer>
+
+</div>
+
+<script>
+// ============================================================
+// 평생 월 300만원 현금흐름 역산 계산기
+// 똑재TV · 평생 월 300만원 현금흐름 역산 시뮬레이터
+// ============================================================
+
+// ============== 포맷 함수 ==============
+function formatKRW(n) {
+  if (!isFinite(n)) return '-';
+  const sign = n < 0 ? '-' : '';
+  n = Math.abs(n);
+  if (n >= 100000000) return sign + (n / 100000000).toFixed(2) + '억';
+  if (n >= 10000) return sign + Math.round(n / 10000).toLocaleString() + '만';
+  return sign + Math.round(n).toLocaleString();
+}
+function formatKRWFull(n) {
+  if (!isFinite(n)) return '-';
+  return Math.round(n).toLocaleString() + '원';
+}
+function formatKRWManwon(n) {
+  // 입력값을 만원 → 원으로 변환할 때 표시용
+  if (n >= 10000) return (n / 10000).toFixed(1) + '억원';
+  return n.toLocaleString() + '만원';
+}
+// 입력 필드용 한국식 환산 (예: 12345만원 → "1억 2,345만원")
+function formatInputManwon(manwon) {
+  if (!manwon || manwon <= 0) return '0원';
+  manwon = Math.round(manwon);
+  const eok = Math.floor(manwon / 10000);
+  const man = manwon % 10000;
+  if (eok > 0 && man > 0) return `${eok}억 ${man.toLocaleString()}만원`;
+  if (eok > 0) return `${eok}억원`;
+  return `${man.toLocaleString()}만원`;
+}
+function formatPercent(n, dp) {
+  dp = dp == null ? 1 : dp;
+  return n.toFixed(dp) + '%';
+}
+
+// ============== 공통 차트 옵션 ==============
+const chartCommonOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: {
+      position: 'top',
+      labels: {
+        font: { family: 'Pretendard', size: 13, weight: 600 },
+        color: '#1A1A1A',
+        usePointStyle: true,
+        padding: 16,
+      }
+    },
+    tooltip: {
+      backgroundColor: '#FBF7F0',
+      titleColor: '#1A1A1A',
+      bodyColor: '#3A2F26',
+      borderColor: '#D9542B',
+      borderWidth: 1.5,
+      padding: 14,
+      titleFont: { family: 'Pretendard', size: 14, weight: 800 },
+      bodyFont: { family: 'Pretendard', size: 13, weight: 600 },
+      titleSpacing: 6,
+      bodySpacing: 8,
+      titleMarginBottom: 10,
+      caretSize: 8,
+      cornerRadius: 10,
+      usePointStyle: true,
+      boxPadding: 6,
+    }
+  },
+  scales: {
+    x: {
+      grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+      ticks: {
+        font: { family: 'Pretendard', size: 11, weight: 600 },
+        color: '#8B8276',
+      }
+    },
+    y: {
+      grid: { color: 'rgba(0,0,0,0.04)', drawBorder: false },
+      ticks: {
+        font: { family: 'Pretendard', size: 11, weight: 600 },
+        color: '#8B8276',
+        callback: v => formatKRW(v),
+      }
+    }
+  }
+};
+
+// ============== 핵심 시뮬레이션 ==============
+function simulate() {
+  // 입력값 파싱 (만원 → 원, % → 소수)
+  const targetMonthly = (Number(document.getElementById('target-monthly').value) || 0) * 10000;
+  const inflation = (Number(document.getElementById('inflation').value) || 0) / 100;
+  const retireYears = Math.max(1, Math.min(60, Number(document.getElementById('retire-years').value) || 30));
+  const withdrawalRate = (Number(document.getElementById('withdrawal-rate').value) || 4) / 100;
+
+  const currentAge = Math.max(20, Math.min(85, Number(document.getElementById('current-age').value) || 35));
+  let retireAge = Math.max(currentAge + 1, Math.min(95, Number(document.getElementById('retire-age').value) || 60));
+  const accumYears = retireAge - currentAge;
+
+  const currentAssets = Math.max(0, (Number(document.getElementById('current-assets').value) || 0) * 10000);
+  const monthlySaving = Math.max(0, (Number(document.getElementById('monthly-saving').value) || 0) * 10000);
+
+  // 수익률 분리 입력: 배당 + 시세차익 = 총수익률
+  const dividendYield = Math.max(0, Math.min(0.20, (Number(document.getElementById('dividend-yield').value) || 0) / 100));
+  const dividendGrowth = Math.max(0, Math.min(0.30, (Number(document.getElementById('dividend-growth').value) || 0) / 100));
+  const priceAppreciation = Math.max(-0.05, Math.min(0.20, (Number(document.getElementById('price-appreciation').value) || 0) / 100));
+  const expectedReturn = Math.max(0, Math.min(0.30, dividendYield + priceAppreciation));
+
+  // === 1. 은퇴 시점 필요 자산 (역산) ===
+  // 인플레이션 반영한 미래 월 목표
+  const futureMonthly = targetMonthly * Math.pow(1 + inflation, accumYears);
+  const futureAnnual = futureMonthly * 12;
+  // 인출률로 역산한 필요 자산
+  const requiredAssets = futureAnnual / withdrawalRate;
+
+  // === 2. 현재 계획대로 적립 시 도달 자산 ===
+  // 적립기는 단순 복리 사용 (시세차익률에 배당성장 효과가 시장 효율성으로 이미 반영됨)
+  // 배당성장률은 인출기에서 yield on cost 증가 효과로만 사용
+  const monthlyRate = expectedReturn / 12;
+  let projected = currentAssets;
+  const accumYearly = [];
+  for (let y = 0; y < accumYears; y++) {
+    let yearStart = projected;
+    for (let m = 0; m < 12; m++) {
+      projected = projected * (1 + monthlyRate) + monthlySaving;
+    }
+    accumYearly.push({
+      yearIdx: y + 1,
+      age: currentAge + y + 1,
+      asset: projected,
+      yearStart,
+      annualSaving: monthlySaving * 12,
+      yearGrowth: projected - yearStart - monthlySaving * 12,
+    });
+  }
+  const projectedAtRetire = projected;
+
+  // === 3. 부족분 → 필요한 매월 적립금 역산 ===
+  // FV = PV*(1+r)^n + PMT * (((1+r)^n - 1) / r) (월 단위)
+  const n = accumYears * 12;
+  const r = monthlyRate;
+  const fvFromCurrent = currentAssets * Math.pow(1 + r, n);
+  const remaining = requiredAssets - fvFromCurrent;
+  let neededMonthly = 0;
+  if (remaining > 0 && r > 0) {
+    neededMonthly = remaining / ((Math.pow(1 + r, n) - 1) / r);
+  } else if (remaining <= 0) {
+    neededMonthly = 0;
+  } else {
+    // r=0인 극단 케이스
+    neededMonthly = remaining / n;
+  }
+
+  // === 3-2. 부족분 → 필요한 추가 보유자산 역산 ===
+  // (현재 자산 + X) × (1+r)^n + 적립금 미래가치 = 필요 자산
+  // → X = shortage / (1+r)^n
+  const fvFromMonthly = monthlySaving > 0 && r > 0
+    ? monthlySaving * (Math.pow(1 + r, n) - 1) / r
+    : monthlySaving * n;
+  const totalProjectedFV = fvFromCurrent + fvFromMonthly;
+  const fvShortage = Math.max(0, requiredAssets - totalProjectedFV);
+  const neededExtraAssets = fvShortage / Math.pow(1 + r, n); // 현재 시점 추가 자산
+  const neededTotalAssets = currentAssets + neededExtraAssets; // 총 보유자산 목표
+
+  // === 4. 진행률 ===
+  const progressPct = Math.min(100, Math.max(0, (projectedAtRetire / requiredAssets) * 100));
+  const shortage = Math.max(0, requiredAssets - projectedAtRetire);
+  const surplus = Math.max(0, projectedAtRetire - requiredAssets);
+
+  // === 5. 인출기 시뮬레이션 (배당성장 모델) ===
+  // 1) 매년 자산이 배당을 만들어냄 (배당률은 매년 성장)
+  // 2) 인출 필요액 = 배당으로 우선 충당, 부족분만 자산 매도
+  // 3) 자산은 시세차익률로 성장
+  // 4) Forward yield = 배당성장률 / (1+시세차익률) 조정
+  const withdrawYearly = [];
+  let assetW = projectedAtRetire;
+  let monthlyW = futureMonthly; // 첫 해 인출 목표 (인플레 반영)
+  let currentDivYield = dividendYield; // 인출기 시작 시점 배당률 (현재 가정)
+  let totalWithdrawn = 0;
+  let totalDividends = 0;
+  let depletedAtYear = -1;
+
+  for (let y = 1; y <= retireYears; y++) {
+    const ageNow = retireAge + y;
+    const annualWithdraw = monthlyW * 12; // 필요 인출액
+    const annualDividend = assetW * currentDivYield; // 자산이 만드는 배당 (정보용)
+    const yearStart = assetW;
+
+    // 정확한 자산 변화 모델:
+    // 자산 변화 = (자산 × 총수익률) - 인출액
+    // 여기서 총수익률 = 배당률 + 시세차익률
+    // 배당이 인출액을 충당하면 자산을 매도하지 않아도 됨 (정보용)
+    // 자산 자체의 가치 변화는 같음 (이중계산 방지)
+    const yearTotalReturn = currentDivYield + priceAppreciation;
+    const assetAfter = assetW * (1 + yearTotalReturn) - annualWithdraw;
+
+    totalWithdrawn += annualWithdraw;
+    totalDividends += annualDividend;
+    assetW = assetAfter;
+
+    if (assetW < 0 && depletedAtYear === -1) {
+      depletedAtYear = y;
+      assetW = 0;
+    }
+
+    withdrawYearly.push({
+      yearIdx: y,
+      age: ageNow,
+      yearStart,
+      monthlyWithdraw: monthlyW,
+      annualWithdraw,
+      annualDividend,
+      monthlyDividend: annualDividend / 12,
+      divCoverage: annualDividend / annualWithdraw,
+      asset: Math.max(0, assetW),
+      depleted: assetW <= 0 && depletedAtYear !== -1 && y >= depletedAtYear,
+    });
+
+    // 다음 해 준비
+    // - 인출 목표: 인플레만큼 증가
+    monthlyW = monthlyW * (1 + inflation);
+    // - 배당률: 배당성장만큼 늘지만, 주가가 오른만큼 forward yield는 조정
+    currentDivYield = currentDivYield * (1 + dividendGrowth) / (1 + priceAppreciation);
+  }
+
+  // === 6. 실질 인출률 검증 ===
+  const actualRate = projectedAtRetire > 0 ? (futureAnnual / projectedAtRetire) * 100 : 0;
+
+  return {
+    inputs: { targetMonthly, inflation, retireYears, withdrawalRate, currentAge, retireAge, accumYears, currentAssets, monthlySaving, expectedReturn, dividendYield, dividendGrowth, priceAppreciation },
+    futureMonthly, futureAnnual, requiredAssets,
+    projectedAtRetire, accumYearly,
+    neededMonthly, shortage, surplus, progressPct,
+    neededExtraAssets, neededTotalAssets,
+    withdrawYearly, totalWithdrawn, totalDividends, depletedAtYear,
+    actualRate,
+  };
+}
+
+// ============== 결과 렌더링 ==============
+let lifecycleChart, compareChart, scenarioChart;
+
+function render(result) {
+  const inp = result.inputs;
+
+  // === 진단 박스 ===
+  const verdictBox = document.getElementById('verdict-box');
+  const verdictIcon = document.getElementById('verdict-icon');
+  const verdictLabel = document.getElementById('verdict-label');
+  const verdictTitle = document.getElementById('verdict-title');
+  const verdictDesc = document.getElementById('verdict-desc');
+  const gaugeWrap = document.getElementById('gauge-wrap');
+  const gaugeFill = document.getElementById('gauge-fill');
+  const gaugeLabelLeft = document.getElementById('gauge-label-left');
+  const gaugeLabelRight = document.getElementById('gauge-label-right');
+
+  verdictBox.classList.remove('success', 'warning', 'danger');
+  gaugeWrap.style.display = 'block';
+
+  const targetManwon = Math.round(inp.targetMonthly / 10000);
+  const monthlyManwon = Math.round(inp.monthlySaving / 10000);
+  const neededManwon = Math.round(result.neededMonthly / 10000);
+  const currentAssetsManwon = Math.round(inp.currentAssets / 10000);
+  const neededExtraAssetsManwon = Math.round(result.neededExtraAssets / 10000);
+  const neededTotalAssetsManwon = Math.round(result.neededTotalAssets / 10000);
+  const surplusOk = result.progressPct >= 100;
+
+  // 월배당 계산 (인출기 1년차 / 후반부 비교 - 배당성장 효과 시각화)
+  const firstYearDividend = result.withdrawYearly[0]?.monthlyDividend || 0;
+  const year20Idx = Math.min(19, result.withdrawYearly.length - 1);
+  const year20Dividend = result.withdrawYearly[year20Idx]?.monthlyDividend || firstYearDividend;
+  // 실질가치 (1년차 기준 오늘 화폐 가치)
+  const firstYearRealDiv = firstYearDividend / Math.pow(1 + inp.inflation, inp.accumYears);
+  // 배당성장 효과 (성장률이 시세차익보다 클 때만 의미있음)
+  const dividendGrowsOverTime = inp.dividendGrowth > inp.priceAppreciation;
+
+  if (surplusOk) {
+    verdictBox.classList.add('success');
+    verdictIcon.textContent = '✓';
+    verdictLabel.textContent = '도달 가능';
+    verdictTitle.innerHTML = `축하합니다! 목표 달성이 가능합니다`;
+    verdictDesc.innerHTML = `
+      <div class="verdict-list">
+        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>은퇴 시점 자산</strong> — ${formatKRW(result.projectedAtRetire)}원
+          <span class="verdict-sub">(필요 자산 ${formatKRW(result.requiredAssets)}원의 ${formatPercent(result.progressPct, 0)} 달성)</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>예상 월배당 (1년차)</strong> — ${formatKRW(firstYearDividend)}원
+          <span class="verdict-sub">오늘 화폐 가치 ${formatKRW(firstYearRealDiv)}원 · 배당률 ${(inp.dividendYield*100).toFixed(1)}% 기준</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>20년차 월배당</strong> — ${formatKRW(year20Dividend)}원
+          <span class="verdict-sub">${dividendGrowsOverTime
+            ? `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}% 효과로 매년 늘어남 (${(year20Dividend/firstYearDividend).toFixed(1)}배 증가)`
+            : `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}%가 시세차익 ${(inp.priceAppreciation*100).toFixed(1)}%보다 낮아 거의 정체 (${(year20Dividend/firstYearDividend).toFixed(2)}배)`}</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">④</span> <span><strong>여유분</strong> — ${formatKRW(result.surplus)}원
+          <span class="verdict-sub">자녀 상속·여행·예비비로 활용 가능</span></span></div>
+      </div>
+    `;
+  } else if (result.progressPct >= 70) {
+    verdictBox.classList.add('warning');
+    verdictIcon.textContent = '!';
+    verdictLabel.textContent = '거의 다 왔습니다';
+    verdictTitle.innerHTML = `${formatPercent(result.progressPct, 0)} 달성 — 조금만 더 필요해요`;
+    verdictDesc.innerHTML = `
+      <div class="verdict-intro">현재 계획대로면 <strong>${formatPercent(result.progressPct, 0)}</strong>까지 도달합니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
+      목표 달성에는 다음 두 가지 방법이 있습니다.</div>
+      <div class="verdict-list">
+        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(monthlyManwon)} → ${formatKRWManwon(neededManwon)}
+          <span class="verdict-sub">(월 ${formatKRWManwon(neededManwon - monthlyManwon)} 추가)</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(currentAssetsManwon)} → ${formatKRWManwon(neededTotalAssetsManwon)}
+          <span class="verdict-sub">(지금 ${formatKRWManwon(neededExtraAssetsManwon)} 추가 필요)</span></span></div>
+      </div>
+      <div class="verdict-footer">절세계좌(연금저축·IRP·ISA)를 활용하면 같은 적립금으로도 세후 자산을 더 키울 수 있습니다.</div>
+    `;
+  } else if (result.progressPct >= 30) {
+    verdictBox.classList.add('warning');
+    verdictIcon.textContent = '!';
+    verdictLabel.textContent = '계획 재설계 필요';
+    verdictTitle.innerHTML = `목표의 ${formatPercent(result.progressPct, 0)} 수준 — 전략 보강 필수`;
+    verdictDesc.innerHTML = `
+      <div class="verdict-intro">지금 페이스로는 부족분 <strong>${formatKRW(result.shortage)}원</strong>이 발생합니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
+      도달하려면 다음 중 하나가 필요합니다.</div>
+      <div class="verdict-list">
+        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(monthlyManwon)} → ${formatKRWManwon(neededManwon)}
+          <span class="verdict-sub">(월 ${formatKRWManwon(neededManwon - monthlyManwon)} 추가)</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(currentAssetsManwon)} → ${formatKRWManwon(neededTotalAssetsManwon)}
+          <span class="verdict-sub">(지금 ${formatKRWManwon(neededExtraAssetsManwon)} 추가 필요)</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>은퇴 시점 연장 또는 목표 생활비 조정</strong></span></div>
+      </div>
+    `;
+  } else {
+    verdictBox.classList.add('danger');
+    verdictIcon.textContent = '✕';
+    verdictLabel.textContent = '근본적 재설계 필요';
+    verdictTitle.innerHTML = `현재 페이스로는 도달이 어렵습니다`;
+    verdictDesc.innerHTML = `
+      <div class="verdict-intro">목표 자산 대비 <strong>${formatPercent(result.progressPct, 0)}</strong>만 달성됩니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
+      한국 65세 이상 빈곤율이 39.8%(국가데이터처)에 달하는 이유가 여기 있습니다.</div>
+      <div class="verdict-list">
+        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(neededManwon)}까지</span></div>
+        <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(neededTotalAssetsManwon)}까지</span></div>
+        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>은퇴 시점 연장·목표 생활비 하향·부업으로 적립 여력 확보</strong></span></div>
+      </div>
+    `;
+  }
+
+  gaugeFill.style.width = Math.min(100, result.progressPct) + '%';
+  gaugeLabelLeft.textContent = `현재 도달: ${formatKRW(result.projectedAtRetire)} / ${formatKRW(result.requiredAssets)}`;
+  gaugeLabelRight.textContent = `${formatPercent(result.progressPct, 0)}`;
+
+  // === 핵심 카드 ===
+  document.getElementById('r-required').textContent = formatKRW(result.requiredAssets);
+  document.getElementById('r-required-sub').textContent =
+    `월 ${formatKRW(result.futureMonthly)}원 × 12개월 ÷ ${(inp.withdrawalRate * 100).toFixed(1)}%`;
+
+  document.getElementById('r-projected').textContent = formatKRW(result.projectedAtRetire);
+  const diff = result.projectedAtRetire - result.requiredAssets;
+  document.getElementById('r-projected-sub').textContent =
+    diff >= 0 ? `목표 대비 +${formatKRW(diff)}` : `목표 대비 ${formatKRW(diff)} (부족)`;
+
+  document.getElementById('r-needed-saving').textContent =
+    result.neededMonthly <= 0 ? '0원' : formatKRW(result.neededMonthly);
+  const savingDiff = result.neededMonthly - inp.monthlySaving;
+  document.getElementById('r-needed-saving-sub').textContent =
+    result.neededMonthly <= 0 ? '추가 적립 불필요 (이미 목표 도달)' :
+    savingDiff > 0 ? `현재 대비 +${formatKRW(savingDiff)}/월 추가` :
+    savingDiff < 0 ? '현재 적립금으로 충분' : '현재 적립금과 동일';
+
+  document.getElementById('r-years-left').textContent = `${inp.accumYears}년`;
+  document.getElementById('r-years-left-sub').textContent =
+    `${inp.currentAge}세 → ${inp.retireAge}세 (만 ${inp.currentAge}세 기준)`;
+
+  // === 보조 카드 ===
+  document.getElementById('r-future-monthly').textContent = formatKRW(result.futureMonthly);
+  const inflMultiplier = (result.futureMonthly / inp.targetMonthly).toFixed(2);
+  document.getElementById('r-future-monthly-sub').textContent =
+    `현재 ${formatKRW(inp.targetMonthly)}원의 ${inflMultiplier}배 (인플레 ${(inp.inflation*100).toFixed(1)}%)`;
+
+  document.getElementById('r-total-withdraw').textContent = formatKRW(result.totalWithdrawn);
+  const realTotal = result.totalWithdrawn / Math.pow(1 + inp.inflation, inp.accumYears + inp.retireYears / 2);
+  document.getElementById('r-total-withdraw-sub').textContent =
+    `${inp.retireYears}년간 누적 · 실질 ${formatKRW(realTotal)}`;
+
+  document.getElementById('r-actual-rate').textContent = formatPercent(result.actualRate, 1);
+  const actualRateColor = result.actualRate <= inp.withdrawalRate * 100 ? '안전' : '주의';
+  document.getElementById('r-actual-rate-sub').textContent =
+    `목표 인출률 ${(inp.withdrawalRate * 100).toFixed(1)}% 대비 ${actualRateColor}`;
+
+  // === 차트들 ===
+  drawLifecycleChart(result);
+  drawCompareChart(result);
+  drawScenarioChart(result);
+
+  // === 테이블 ===
+  drawDataTable(result);
+
+  // === 인사이트 박스 ===
+  drawInsight(result);
+
+  // === multiplier display ===
+  const rate = (Number(document.getElementById('withdrawal-rate').value) || 4);
+  document.getElementById('multiplier-display').textContent =
+    `자산의 ${(100 / rate).toFixed(1)}배 필요`;
+
+  // === 만원 단위 입력 필드 환산 표시 ===
+  const tmEl = document.getElementById('target-monthly');
+  const tmDisplay = document.getElementById('target-monthly-display');
+  if (tmDisplay) {
+    const v = Number(tmEl.value) || 0;
+    tmDisplay.textContent = v > 0 ? `월 ${formatInputManwon(v)}` : '월 0원';
+    tmDisplay.classList.toggle('empty', v <= 0);
+  }
+
+  const caEl = document.getElementById('current-assets');
+  const caDisplay = document.getElementById('current-assets-display');
+  if (caDisplay) {
+    const v = Number(caEl.value) || 0;
+    caDisplay.textContent = formatInputManwon(v);
+    caDisplay.classList.toggle('empty', v <= 0);
+  }
+
+  const msEl = document.getElementById('monthly-saving');
+  const msDisplay = document.getElementById('monthly-saving-display');
+  if (msDisplay) {
+    const v = Number(msEl.value) || 0;
+    msDisplay.textContent = v > 0 ? `월 ${formatInputManwon(v)}` : '월 0원';
+    msDisplay.classList.toggle('empty', v <= 0);
+  }
+
+  // === 비율/연수/나이 입력 필드 칩 표시 ===
+  const updateChip = (inputId, displayId, formatter, emptyValue) => {
+    const inputEl = document.getElementById(inputId);
+    const displayEl = document.getElementById(displayId);
+    if (!inputEl || !displayEl) return;
+    const raw = inputEl.value;
+    if (raw === '' || raw == null) {
+      displayEl.textContent = emptyValue;
+      displayEl.classList.add('empty');
+      return;
+    }
+    const v = Number(raw);
+    if (!isFinite(v)) {
+      displayEl.textContent = emptyValue;
+      displayEl.classList.add('empty');
+      return;
+    }
+    displayEl.textContent = formatter(v);
+    displayEl.classList.remove('empty');
+  };
+
+  // 비율 (% 표기)
+  updateChip('inflation', 'inflation-display', v => `연 ${v.toFixed(1)}%`, '연 0%');
+  updateChip('withdrawal-rate', 'withdrawal-rate-display', v => `연 ${v.toFixed(1)}%`, '연 0%');
+  updateChip('dividend-yield', 'dividend-yield-display', v => `연 ${v.toFixed(1)}%`, '연 0%');
+  updateChip('dividend-growth', 'dividend-growth-display', v => `연 ${v.toFixed(1)}%`, '연 0%');
+  updateChip('price-appreciation', 'price-appreciation-display', v => `연 ${v.toFixed(1)}%`, '연 0%');
+
+  // 연수
+  updateChip('retire-years', 'retire-years-display', v => `${Math.round(v)}년`, '0년');
+
+  // 나이
+  updateChip('current-age', 'current-age-display', v => `만 ${Math.round(v)}세`, '만 0세');
+  updateChip('retire-age', 'retire-age-display', v => `만 ${Math.round(v)}세`, '만 0세');
+
+  // === 총수익률 디스플레이 (배당 + 시세차익) ===
+  const dyPct = (inp.dividendYield * 100).toFixed(1);
+  const paPct = (inp.priceAppreciation * 100).toFixed(1);
+  const trPct = (inp.expectedReturn * 100).toFixed(1);
+  document.getElementById('total-return-display').textContent = `${trPct}%`;
+  document.getElementById('total-return-formula').textContent =
+    `배당 ${dyPct}% + 시세차익 ${paPct}%`;
+}
+
+// ============== 차트 1: 자산 곡선 ==============
+function drawLifecycleChart(result) {
+  const inp = result.inputs;
+  const labels = [];
+  const nominalData = [];
+  const realData = [];
+
+  // 적립기 (현재~은퇴)
+  labels.push(`${inp.currentAge}세`);
+  nominalData.push(inp.currentAssets);
+  realData.push(inp.currentAssets);
+  result.accumYearly.forEach(row => {
+    labels.push(`${row.age}세`);
+    nominalData.push(row.asset);
+    // 실질 = 명목 / (1+인플레)^연수
+    const elapsedYears = row.age - inp.currentAge;
+    realData.push(row.asset / Math.pow(1 + inp.inflation, elapsedYears));
+  });
+  // 인출기
+  result.withdrawYearly.forEach(row => {
+    labels.push(`${row.age}세`);
+    nominalData.push(row.asset);
+    const elapsedYears = row.age - inp.currentAge;
+    realData.push(row.asset / Math.pow(1 + inp.inflation, elapsedYears));
+  });
+
+  // 목표 자산 라인 (수평선)
+  const targetLine = labels.map(() => result.requiredAssets);
+  // 은퇴 시점 표시용 vertical 라인은 annotation 없이 데이터셋으로
+  const retireIdx = inp.accumYears;
+
+  if (lifecycleChart) lifecycleChart.destroy();
+  const ctx = document.getElementById('lifecycle-chart').getContext('2d');
+  lifecycleChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '총자산 (명목)',
+          data: nominalData,
+          borderColor: '#D9542B',
+          backgroundColor: 'transparent',
+          borderWidth: 3,
+          fill: false,
+          tension: 0.25,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+        },
+        {
+          label: '총자산 (실질, 물가 반영)',
+          data: realData,
+          borderColor: '#4A5A4A',
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          borderDash: [6, 4],
+          fill: false,
+          tension: 0.25,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+        },
+        {
+          label: `필요 자산 (목표선, 명목)`,
+          data: targetLine,
+          borderColor: '#8B6F47',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash: [3, 3],
+          fill: false,
+          pointRadius: 0,
+          pointHoverRadius: 0,
+        }
+      ]
+    },
+    options: {
+      ...chartCommonOptions,
+      plugins: {
+        ...chartCommonOptions.plugins,
+        tooltip: {
+          ...chartCommonOptions.plugins.tooltip,
+          filter: ctx => ctx.dataset.label !== '필요 자산 (목표선, 명목)',
+          callbacks: {
+            title: items => items[0]?.label,
+            label: ctx => '  ' + ctx.dataset.label + ': ' + formatKRWFull(ctx.parsed.y)
+          }
+        }
+      }
+    }
+  });
+}
+
+// ============== 차트 2: 현재 vs 필요 비교 ==============
+function drawCompareChart(result) {
+  const inp = result.inputs;
+  // 현재 자산 (지금)
+  const realProjected = result.projectedAtRetire / Math.pow(1 + inp.inflation, inp.accumYears);
+  const realRequired = result.requiredAssets / Math.pow(1 + inp.inflation, inp.accumYears);
+  // 실질로는 inp.targetMonthly * 12 / withdrawalRate (오늘 기준)
+  const realRequiredToday = (inp.targetMonthly * 12) / inp.withdrawalRate;
+
+  if (compareChart) compareChart.destroy();
+  const ctx = document.getElementById('compare-chart').getContext('2d');
+  compareChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['현재 계획대로', '필요 자산 (목표)'],
+      datasets: [
+        {
+          label: '명목가치 (미래 시점)',
+          data: [result.projectedAtRetire, result.requiredAssets],
+          backgroundColor: ['#D9542B', '#8B6F47'],
+          borderRadius: 8,
+          datalabels: {
+            anchor: 'end', align: 'top',
+            color: '#1A1A1A',
+            font: { family: 'Pretendard', size: 13, weight: 800 },
+            formatter: (v) => formatKRW(v),
+          }
+        },
+        {
+          label: '실질가치 (오늘 화폐 기준)',
+          data: [realProjected, realRequiredToday],
+          backgroundColor: ['#E89A6F', '#C4A57B'],
+          borderRadius: 8,
+          datalabels: {
+            anchor: 'end', align: 'top',
+            color: '#4A4A4A',
+            font: { family: 'Pretendard', size: 12, weight: 700 },
+            formatter: (v) => formatKRW(v),
+          }
+        }
+      ]
+    },
+    options: {
+      ...chartCommonOptions,
+      plugins: {
+        ...chartCommonOptions.plugins,
+        tooltip: {
+          ...chartCommonOptions.plugins.tooltip,
+          callbacks: {
+            label: ctx => '  ' + ctx.dataset.label + ': ' + formatKRWFull(ctx.parsed.y)
+          }
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+// ============== 차트 3: 적립금별 시나리오 ==============
+function drawScenarioChart(result) {
+  const inp = result.inputs;
+  // 매월 적립금 시나리오: 현재값을 중심으로 5단계
+  const baseAmount = Math.round(inp.monthlySaving / 10000);
+  const scenarios = [];
+  const candidates = [
+    Math.max(0, baseAmount - 100),
+    Math.max(50, baseAmount - 50),
+    baseAmount,
+    baseAmount + 50,
+    baseAmount + 100,
+    baseAmount + 200,
+  ];
+  // 중복 제거 + 정렬
+  const seen = new Set();
+  const uniqueCandidates = [];
+  candidates.forEach(c => {
+    if (!seen.has(c) && c >= 0) {
+      seen.add(c);
+      uniqueCandidates.push(c);
+    }
+  });
+  uniqueCandidates.sort((a, b) => a - b);
+
+  const labels = [];
+  const data = [];
+  const colors = [];
+  uniqueCandidates.forEach(monthlyManwon => {
+    const ms = monthlyManwon * 10000;
+    let asset = inp.currentAssets;
+    const r = inp.expectedReturn / 12;
+    for (let m = 0; m < inp.accumYears * 12; m++) {
+      asset = asset * (1 + r) + ms;
+    }
+    labels.push(`${monthlyManwon}만`);
+    data.push(asset);
+    if (monthlyManwon === baseAmount) {
+      colors.push('#D9542B');
+    } else if (asset >= result.requiredAssets) {
+      colors.push('#5B7A5B');
+    } else {
+      colors.push('#C4A57B');
+    }
+  });
+
+  if (scenarioChart) scenarioChart.destroy();
+  const ctx = document.getElementById('scenario-chart').getContext('2d');
+  scenarioChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: `${inp.accumYears}년 후 자산`,
+          data,
+          backgroundColor: colors,
+          borderRadius: 8,
+          datalabels: {
+            anchor: 'end', align: 'top',
+            color: '#1A1A1A',
+            font: { family: 'Pretendard', size: 12, weight: 800 },
+            formatter: (v) => formatKRW(v),
+          }
+        },
+        {
+          label: '필요 자산',
+          data: labels.map(() => result.requiredAssets),
+          type: 'line',
+          borderColor: '#8B6F47',
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          borderDash: [5, 5],
+          pointRadius: 0,
+          datalabels: { display: false },
+        }
+      ]
+    },
+    options: {
+      ...chartCommonOptions,
+      scales: {
+        ...chartCommonOptions.scales,
+        x: {
+          ...chartCommonOptions.scales.x,
+          title: {
+            display: true,
+            text: '매월 적립금 (만원)',
+            color: '#8B8276',
+            font: { family: 'Pretendard', size: 12, weight: 700 }
+          }
+        }
+      },
+      plugins: {
+        ...chartCommonOptions.plugins,
+        tooltip: {
+          ...chartCommonOptions.plugins.tooltip,
+          callbacks: {
+            title: items => `매월 ${items[0]?.label}원 적립`,
+            label: ctx => '  ' + ctx.dataset.label + ': ' + formatKRWFull(ctx.parsed.y)
+          }
+        }
+      }
+    },
+    plugins: [ChartDataLabels]
+  });
+}
+
+// ============== 데이터 테이블 ==============
+function drawDataTable(result) {
+  const inp = result.inputs;
+  const tbody = document.getElementById('data-table-body');
+  tbody.innerHTML = '';
+
+  // 적립기
+  result.accumYearly.forEach(row => {
+    const elapsedYears = row.age - inp.currentAge;
+    const realAsset = row.asset / Math.pow(1 + inp.inflation, elapsedYears);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.age}세</td>
+      <td>${row.yearIdx}년차</td>
+      <td>적립</td>
+      <td class="col-accumulate">+${formatKRW(row.annualSaving)}</td>
+      <td class="col-stack col-accumulate">
+        <div class="cell-nominal">${formatKRW(row.asset)}</div>
+        <div class="cell-real">${formatKRW(realAsset)}</div>
+      </td>
+      <td>-</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // 은퇴 행 표시 (적립 마지막)
+  const lastAccum = tbody.lastChild;
+  if (lastAccum) lastAccum.classList.add('row-retire');
+
+  // 인출기
+  result.withdrawYearly.forEach(row => {
+    const elapsedYears = row.age - inp.currentAge;
+    const realAsset = row.asset / Math.pow(1 + inp.inflation, elapsedYears);
+    const realMonthly = row.monthlyWithdraw / Math.pow(1 + inp.inflation, elapsedYears);
+    const tr = document.createElement('tr');
+    const depletedCls = row.depleted ? 'col-depleted' : '';
+    tr.innerHTML = `
+      <td>${row.age}세</td>
+      <td>${row.yearIdx}년차</td>
+      <td>인출</td>
+      <td class="col-withdraw">−${formatKRW(row.annualWithdraw)}</td>
+      <td class="col-stack ${depletedCls}">
+        ${row.depleted
+          ? `<div class="cell-nominal">소진</div>`
+          : `<div class="cell-nominal">${formatKRW(row.asset)}</div>
+             <div class="cell-real">${formatKRW(realAsset)}</div>`}
+      </td>
+      <td class="col-stack">
+        <div class="cell-nominal col-withdraw">${formatKRW(row.monthlyWithdraw)}</div>
+        <div class="cell-real">${formatKRW(realMonthly)}</div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ============== 인사이트 박스 텍스트 ==============
+function drawInsight(result) {
+  const inp = result.inputs;
+  const titleEl = document.getElementById('insight-title');
+  const descEl = document.getElementById('insight-desc');
+
+  const targetManwon = Math.round(inp.targetMonthly / 10000);
+  const futureMonthlyManwon = Math.round(result.futureMonthly / 10000);
+  const requiredEok = (result.requiredAssets / 100000000).toFixed(1);
+  const accumYears = inp.accumYears;
+
+  // 진행률에 따라 다른 인사이트
+  if (result.progressPct >= 100) {
+    titleEl.innerHTML = `🎯 평생 월 ${targetManwon}만원 — 당신은 이미 궤도에 올랐습니다`;
+    descEl.innerHTML = `
+      ${accumYears}년 후 필요한 자산은 <strong>${requiredEok}억원</strong>이고,
+      당신의 계획대로면 <strong>${formatKRW(result.projectedAtRetire)}원</strong>이 모입니다. 충분합니다.<br><br>
+      이제 핵심은 <strong>'얼마를 모을까'에서 '어떻게 인출할까'로 옮겨갈 시점</strong>입니다.
+      똑같은 자산이라도 ① <strong>배당 ETF + 성장 ETF 분리 운용</strong>, ② <strong>연금저축·IRP·ISA의 인출 순서 최적화</strong>,
+      ③ <strong>건강보험료 피부양자 자격 유지</strong> 같은 디테일이 세후 수령액을 매년 수백만원씩 바꿔놓습니다.
+      한국 65세 이상 빈곤율이 39.8%(국가데이터처)에 달하는 이유는 자산 부족만이 아니라
+      '인출 전략'을 모르고 시작했기 때문이기도 합니다.
+    `;
+  } else if (result.progressPct >= 50) {
+    const gapManwon = Math.round((result.neededMonthly - inp.monthlySaving) / 10000);
+    titleEl.innerHTML = `매월 ${gapManwon}만원만 더 적립하면 ${requiredEok}억이 보입니다`;
+    descEl.innerHTML = `
+      당신의 목표(월 ${targetManwon}만원)는 ${accumYears}년 후 인플레 반영 시
+      <strong>월 ${futureMonthlyManwon}만원</strong>이 됩니다. 이를 4% Rule로 역산하면 필요 자산은 <strong>${requiredEok}억원</strong>.<br><br>
+      현재 페이스로는 <strong>${formatPercent(result.progressPct, 0)}</strong>까지 도달하지만,
+      매월 ${gapManwon}만원을 더 모으거나 절세계좌(연금저축·IRP·ISA)로 세후 수익률을 높이면 충분히 도달 가능합니다.
+      통계청 「2024 가계금융복지조사」에서 부부 적정 생활비가 월 336만원으로 매년 늘어나고 있다는 점도 기억하세요.
+      <strong>지금 시작하면 시간이 복리로 일해줍니다.</strong>
+    `;
+  } else if (result.progressPct >= 20) {
+    titleEl.innerHTML = `현실 직시: 지금 페이스로는 절반도 못 모읍니다`;
+    descEl.innerHTML = `
+      목표 자산 ${requiredEok}억원 중 <strong>${formatPercent(result.progressPct, 0)}</strong>만 도달 예상.
+      이대로면 은퇴 후 <strong>${result.depletedAtYear > 0 ? result.depletedAtYear + '년차에 자산이 소진' : '생활비를 크게 줄여야 하는 상황'}</strong>이 됩니다.<br><br>
+      국민연금 평균 수령액은 <strong>월 67만원</strong>(2025년 기준), 20년 가입자도 108만원에 그칩니다.
+      목표인 월 ${targetManwon}만원과는 격차가 큽니다. 매월 적립을 늘리지 못한다면
+      ① 은퇴 시점을 ${inp.retireAge + 5}세로 늦추거나, ② 목표 생활비를 조정하거나,
+      ③ <strong>월배당 ETF·배당주로 적립기에도 현금흐름을 만드는 이중 전략</strong>이 필요합니다.
+    `;
+  } else {
+    titleEl.innerHTML = `골든크로스가 필요한 시점입니다`;
+    descEl.innerHTML = `
+      현재 계획만으로는 목표의 ${formatPercent(result.progressPct, 0)}만 달성됩니다.
+      한국의 65세 이상 상대빈곤율 <strong>39.8%</strong>는 OECD 최고 수준이며,
+      이 통계의 본질은 "노후 준비를 시작 못한 사람들의 기록"이기도 합니다.<br><br>
+      절망하지 마세요. <strong>지금이 가장 중요한 변곡점</strong>입니다.
+      ① 매월 적립 금액 자체를 확보하는 부업·소득 증대,
+      ② 절세계좌(연금저축 600만원 + IRP 300만원 = 연 900만원 세액공제),
+      ③ <strong>인출 시점이 아닌 적립기부터 배당으로 현금흐름을 만드는 전략</strong>으로
+      목표를 다시 세워야 합니다.
+    `;
+  }
+}
+
+// ============== 이벤트 ==============
+function bindEvents() {
+  // 모든 input 변경 시 즉시 재계산
+  const ids = ['target-monthly', 'inflation', 'retire-years', 'withdrawal-rate',
+               'current-age', 'retire-age', 'current-assets', 'monthly-saving',
+               'dividend-yield', 'dividend-growth', 'price-appreciation'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => render(simulate()));
+  });
+
+  // 프리셋 버튼: 목표 금액
+  function syncTargetPresetActive() {
+    const v = String(document.getElementById('target-monthly').value || '');
+    let matched = false;
+    document.querySelectorAll('[data-target]').forEach(b => {
+      if (b.dataset.target === v) { b.classList.add('active'); matched = true; }
+      else b.classList.remove('active');
+    });
+    const customBtn = document.querySelector('[data-target-custom]');
+    if (customBtn) {
+      if (!matched) customBtn.classList.add('active');
+      else customBtn.classList.remove('active');
+    }
+  }
+  document.querySelectorAll('[data-target]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-target]').forEach(b => b.classList.remove('active'));
+      const customBtn = document.querySelector('[data-target-custom]');
+      if (customBtn) customBtn.classList.remove('active');
+      btn.classList.add('active');
+      document.getElementById('target-monthly').value = btn.dataset.target;
+      render(simulate());
+    });
+  });
+  // 커스텀 버튼: input 포커스만 (값 유지)
+  const targetCustomBtn = document.querySelector('[data-target-custom]');
+  if (targetCustomBtn) {
+    targetCustomBtn.addEventListener('click', () => {
+      const input = document.getElementById('target-monthly');
+      input.focus();
+      input.select();
+    });
+  }
+  // input 직접 입력 시 프리셋 active 자동 동기화
+  document.getElementById('target-monthly').addEventListener('input', syncTargetPresetActive);
+  // 프리셋 버튼: 인출률
+  document.querySelectorAll('[data-rate]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-rate]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('withdrawal-rate').value = btn.dataset.rate;
+      render(simulate());
+    });
+  });
+  // 프리셋 버튼: 은퇴 기간
+  document.querySelectorAll('[data-retire-years]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-retire-years]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('retire-years').value = btn.dataset.retireYears;
+      render(simulate());
+    });
+  });
+  // 프리셋 버튼: 인플레이션
+  document.querySelectorAll('[data-inflation]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-inflation]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('inflation').value = btn.dataset.inflation;
+      render(simulate());
+    });
+  });
+  // 프리셋 버튼: ETF 자산 (배당 + 성장 + 시세차익)
+  document.querySelectorAll('.etf-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.etf-preset').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // 커스텀 버튼은 값을 변경하지 않고 active만 바꿈
+      if (btn.classList.contains('etf-custom')) {
+        // 입력 필드 첫 번째에 포커스 (사용자에게 직접 입력 유도)
+        document.getElementById('dividend-yield').focus();
+        return;
+      }
+      document.getElementById('dividend-yield').value = btn.dataset.yield;
+      document.getElementById('dividend-growth').value = btn.dataset.growth;
+      document.getElementById('price-appreciation').value = btn.dataset.price;
+      render(simulate());
+    });
+  });
+  // 배당/성장/시세 직접 입력 시 → 커스텀 버튼 자동 active
+  ['dividend-yield', 'dividend-growth', 'price-appreciation'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => {
+      // 현재 입력값이 어떤 프리셋과도 일치하지 않으면 커스텀으로 전환
+      const dy = document.getElementById('dividend-yield').value;
+      const dg = document.getElementById('dividend-growth').value;
+      const pa = document.getElementById('price-appreciation').value;
+      let matched = false;
+      document.querySelectorAll('.etf-preset:not(.etf-custom)').forEach(btn => {
+        if (btn.dataset.yield === dy && btn.dataset.growth === dg && btn.dataset.price === pa) {
+          matched = true;
+          document.querySelectorAll('.etf-preset').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      });
+      if (!matched) {
+        document.querySelectorAll('.etf-preset').forEach(b => b.classList.remove('active'));
+        document.querySelector('.etf-custom')?.classList.add('active');
+      }
+    });
+  });
+}
+
+// ============== 초기 렌더 ==============
+window.addEventListener('DOMContentLoaded', () => {
+  bindEvents();
+  render(simulate());
+});
+</script>
+</body>
+</html>
