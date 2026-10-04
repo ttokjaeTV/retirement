@@ -1756,7 +1756,7 @@
     ※ 본 시뮬레이터는 단순 계산 도구로 세금·수수료·환율 변동을 직접 계산하지 않습니다(ETF 프리셋 수익률만 이를 감안해 낮춰 잡았습니다).<br>
     실제 투자 결과와는 차이가 있을 수 있으며, 투자 판단의 책임은 본인에게 있습니다.<br>
     <br>
-    데이터 출처: 통계청 「2024 가계금융복지조사」 · 국민연금연구원 「2024 국민노후보장패널 10차」 ·
+    데이터 출처: 국가데이터처 「2025 가계금융복지조사」 · 국민연금연구원 「국민노후보장패널 10차」 · 국민연금공단 공표통계 · KCGI자산운용 설문(2025) ·
     국가데이터처 「2024 생명표」 · Trinity Study (1998)
   </footer>
 
@@ -1884,7 +1884,9 @@ function simulate() {
   // === 2. 현재 계획대로 적립 시 도달 자산 ===
   // 적립기는 단순 복리 사용 (시세차익률에 배당성장 효과가 시장 효율성으로 이미 반영됨)
   // 배당성장률은 인출기에서 yield on cost 증가 효과로만 사용
-  const monthlyRate = expectedReturn / 12;
+  // 연 수익률을 월 복리로 환산: (1+연수익률)^(1/12) − 1 → 12개월 뒤 정확히 연 수익률만큼 불어남
+  // (연 ÷ 12로 나누면 실제 연 수익률이 입력값보다 높아지는 과대평가가 생김)
+  const monthlyRate = Math.pow(1 + expectedReturn, 1 / 12) - 1;
   let projected = currentAssets;
   const accumYearly = [];
   for (let y = 0; y < accumYears; y++) {
@@ -1944,7 +1946,8 @@ function simulate() {
   let assetW = projectedAtRetire;
   let monthlyW = futureMonthly; // 첫 해 인출 목표 (인플레 반영)
   let currentDivYield = dividendYield; // 인출기 시작 시점 배당률 (현재 가정)
-  let totalWithdrawn = 0;
+  let totalWithdrawn = 0;      // 실제 받은 금액 합계 (명목)
+  let totalWithdrawnReal = 0;  // 같은 금액을 오늘 화폐 가치로 (해마다 그해 물가로 나눠 합산)
   let totalDividends = 0;
   let depletedAtYear = -1;
 
@@ -1960,16 +1963,20 @@ function simulate() {
     // 배당이 인출액을 충당하면 자산을 매도하지 않아도 됨 (정보용)
     // 자산 자체의 가치 변화는 같음 (이중계산 방지)
     const yearTotalReturn = currentDivYield + priceAppreciation;
-    const assetAfter = assetW * (1 + yearTotalReturn) - annualWithdraw;
+    const grown = assetW * (1 + yearTotalReturn);
+    // 실제로 받을 수 있는 돈 = 남은 자산 한도 안에서만 (소진 후에는 0)
+    const paid = Math.max(0, Math.min(annualWithdraw, grown));
+    const assetAfter = grown - annualWithdraw;
 
-    totalWithdrawn += annualWithdraw;
+    totalWithdrawn += paid;
+    totalWithdrawnReal += paid / Math.pow(1 + inflation, accumYears + y - 1);
     totalDividends += annualDividend;
     assetW = assetAfter;
 
     if (assetW < 0 && depletedAtYear === -1) {
       depletedAtYear = y;
-      assetW = 0;
     }
+    if (assetW < 0) assetW = 0;
 
     withdrawYearly.push({
       yearIdx: y,
@@ -1977,6 +1984,7 @@ function simulate() {
       yearStart,
       monthlyWithdraw: monthlyW,
       annualWithdraw,
+      paid,
       annualDividend,
       monthlyDividend: annualDividend / 12,
       divCoverage: annualDividend / annualWithdraw,
@@ -2000,7 +2008,7 @@ function simulate() {
     projectedAtRetire, accumYearly,
     neededMonthly, shortage, surplus, progressPct,
     neededExtraAssets, neededTotalAssets,
-    withdrawYearly, totalWithdrawn, totalDividends, depletedAtYear,
+    withdrawYearly, totalWithdrawn, totalWithdrawnReal, totalDividends, depletedAtYear,
     actualRate,
   };
 }
@@ -2142,9 +2150,10 @@ function render(result) {
     `현재 ${formatKRW(inp.targetMonthly)}원의 ${inflMultiplier}배 (인플레 ${(inp.inflation*100).toFixed(1)}%)`;
 
   document.getElementById('r-total-withdraw').textContent = formatKRW(result.totalWithdrawn);
-  const realTotal = result.totalWithdrawn / Math.pow(1 + inp.inflation, inp.accumYears + inp.retireYears / 2);
-  document.getElementById('r-total-withdraw-sub').textContent =
-    `${inp.retireYears}년간 누적 · 실질 ${formatKRW(realTotal)}`;
+  const realTotal = result.totalWithdrawnReal;
+  document.getElementById('r-total-withdraw-sub').textContent = result.depletedAtYear > 0
+    ? `${result.depletedAtYear}년차에 소진 · 실제 받은 금액 · 오늘 가치 ${formatKRW(realTotal)}`
+    : `${inp.retireYears}년간 누적 · 오늘 가치 ${formatKRW(realTotal)}`;
 
   document.getElementById('r-actual-rate').textContent = formatPercent(result.actualRate, 1);
   const actualRateColor = result.actualRate <= inp.withdrawalRate * 100 ? '안전' : '주의';
@@ -2416,7 +2425,7 @@ function drawScenarioChart(result) {
   uniqueCandidates.forEach(monthlyManwon => {
     const ms = monthlyManwon * 10000;
     let asset = inp.currentAssets;
-    const r = inp.expectedReturn / 12;
+    const r = Math.pow(1 + inp.expectedReturn, 1 / 12) - 1;
     for (let m = 0; m < inp.accumYears * 12; m++) {
       asset = asset * (1 + r) + ms;
     }
@@ -2525,14 +2534,16 @@ function drawDataTable(result) {
   result.withdrawYearly.forEach(row => {
     const elapsedYears = row.age - inp.currentAge;
     const realAsset = row.asset / Math.pow(1 + inp.inflation, elapsedYears);
-    const realMonthly = row.monthlyWithdraw / Math.pow(1 + inp.inflation, elapsedYears);
+    // 월 인출액은 은퇴 후 y년차에 (적립기간 + y − 1)년치 물가가 반영된 금액 → 같은 햇수로 나눠야 오늘 가치
+    const realMonthly = row.monthlyWithdraw / Math.pow(1 + inp.inflation, inp.accumYears + row.yearIdx - 1);
+    const shortPaid = row.paid < row.annualWithdraw - 1;
     const tr = document.createElement('tr');
     const depletedCls = row.depleted ? 'col-depleted' : '';
     tr.innerHTML = `
       <td>${row.age}세</td>
       <td>${row.yearIdx}년차</td>
       <td>인출</td>
-      <td class="col-withdraw">−${formatKRW(row.annualWithdraw)}</td>
+      <td class="col-withdraw">${row.paid > 0 ? '−' + formatKRW(row.paid) : '0'}${shortPaid ? '<div class="cell-real">필요 ' + formatKRW(row.annualWithdraw) + '</div>' : ''}</td>
       <td class="col-stack ${depletedCls}">
         ${row.depleted
           ? `<div class="cell-nominal">소진</div>`
@@ -2540,8 +2551,10 @@ function drawDataTable(result) {
              <div class="cell-real">${formatKRW(realAsset)}</div>`}
       </td>
       <td class="col-stack">
-        <div class="cell-nominal col-withdraw">${formatKRW(row.monthlyWithdraw)}</div>
-        <div class="cell-real">${formatKRW(realMonthly)}</div>
+        ${shortPaid && row.paid <= 0
+          ? `<div class="cell-nominal">받을 돈 없음</div><div class="cell-real">필요 ${formatKRW(row.monthlyWithdraw)}</div>`
+          : `<div class="cell-nominal col-withdraw">${formatKRW(shortPaid ? row.paid / 12 : row.monthlyWithdraw)}</div>
+             <div class="cell-real">${formatKRW(shortPaid ? row.paid / 12 / Math.pow(1 + inp.inflation, inp.accumYears + row.yearIdx - 1) : realMonthly)}</div>`}
       </td>
     `;
     tbody.appendChild(tr);
@@ -2576,7 +2589,7 @@ function drawInsight(result) {
     titleEl.innerHTML = `매월 ${gapManwon}만원만 더 적립하면 ${requiredEok}억이 보입니다`;
     descEl.innerHTML = `
       당신의 목표(월 ${targetManwon}만원)는 ${accumYears}년 후 인플레 반영 시
-      <strong>월 ${futureMonthlyManwon}만원</strong>이 됩니다. 이를 4% Rule로 역산하면 필요 자산은 <strong>${requiredEok}억원</strong>.<br><br>
+      <strong>월 ${futureMonthlyManwon}만원</strong>이 됩니다. 이를 인출률 ${(inp.withdrawalRate * 100).toFixed(1)}%로 역산하면 필요 자산은 <strong>${requiredEok}억원</strong>.<br><br>
       현재 페이스로는 <strong>${formatPercent(result.progressPct, 0)}</strong>까지 도달하지만,
       매월 ${gapManwon}만원을 더 모으거나 절세계좌(연금저축·IRP·ISA)로 세후 수익률을 높이면 충분히 도달 가능합니다.
       국가데이터처 「2025 가계금융복지조사」에서 부부 적정 생활비가 월 341만원(전년 336만원)으로 매년 늘어나고 있다는 점도 기억하세요.
@@ -2587,7 +2600,7 @@ function drawInsight(result) {
     descEl.innerHTML = `
       목표 자산 ${requiredEok}억원 중 <strong>${formatPercent(result.progressPct, 0)}</strong>만 도달 예상.
       이대로면 은퇴 후 <strong>${result.depletedAtYear > 0 ? result.depletedAtYear + '년차에 자산이 소진' : '생활비를 크게 줄여야 하는 상황'}</strong>이 됩니다.<br><br>
-      국민연금 평균 수령액은 <strong>월 67만원</strong>(2025년 기준), 20년 가입자도 108만원에 그칩니다.
+      국민연금 노령연금 평균 수령액은 <strong>월 약 68만원</strong>, 20년 이상 가입자도 약 112만원입니다(국민연금공단 공표통계, 2025년 7월 기준).
       목표인 월 ${targetManwon}만원과는 격차가 큽니다. 매월 적립을 늘리지 못한다면
       ① 은퇴 시점을 ${inp.retireAge + 5}세로 늦추거나, ② 목표 생활비를 조정하거나,
       ③ <strong>월배당 ETF·배당주로 적립기에도 현금흐름을 만드는 이중 전략</strong>이 필요합니다.
