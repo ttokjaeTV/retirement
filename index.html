@@ -1587,7 +1587,8 @@
       </div>
 
       <div class="preset-source" style="margin-top: 12px;">
-        ※ 한국 투자자 관점 보수적 가정치 — 환율·세금·수수료를 감안해 미국 ETF 장기 평균보다 약 2~3%p 낮춰 잡은 값 · 2026년 4월 기준
+        ※ 한국 투자자 관점 보수적 가정치 — 환율·세금·수수료를 감안해 미국 ETF 장기 평균보다 약 2~3%p 낮춰 잡은 값 · 2026년 4월 기준<br>
+        ※ 인출기에는 배당률이 매년 (1+배당성장률)÷(1+시세차익률)배로 바뀝니다. <strong>배당성장률이 시세차익률보다 크면</strong> 배당률(=총수익률)이 해마다 올라가 결과가 더 낙관적으로 나옵니다.
       </div>
     </div>
   </div>
@@ -1707,6 +1708,7 @@
     <h3 class="chart-title">📋 연차별 자산 흐름표 (Raw Data)</h3>
     <p class="chart-subtitle">
       적립기와 인출기 전체 연도별 자산 변화. 명목·실질가치, 연 인출액까지 포함합니다.
+      인출기에는 매년 초 1년치 생활비를 먼저 꺼내고 남은 자산이 굴러간다고 계산합니다(4% 룰 표준 방식).
     </p>
     <div class="table-wrap">
       <table class="data-table">
@@ -1782,9 +1784,10 @@ function formatKRWFull(n) {
   return Math.round(n).toLocaleString() + '원';
 }
 function formatKRWManwon(n) {
-  // 입력값을 만원 → 원으로 변환할 때 표시용
-  if (n >= 10000) return (n / 10000).toFixed(1) + '억원';
-  return n.toLocaleString() + '만원';
+  // 만원 단위 값을 "3억 446만원"처럼 억+만으로 표시 (소수 1자리 억 표기는 전후 차이가 안 보일 수 있음)
+  if (!isFinite(n)) return '-';
+  n = Math.round(n);
+  return (n < 0 ? '−' : '') + formatInputManwon(Math.abs(n));
 }
 // 입력 필드용 한국식 환산 (예: 12345만원 → "1억 2,345만원")
 function formatInputManwon(manwon) {
@@ -1795,6 +1798,12 @@ function formatInputManwon(manwon) {
   if (eok > 0 && man > 0) return `${eok}억 ${man.toLocaleString()}만원`;
   if (eok > 0) return `${eok}억원`;
   return `${man.toLocaleString()}만원`;
+}
+// 진행률 문구: 실제 비율 그대로 (100% 미만인데 반올림으로 100%가 되지 않게), 필요 자산 0이면 '-'
+function progressText(result, p) {
+  if (!result.progressValid || !isFinite(p)) return '-';
+  if (p < 100 && Math.round(p) >= 100) return (Math.floor(p * 10) / 10).toFixed(1) + '%';
+  return p.toFixed(0) + '%';
 }
 function formatPercent(n, dp) {
   dp = dp == null ? 1 : dp;
@@ -1872,7 +1881,8 @@ function simulate() {
   const dividendYield = Math.max(0, Math.min(0.20, (Number(document.getElementById('dividend-yield').value) || 0) / 100));
   const dividendGrowth = Math.max(0, Math.min(0.30, (Number(document.getElementById('dividend-growth').value) || 0) / 100));
   const priceAppreciation = Math.max(-0.05, Math.min(0.20, (Number(document.getElementById('price-appreciation').value) || 0) / 100));
-  const expectedReturn = Math.max(0, Math.min(0.30, dividendYield + priceAppreciation));
+  // 총수익률 = 배당 + 시세차익 (입력 한도 안에서 음수도 허용) — 적립기·인출기 모두 같은 값을 쓴다
+  const expectedReturn = dividendYield + priceAppreciation;
 
   // === 1. 은퇴 시점 필요 자산 (역산) ===
   // 인플레이션 반영한 미래 월 목표
@@ -1912,7 +1922,8 @@ function simulate() {
   const fvFromCurrent = currentAssets * Math.pow(1 + r, n);
   const remaining = requiredAssets - fvFromCurrent;
   let neededMonthly = 0;
-  if (remaining > 0 && r > 0) {
+  if (remaining > 0 && r !== 0) {
+    // r < 0 (총수익률 마이너스)이어도 같은 공식이 성립
     neededMonthly = remaining / ((Math.pow(1 + r, n) - 1) / r);
   } else if (remaining <= 0) {
     neededMonthly = 0;
@@ -1924,7 +1935,7 @@ function simulate() {
   // === 3-2. 부족분 → 필요한 추가 보유자산 역산 ===
   // (현재 자산 + X) × (1+r)^n + 적립금 미래가치 = 필요 자산
   // → X = shortage / (1+r)^n
-  const fvFromMonthly = monthlySaving > 0 && r > 0
+  const fvFromMonthly = monthlySaving > 0 && r !== 0
     ? monthlySaving * (Math.pow(1 + r, n) - 1) / r
     : monthlySaving * n;
   const totalProjectedFV = fvFromCurrent + fvFromMonthly;
@@ -1933,7 +1944,10 @@ function simulate() {
   const neededTotalAssets = currentAssets + neededExtraAssets; // 총 보유자산 목표
 
   // === 4. 진행률 ===
-  const progressPct = Math.min(100, Math.max(0, (projectedAtRetire / requiredAssets) * 100));
+  // 필요 자산이 0(목표 생활비 0원)이면 비율을 정의할 수 없음 → progressValid=false, 판정은 달성으로 처리
+  // 게이지는 화면에서 100%로 자르지만 숫자는 실제 비율(예: 232%)을 그대로 보여준다
+  const progressValid = requiredAssets > 0;
+  const progressPct = progressValid ? Math.max(0, (projectedAtRetire / requiredAssets) * 100) : 100;
   const shortage = Math.max(0, requiredAssets - projectedAtRetire);
   const surplus = Math.max(0, projectedAtRetire - requiredAssets);
 
@@ -1958,15 +1972,15 @@ function simulate() {
     const yearStart = assetW;
 
     // 정확한 자산 변화 모델:
-    // 자산 변화 = (자산 × 총수익률) - 인출액
+    // 자산 변화 = (연초 자산 − 인출액) × (1 + 총수익률)
     // 여기서 총수익률 = 배당률 + 시세차익률
     // 배당이 인출액을 충당하면 자산을 매도하지 않아도 됨 (정보용)
     // 자산 자체의 가치 변화는 같음 (이중계산 방지)
     const yearTotalReturn = currentDivYield + priceAppreciation;
-    const grown = assetW * (1 + yearTotalReturn);
-    // 실제로 받을 수 있는 돈 = 남은 자산 한도 안에서만 (소진 후에는 0)
-    const paid = Math.max(0, Math.min(annualWithdraw, grown));
-    const assetAfter = grown - annualWithdraw;
+    // 연초 인출(4% 룰 표준·보수적): 연초에 1년치 생활비를 먼저 꺼내고, 남은 자산이 1년간 굴러간다
+    // 실제로 받을 수 있는 돈 = 연초 자산 한도 안에서만 (소진 후에는 0)
+    const paid = Math.max(0, Math.min(annualWithdraw, assetW));
+    const assetAfter = (assetW - annualWithdraw) * (1 + yearTotalReturn);
 
     totalWithdrawn += paid;
     totalWithdrawnReal += paid / Math.pow(1 + inflation, accumYears + y - 1);
@@ -2006,7 +2020,7 @@ function simulate() {
     inputs: { targetMonthly, inflation, retireYears, withdrawalRate, currentAge, retireAge, accumYears, currentAssets, monthlySaving, expectedReturn, dividendYield, dividendGrowth, priceAppreciation },
     futureMonthly, futureAnnual, requiredAssets,
     projectedAtRetire, accumYearly,
-    neededMonthly, shortage, surplus, progressPct,
+    neededMonthly, shortage, surplus, progressPct, progressValid,
     neededExtraAssets, neededTotalAssets,
     withdrawYearly, totalWithdrawn, totalWithdrawnReal, totalDividends, depletedAtYear,
     actualRate,
@@ -2040,17 +2054,47 @@ function render(result) {
   const neededExtraAssetsManwon = Math.round(result.neededExtraAssets / 10000);
   const neededTotalAssetsManwon = Math.round(result.neededTotalAssets / 10000);
   const surplusOk = result.progressPct >= 100;
+  // 진행률 문구: 실제 비율 그대로 (100% 미만인데 반올림으로 100%가 되지 않게), 필요 자산 0이면 '-'
+  const pctText = (p) => progressText(result, p);
+  // 인출 기간 안에 자산이 바닥나는지
+  const depleted = result.depletedAtYear > 0;
+  const depRow = depleted ? result.withdrawYearly[result.depletedAtYear - 1] : null;
 
   // 월배당 계산 (인출기 1년차 / 후반부 비교 - 배당성장 효과 시각화)
   const firstYearDividend = result.withdrawYearly[0]?.monthlyDividend || 0;
+  // 인출 기간이 20년보다 짧으면 마지막 해를 쓰고, 라벨도 실제 연차로 표시
   const year20Idx = Math.min(19, result.withdrawYearly.length - 1);
-  const year20Dividend = result.withdrawYearly[year20Idx]?.monthlyDividend || firstYearDividend;
+  const year20Label = year20Idx + 1;
+  const year20Dividend = result.withdrawYearly[year20Idx]?.monthlyDividend ?? firstYearDividend;
   // 실질가치 (1년차 기준 오늘 화폐 가치)
   const firstYearRealDiv = firstYearDividend / Math.pow(1 + inp.inflation, inp.accumYears);
   // 배당성장 효과 (성장률이 시세차익보다 클 때만 의미있음)
   const dividendGrowsOverTime = inp.dividendGrowth > inp.priceAppreciation;
+  const divRatio = (dp) => firstYearDividend > 0 ? (year20Dividend / firstYearDividend).toFixed(dp) + '배' : '-';
+  const year20Sub = firstYearDividend <= 0
+    ? (inp.dividendYield <= 0 ? `배당률 0%라 배당으로 받는 돈이 없습니다` : `은퇴 시점 자산이 없어 배당으로 받는 돈이 없습니다`)
+    : dividendGrowsOverTime
+      ? `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}% 효과로 매년 늘어남 (${divRatio(1)} 증가) · 배당성장률이 시세차익률보다 커서 배당률이 해마다 올라가는 가정이라 결과가 낙관적일 수 있습니다`
+      : `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}%가 시세차익 ${(inp.priceAppreciation*100).toFixed(1)}%보다 낮아 거의 정체 (${divRatio(2)})`;
 
-  if (surplusOk) {
+  if (surplusOk && depleted) {
+    // 필요 자산은 모이지만 입력한 수익률·물가로는 인출 기간 중 바닥남 → 성공으로 보여주지 않는다
+    verdictBox.classList.add('warning');
+    verdictIcon.textContent = '!';
+    verdictLabel.textContent = '인출 중 소진 위험';
+    verdictTitle.innerHTML = `필요 자산은 모이지만 ${result.depletedAtYear}년차에 바닥납니다`;
+    verdictDesc.innerHTML = `
+      <div class="verdict-intro">필요 자산은 모이지만, 입력한 수익률·물가로는 <strong>${result.depletedAtYear}년차(만 ${depRow.age}세)</strong>에 자산이 바닥납니다
+      → <strong>인출률을 낮추거나 기간을 줄이세요</strong>.</div>
+      <div class="verdict-list">
+        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>은퇴 시점 자산</strong> — ${formatKRW(result.projectedAtRetire)}원
+          <span class="verdict-sub">(필요 자산 ${formatKRW(result.requiredAssets)}원의 ${pctText(result.progressPct)})</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>원인</strong> — 총수익률 ${(inp.expectedReturn*100).toFixed(1)}% · 물가 ${(inp.inflation*100).toFixed(1)}% · 인출률 ${(inp.withdrawalRate*100).toFixed(1)}%
+          <span class="verdict-sub">물가만큼 늘어나는 인출액을 수익이 따라가지 못해 ${inp.retireYears}년을 버티지 못합니다</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>인출률 낮추기·인출 기간 줄이기·은퇴 시점 늦추기</strong></span></div>
+      </div>
+    `;
+  } else if (surplusOk) {
     verdictBox.classList.add('success');
     verdictIcon.textContent = '✓';
     verdictLabel.textContent = '도달 가능';
@@ -2058,13 +2102,11 @@ function render(result) {
     verdictDesc.innerHTML = `
       <div class="verdict-list">
         <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>은퇴 시점 자산</strong> — ${formatKRW(result.projectedAtRetire)}원
-          <span class="verdict-sub">(필요 자산 ${formatKRW(result.requiredAssets)}원의 ${formatPercent(result.progressPct, 0)} 달성)</span></span></div>
+          <span class="verdict-sub">${result.progressValid ? `(필요 자산 ${formatKRW(result.requiredAssets)}원의 ${pctText(result.progressPct)} 달성)` : '(목표 생활비 0원 → 필요 자산 없음)'}</span></span></div>
         <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>예상 월배당 (1년차)</strong> — ${formatKRW(firstYearDividend)}원
           <span class="verdict-sub">오늘 화폐 가치 ${formatKRW(firstYearRealDiv)}원 · 배당률 ${(inp.dividendYield*100).toFixed(1)}% 기준</span></span></div>
-        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>20년차 월배당</strong> — ${formatKRW(year20Dividend)}원
-          <span class="verdict-sub">${dividendGrowsOverTime
-            ? `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}% 효과로 매년 늘어남 (${(year20Dividend/firstYearDividend).toFixed(1)}배 증가)`
-            : `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}%가 시세차익 ${(inp.priceAppreciation*100).toFixed(1)}%보다 낮아 거의 정체 (${(year20Dividend/firstYearDividend).toFixed(2)}배)`}</span></span></div>
+        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>${year20Label}년차 월배당</strong> — ${formatKRW(year20Dividend)}원
+          <span class="verdict-sub">${year20Sub}</span></span></div>
         <div class="verdict-item"><span class="verdict-num">④</span> <span><strong>여유분</strong> — ${formatKRW(result.surplus)}원
           <span class="verdict-sub">자녀 상속·여행·예비비로 활용 가능</span></span></div>
       </div>
@@ -2073,9 +2115,9 @@ function render(result) {
     verdictBox.classList.add('warning');
     verdictIcon.textContent = '!';
     verdictLabel.textContent = '거의 다 왔습니다';
-    verdictTitle.innerHTML = `${formatPercent(result.progressPct, 0)} 달성 — 조금만 더 필요해요`;
+    verdictTitle.innerHTML = `${progressText(result, result.progressPct)} 달성 — 조금만 더 필요해요`;
     verdictDesc.innerHTML = `
-      <div class="verdict-intro">현재 계획대로면 <strong>${formatPercent(result.progressPct, 0)}</strong>까지 도달합니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
+      <div class="verdict-intro">현재 계획대로면 <strong>${progressText(result, result.progressPct)}</strong>까지 도달합니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
       목표 달성에는 다음 두 가지 방법이 있습니다.</div>
       <div class="verdict-list">
         <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(monthlyManwon)} → ${formatKRWManwon(neededManwon)}
@@ -2089,7 +2131,7 @@ function render(result) {
     verdictBox.classList.add('warning');
     verdictIcon.textContent = '!';
     verdictLabel.textContent = '계획 재설계 필요';
-    verdictTitle.innerHTML = `목표의 ${formatPercent(result.progressPct, 0)} 수준 — 전략 보강 필수`;
+    verdictTitle.innerHTML = `목표의 ${progressText(result, result.progressPct)} 수준 — 전략 보강 필수`;
     verdictDesc.innerHTML = `
       <div class="verdict-intro">지금 페이스로는 부족분 <strong>${formatKRW(result.shortage)}원</strong>이 발생합니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
       도달하려면 다음 중 하나가 필요합니다.</div>
@@ -2107,7 +2149,7 @@ function render(result) {
     verdictLabel.textContent = '근본적 재설계 필요';
     verdictTitle.innerHTML = `현재 페이스로는 도달이 어렵습니다`;
     verdictDesc.innerHTML = `
-      <div class="verdict-intro">목표 자산 대비 <strong>${formatPercent(result.progressPct, 0)}</strong>만 달성됩니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
+      <div class="verdict-intro">목표 자산 대비 <strong>${progressText(result, result.progressPct)}</strong>만 달성됩니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
       한국 66세 이상 상대빈곤율이 37.7%(국가데이터처, 2025 가계금융복지조사)에 달하는 이유가 여기 있습니다.</div>
       <div class="verdict-list">
         <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(neededManwon)}까지</span></div>
@@ -2117,9 +2159,9 @@ function render(result) {
     `;
   }
 
-  gaugeFill.style.width = Math.min(100, result.progressPct) + '%';
+  gaugeFill.style.width = Math.min(100, result.progressPct) + '%';  // 막대는 100%에서 자르고 숫자는 실제 비율
   gaugeLabelLeft.textContent = `현재 도달: ${formatKRW(result.projectedAtRetire)} / ${formatKRW(result.requiredAssets)}`;
-  gaugeLabelRight.textContent = `${formatPercent(result.progressPct, 0)}`;
+  gaugeLabelRight.textContent = `${progressText(result, result.progressPct)}`;
 
   // === 핵심 카드 ===
   document.getElementById('r-required').textContent = formatKRW(result.requiredAssets);
@@ -2145,9 +2187,11 @@ function render(result) {
 
   // === 보조 카드 ===
   document.getElementById('r-future-monthly').textContent = formatKRW(result.futureMonthly);
-  const inflMultiplier = (result.futureMonthly / inp.targetMonthly).toFixed(2);
-  document.getElementById('r-future-monthly-sub').textContent =
-    `현재 ${formatKRW(inp.targetMonthly)}원의 ${inflMultiplier}배 (인플레 ${(inp.inflation*100).toFixed(1)}%)`;
+  // 물가 배수는 목표액과 무관하게 (1+물가)^적립연수 → 목표 0원이어도 NaN이 나지 않음
+  const inflMultiplier = Math.pow(1 + inp.inflation, inp.accumYears).toFixed(2);
+  document.getElementById('r-future-monthly-sub').textContent = inp.targetMonthly > 0
+    ? `현재 ${formatKRW(inp.targetMonthly)}원의 ${inflMultiplier}배 (인플레 ${(inp.inflation*100).toFixed(1)}%)`
+    : `목표 생활비 0원 · 물가 ${inflMultiplier}배 (인플레 ${(inp.inflation*100).toFixed(1)}%)`;
 
   document.getElementById('r-total-withdraw').textContent = formatKRW(result.totalWithdrawn);
   const realTotal = result.totalWithdrawnReal;
@@ -2155,10 +2199,19 @@ function render(result) {
     ? `${result.depletedAtYear}년차에 소진 · 실제 받은 금액 · 오늘 가치 ${formatKRW(realTotal)}`
     : `${inp.retireYears}년간 누적 · 오늘 가치 ${formatKRW(realTotal)}`;
 
-  document.getElementById('r-actual-rate').textContent = formatPercent(result.actualRate, 1);
-  const actualRateColor = result.actualRate <= inp.withdrawalRate * 100 ? '안전' : '주의';
-  document.getElementById('r-actual-rate-sub').textContent =
-    `목표 인출률 ${(inp.withdrawalRate * 100).toFixed(1)}% 대비 ${actualRateColor}`;
+  // 실질 인출률: 반올림 전 값으로 비교하고, 목표와 0.05%p 이내면 소수 2자리로 보여 준다 (4.03%가 '4.0% 대비 주의'로 보이지 않게)
+  if (result.projectedAtRetire > 0) {
+    const tgtPct = inp.withdrawalRate * 100;
+    const safe = result.actualRate <= tgtPct + 1e-9;
+    let dp = Math.abs(result.actualRate - tgtPct) < 0.05 ? 2 : 1;
+    while (!safe && dp < 4 && result.actualRate.toFixed(dp) === tgtPct.toFixed(dp)) dp++;
+    document.getElementById('r-actual-rate').textContent = formatPercent(result.actualRate, dp);
+    document.getElementById('r-actual-rate-sub').textContent =
+      `목표 인출률 ${tgtPct.toFixed(dp)}% 대비 ${safe ? '안전' : '주의'}`;
+  } else {
+    document.getElementById('r-actual-rate').textContent = '—';
+    document.getElementById('r-actual-rate-sub').textContent = '은퇴 시점 자산이 없어 계산할 수 없습니다';
+  }
 
   // === 차트들 ===
   drawLifecycleChart(result);
@@ -2573,7 +2626,18 @@ function drawInsight(result) {
   const accumYears = inp.accumYears;
 
   // 진행률에 따라 다른 인사이트
-  if (result.progressPct >= 100) {
+  if (result.progressPct >= 100 && result.depletedAtYear > 0) {
+    // 필요 자산은 모이지만 인출 기간 중 소진 → '충분합니다'라고 하지 않는다
+    const depAge = result.withdrawYearly[result.depletedAtYear - 1].age;
+    titleEl.innerHTML = `⚠️ 목표 자산은 모이지만, ${result.depletedAtYear}년차에 바닥납니다`;
+    descEl.innerHTML = `
+      ${accumYears}년 후 필요한 자산 <strong>${requiredEok}억원</strong>은 모이지만(예상 ${formatKRW(result.projectedAtRetire)}원),
+      입력한 수익률·물가로는 은퇴 <strong>${result.depletedAtYear}년차(만 ${depAge}세)</strong>에 자산이 바닥납니다.<br><br>
+      인출률 ${(inp.withdrawalRate * 100).toFixed(1)}%는 '첫해 금액을 정하고 이후 물가만큼 늘려 꺼내는' 방식이라,
+      총수익률이 물가보다 충분히 높지 않으면 ${inp.retireYears}년을 버티지 못합니다.
+      <strong>인출률을 낮추거나 인출 기간을 줄이거나, 은퇴 시점을 늦추세요.</strong>
+    `;
+  } else if (result.progressPct >= 100) {
     titleEl.innerHTML = `🎯 평생 월 ${targetManwon}만원 — 당신은 이미 궤도에 올랐습니다`;
     descEl.innerHTML = `
       ${accumYears}년 후 필요한 자산은 <strong>${requiredEok}억원</strong>이고,
@@ -2590,7 +2654,7 @@ function drawInsight(result) {
     descEl.innerHTML = `
       당신의 목표(월 ${targetManwon}만원)는 ${accumYears}년 후 인플레 반영 시
       <strong>월 ${futureMonthlyManwon}만원</strong>이 됩니다. 이를 인출률 ${(inp.withdrawalRate * 100).toFixed(1)}%로 역산하면 필요 자산은 <strong>${requiredEok}억원</strong>.<br><br>
-      현재 페이스로는 <strong>${formatPercent(result.progressPct, 0)}</strong>까지 도달하지만,
+      현재 페이스로는 <strong>${progressText(result, result.progressPct)}</strong>까지 도달하지만,
       매월 ${gapManwon}만원을 더 모으거나 절세계좌(연금저축·IRP·ISA)로 세후 수익률을 높이면 충분히 도달 가능합니다.
       국가데이터처 「2025 가계금융복지조사」에서 부부 적정 생활비가 월 341만원(전년 336만원)으로 매년 늘어나고 있다는 점도 기억하세요.
       <strong>지금 시작하면 시간이 복리로 일해줍니다.</strong>
@@ -2598,7 +2662,7 @@ function drawInsight(result) {
   } else if (result.progressPct >= 20) {
     titleEl.innerHTML = `현실 직시: 지금 페이스로는 절반도 못 모읍니다`;
     descEl.innerHTML = `
-      목표 자산 ${requiredEok}억원 중 <strong>${formatPercent(result.progressPct, 0)}</strong>만 도달 예상.
+      목표 자산 ${requiredEok}억원 중 <strong>${progressText(result, result.progressPct)}</strong>만 도달 예상.
       이대로면 은퇴 후 <strong>${result.depletedAtYear > 0 ? result.depletedAtYear + '년차에 자산이 소진' : '생활비를 크게 줄여야 하는 상황'}</strong>이 됩니다.<br><br>
       국민연금 노령연금 평균 수령액은 <strong>월 약 68만원</strong>, 20년 이상 가입자도 약 112만원입니다(국민연금공단 공표통계, 2025년 7월 기준).
       목표인 월 ${targetManwon}만원과는 격차가 큽니다. 매월 적립을 늘리지 못한다면
@@ -2608,7 +2672,7 @@ function drawInsight(result) {
   } else {
     titleEl.innerHTML = `골든크로스가 필요한 시점입니다`;
     descEl.innerHTML = `
-      현재 계획만으로는 목표의 ${formatPercent(result.progressPct, 0)}만 달성됩니다.
+      현재 계획만으로는 목표의 ${progressText(result, result.progressPct)}만 달성됩니다.
       한국의 66세 이상 상대빈곤율 <strong>37.7%</strong>(2025 가계금융복지조사)는 OECD 최고 수준이며,
       이 통계의 본질은 "노후 준비를 시작 못한 사람들의 기록"이기도 합니다.<br><br>
       절망하지 마세요. <strong>지금이 가장 중요한 변곡점</strong>입니다.
