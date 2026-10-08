@@ -1222,6 +1222,150 @@
     .top-cta-links { grid-template-columns: 1fr !important; }
   }
 
+
+  /* ===== 기간 & 인플레이션: 공식 자료 패널 ===== */
+  .mini-panel { margin-top: 14px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .mini-head { font-size: 13px; font-weight: 800; color: var(--ink); margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+  .mini-head span { font-size: 11px; font-weight: 600; color: var(--ink-mute); }
+  .mini-foot { font-size: 12px; color: var(--ink-mute); font-weight: 600; margin-top: 8px; }
+  .mini-impact { font-size: 13px; color: var(--ink-soft); font-weight: 600; line-height: 1.6; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+  .mini-impact b { color: var(--accent); }
+  .infl-bars { padding-top: 22px; }
+  .infl-area { position: relative; height: 90px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; align-items: end; border-bottom: 1px solid var(--border); }
+  .infl-bar { position: relative; display: flex; justify-content: center; height: 100%; align-items: flex-end; }
+  .infl-bar .b { position: relative; width: 100%; max-width: 40px; background: var(--beige-gold); border-radius: 4px 4px 0 0; }
+  .infl-bar .v { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 3px; font-size: 12px; font-weight: 800; color: var(--ink-soft); white-space: nowrap; z-index: 3; background: var(--white); padding: 0 2px; border-radius: 3px; }
+  .infl-bar.hot .b { background: var(--accent); }
+  .infl-bar.hot .v { color: var(--accent); }
+  .infl-years { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 4px; }
+  .infl-years span { text-align: center; font-size: 11px; font-weight: 700; color: var(--ink-mute); }
+  .infl-line { position: absolute; left: 0; right: 0; height: 0; border-top: 2px dashed; z-index: 2; pointer-events: none; }
+  .infl-line.target { border-color: #2F4F7F; }
+  .infl-line.mine { border-color: var(--dark-warm); border-top-style: dotted; }
+  .infl-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 11.5px; font-weight: 700; color: var(--ink-soft); }
+  .infl-legend i { display: inline-block; width: 18px; height: 0; border-top: 2px dashed #2F4F7F; vertical-align: middle; margin-right: 5px; }
+  .infl-legend i.mine { border-top: 2px dotted var(--dark-warm); }
+  .mini-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 13px; }
+  .mini-table th { text-align: left; font-size: 11.5px; color: var(--ink-mute); font-weight: 800; padding: 6px 6px; border-bottom: 1px solid var(--border); }
+  .mini-table td { padding: 6px 6px; border-bottom: 1px solid var(--bg-alt); color: var(--ink-soft); font-weight: 600; }
+  .mini-table th:not(:first-child), .mini-table td:not(:first-child) { text-align: right; }
+  .year-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 4px; }
+  .year-grid div { background: var(--bg-alt); border-radius: 5px; padding: 5px 4px; text-align: center; font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+  .year-grid div span { display: block; font-size: 10px; font-weight: 600; color: var(--ink-mute); }
+  .year-grid div.hot { background: var(--accent-soft); color: var(--accent); }
+  .life-route { font-size: 14px; font-weight: 800; color: var(--ink); margin-bottom: 10px; }
+  .life-route em { font-style: normal; color: var(--accent); }
+  .life-row { display: grid; grid-template-columns: 34px 1fr 56px; align-items: center; gap: 8px; margin-top: 6px; }
+  .life-row .sx { font-size: 12px; font-weight: 800; color: var(--ink-soft); }
+  .life-row .track { height: 12px; background: var(--bg-alt); border-radius: 6px; overflow: hidden; }
+  .life-row .fill { height: 100%; background: var(--accent); border-radius: 6px; }
+  .life-row.f .fill { background: var(--brown); }
+  .life-row .pct { font-size: 13px; font-weight: 900; color: var(--ink); text-align: right; }
+  .life-note { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; line-height: 1.6; margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); }
+  .life-note b { color: var(--accent); }
+  .preset-btn:disabled { opacity: .4; cursor: not-allowed; }
+  .preset-btn:disabled:hover { background: var(--white); color: var(--ink-soft); border-color: var(--border); }
+
+  /* ===== 조합 탐색기 ===== */
+  .cx-card { height: auto; }
+  .cx-new { font-size: 10px; font-weight: 900; color: var(--white); background: var(--accent); border-radius: 4px; padding: 2px 6px; letter-spacing: .5px; }
+  .cx-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .cx-tab { font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--ink-soft); background: var(--white); border: 1.5px solid var(--border); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  .cx-tab.active { background: var(--dark-warm); border-color: var(--dark-warm); color: var(--white); }
+  .cx-search-box { position: relative; }
+  .cx-results { position: absolute; z-index: 30; left: 0; right: 0; top: calc(100% + 4px); background: var(--white); border: 1.5px solid var(--accent); border-radius: 10px; max-height: 320px; overflow-y: auto; box-shadow: 0 8px 24px rgba(58,47,38,.15); }
+  .cx-res { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; font-family: inherit; background: none; border: 0; border-bottom: 1px solid var(--bg-alt); padding: 10px 12px; cursor: pointer; }
+  .cx-res:hover, .cx-res.on { background: var(--accent-soft); }
+  .cx-res .nm { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cx-res .cd { font-size: 11.5px; font-weight: 600; color: var(--ink-mute); white-space: nowrap; }
+  .cx-res .yd { font-size: 12px; font-weight: 800; color: var(--accent); white-space: nowrap; }
+  .cx-res-empty { padding: 12px; font-size: 13px; color: var(--ink-mute); font-weight: 600; }
+  .cx-data-state { font-size: 11.5px; color: var(--ink-mute); font-weight: 600; margin-top: 6px; }
+  .cx-holds { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+  .cx-hold { background: var(--white); border: 1px solid var(--border); border-left: 4px solid var(--c, var(--accent)); border-radius: 10px; padding: 10px 12px; }
+  .cx-hold-top { display: flex; align-items: center; gap: 8px; }
+  .cx-hold-nm { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+  .cx-hold-top b { font-size: 14px; font-weight: 800; color: var(--ink); word-break: keep-all; overflow-wrap: anywhere; }
+  .cx-hold-top .cd { font-size: 11.5px; color: var(--ink-mute); font-weight: 600; }
+  .cx-del { margin-left: auto; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg-alt); color: var(--ink-mute); font-size: 16px; line-height: 1; cursor: pointer; font-family: inherit; }
+  .cx-del:hover { color: var(--red-warn); border-color: var(--red-warn); }
+  .cx-hold-in { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; max-width: 560px; }
+  .cx-f label { display: block; font-size: 11px; font-weight: 800; color: var(--ink-mute); margin-bottom: 3px; }
+  .cx-f .cx-num input { padding: 7px 26px 7px 10px; font-size: 14px; }
+  .cx-f .src { display: block; font-size: 10.5px; font-weight: 700; color: var(--ink-mute); margin-top: 3px; }
+  .cx-f .src.real { color: #2F6F4F; }
+  .cx-f .src.man { color: var(--accent); }
+  .cx-eff { font-size: 11.5px; color: var(--ink-mute); font-weight: 600; margin-top: 6px; }
+  .cx-warn { font-size: 12px; color: var(--red-warn); font-weight: 700; margin-top: 6px; }
+  .cx-empty-holds { font-size: 13px; color: var(--ink-mute); font-weight: 600; padding: 14px; text-align: center; border: 1.5px dashed var(--border); border-radius: 10px; }
+  .cx-num { position: relative; }
+  .cx-num input { -moz-appearance: textfield; appearance: textfield; }
+  .cx-num input::-webkit-outer-spin-button, .cx-num input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .cx-sub { font-size: 11.5px; font-weight: 700; color: var(--ink-mute); }
+  .cx-opt .cx-num.sm { width: 74px; display: inline-block; }
+  .cx-pair { display: flex; gap: 12px; }
+  .cx-pair label { display: flex; align-items: center; gap: 6px; }
+  .cx-num span { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: 800; color: var(--ink-mute); pointer-events: none; }
+  .cx-opts, .cx-controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-top: 14px; }
+  .cx-opt { display: flex; align-items: center; gap: 8px; }
+  .cx-opt-label { font-size: 12.5px; font-weight: 800; color: var(--ink-soft); white-space: nowrap; }
+  .cx-opt .cx-num { width: 92px; }
+  .cx-opt .cx-num input { padding: 7px 30px 7px 10px; font-size: 14px; }
+  .cx-opt select { width: auto; padding: 8px 10px; font-size: 13px; }
+  .cx-check { font-size: 12.5px; font-weight: 800; color: var(--ink-soft); cursor: pointer; }
+  .cx-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+  .cx-seg { display: inline-flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .cx-seg button { font-family: inherit; font-size: 13px; font-weight: 800; padding: 6px 14px; border: 0; background: var(--white); color: var(--ink-soft); cursor: pointer; }
+  .cx-seg button.active { background: var(--accent); color: var(--white); }
+  .cx-seg button:disabled { opacity: .4; cursor: not-allowed; }
+  .cx-summary { margin-top: 18px; }
+  .cx-sum-line { font-size: 14px; font-weight: 700; color: var(--ink-soft); line-height: 1.6; }
+  .cx-sum-line b { color: var(--accent); font-weight: 900; }
+  .cx-sum-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .cx-sum-box { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+  .cx-sum-box .k { font-size: 11px; font-weight: 800; color: var(--ink-mute); }
+  .cx-sum-box .v { font-size: 18px; font-weight: 900; color: var(--ink); letter-spacing: -.4px; margin-top: 2px; }
+  .cx-sum-box .s { font-size: 11px; font-weight: 600; color: var(--ink-mute); margin-top: 2px; line-height: 1.45; }
+  .cx-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .cx-row { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: center; background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+  .cx-row.applied { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .cx-rank { font-size: 15px; font-weight: 900; color: var(--ink-mute); text-align: center; }
+  .cx-row:nth-child(1) .cx-rank { color: var(--accent); }
+  .cx-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .cx-chip { font-size: 12px; font-weight: 800; color: var(--ink); background: var(--bg-alt); border-left: 3px solid var(--c); border-radius: 4px; padding: 2px 7px; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .cx-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 10px; margin-top: 7px; }
+  .cx-metrics span { display: flex; flex-direction: column; }
+  .cx-metrics em { font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--ink-mute); }
+  .cx-metrics b { font-size: 14px; font-weight: 900; color: var(--ink); }
+  .cx-metrics b.good { color: #2F6F4F; }
+  .cx-apply { font-family: inherit; font-size: 12.5px; font-weight: 800; color: var(--accent); background: var(--white); border: 1.5px solid var(--accent); border-radius: 8px; padding: 8px 12px; cursor: pointer; white-space: nowrap; }
+  .cx-apply:hover, .cx-row.applied .cx-apply { background: var(--accent); color: var(--white); }
+  .cx-more { display: block; width: 100%; margin-top: 8px; font-family: inherit; font-size: 13px; font-weight: 800; color: var(--ink-soft); background: var(--white); border: 1.5px dashed var(--border); border-radius: 10px; padding: 10px; cursor: pointer; }
+  .cx-list-empty { font-size: 13px; color: var(--ink-mute); font-weight: 600; padding: 14px; text-align: center; background: var(--white); border-radius: 10px; }
+  .cx-chart-wrap { margin-top: 18px; background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+  .cx-sum-note { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; line-height: 1.65; margin-top: 10px; background: #FFF8EC; border: 1px solid #F0DFC0; border-radius: 10px; padding: 10px 12px; }
+  .cx-sum-note b { color: var(--ink); font-weight: 800; }
+  .cx-toast { font-size: 12.5px; font-weight: 800; color: #2F6F4F; margin-top: 8px; }
+
+  @media (max-width: 768px) {
+    .preset-row.cols-5.infl-row { grid-template-columns: repeat(5, 1fr) !important; gap: 5px; }
+    .infl-row .preset-btn { font-size: 12px; padding: 8px 2px; }
+    .infl-row .preset-btn .preset-sub { font-size: 9.5px; letter-spacing: -.3px; }
+    .preset-row.cols-4.until-row { grid-template-columns: repeat(2, 1fr) !important; }
+    .cx-hold-in { gap: 6px; }
+    .cx-f label { font-size: 10.5px; }
+    .cx-f .cx-num input { padding: 7px 22px 7px 8px; }
+    .cx-sum-grid { grid-template-columns: 1fr; }
+    .cx-row { grid-template-columns: 24px 1fr; padding: 10px; }
+    .cx-apply { grid-column: 1 / -1; width: 100%; }
+    .cx-metrics { grid-template-columns: 1fr 1fr; }
+    .cx-opts, .cx-controls { flex-direction: column; align-items: stretch; gap: 10px; }
+    .cx-opt { justify-content: space-between; flex-wrap: wrap; }
+    .cx-opt.cx-check { justify-content: flex-start; }
+    .cx-opt-cap { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .cx-opt select { flex: 1; min-width: 0; }
+  }
+
 /* iOS Safari: 글자 16px 미만 입력칸은 누를 때 화면이 자동 확대됨 → 모바일에서 16px 보장 */
 @media (max-width: 768px) {
   input[type=text], input[type=number], input[type=search], input[type=tel], input:not([type]), select, textarea { font-size: 16px !important; }
@@ -1356,13 +1500,53 @@
             <input type="number" id="inflation" value="2.5" step="0.1" min="0" max="10">
             <span class="input-currency" id="inflation-display">연 2.5%</span>
           </div>
-          <div class="input-hint">한국은행 물가안정목표 2.0% · 장기 평균 ~2.0~2.5%</div>
-          <div class="preset-row cols-4" style="margin-top: 12px;">
-            <button class="preset-btn" data-inflation="1.5">1.5%<br><span class="preset-sub">디플레 우려</span></button>
+          <div class="input-hint">한국은행 물가안정목표 <b>2%</b>(2019년~, 소비자물가 기준) · 실제 평균은 최근 20년 <b>2.3%</b>, 30년 <b>2.7%</b></div>
+          <div class="preset-row cols-5 infl-row" style="margin-top: 12px;">
             <button class="preset-btn" data-inflation="2.0">2.0%<br><span class="preset-sub">한은 목표</span></button>
-            <button class="preset-btn active" data-inflation="2.5">2.5%<br><span class="preset-sub">장기 평균</span></button>
-            <button class="preset-btn" data-inflation="3.5">3.5%<br><span class="preset-sub">고물가 시기</span></button>
+            <button class="preset-btn" data-inflation="2.3">2.3%<br><span class="preset-sub">20년 평균</span></button>
+            <button class="preset-btn active" data-inflation="2.5">2.5%<br><span class="preset-sub">기본값</span></button>
+            <button class="preset-btn" data-inflation="2.7">2.7%<br><span class="preset-sub">30년 평균</span></button>
+            <button class="preset-btn" data-inflation="3.5">3.5%<br><span class="preset-sub">고물가</span></button>
           </div>
+
+          <div class="mini-panel">
+            <div class="mini-head">최근 5년 실제 물가 <span>소비자물가 연간 상승률 · 국가데이터처</span></div>
+            <div class="infl-bars" id="infl-bars"></div>
+            <div class="mini-foot">2026년 9월 <b>2.9%</b> (전년 같은 달 대비, 2026.10.2 발표)</div>
+            <div class="mini-impact" id="infl-impact"></div>
+          </div>
+
+          <details class="src-details">
+            <summary>📘 물가 공식 자료 보기</summary>
+            <div class="src-body">
+              <div class="src-item">
+                <div class="src-head"><span class="src-amt">2%</span><span class="src-tag gov">한국은행</span></div>
+                <div class="src-desc">한국은행은 정부와 협의해 물가안정목표를 정합니다. <b>2019년 이후 목표는 소비자물가 상승률(전년동기대비) 2%</b>이고, 특정 해가 아니라 <b>중기적으로</b> 2% 근처에 머물도록 운영합니다. 목표라서 실제 물가가 꼭 2%라는 뜻은 아닙니다.</div>
+                <a class="src-link" href="https://www.bok.or.kr/portal/main/contents.do?menuNo=200291" target="_blank" rel="noopener">한국은행 물가안정목표제 원문 →</a>
+              </div>
+              <div class="src-item">
+                <div class="src-head"><span class="src-amt">기간별 실제 평균</span><span class="src-tag gov">국가데이터처</span></div>
+                <table class="mini-table">
+                  <tr><th>기간</th><th>연평균</th><th>물가가 몇 배로</th></tr>
+                  <tr><td>최근 10년 (2016~2025)</td><td><b>2.1%</b></td><td>1.23배</td></tr>
+                  <tr><td>최근 20년 (2006~2025)</td><td><b>2.3%</b></td><td>1.57배</td></tr>
+                  <tr><td>최근 30년 (1996~2025)</td><td><b>2.7%</b></td><td>2.24배</td></tr>
+                </table>
+                <div class="src-cap">소비자물가지수(2020=100) 연평균 값으로 계산한 연평균(기하평균) 상승률입니다. 예: 2025년 116.61 ÷ 1995년 51.995 = 2.24배 → 30년 연평균 2.73%</div>
+                <a class="src-link" href="https://kosis.kr/statHtml/statHtml.do?orgId=101&amp;tblId=DT_1J22003" target="_blank" rel="noopener">KOSIS 소비자물가지수 원표 →</a>
+              </div>
+              <div class="src-item">
+                <div class="src-head"><span class="src-amt">연도별 상승률</span><span class="src-tag gov">국가데이터처</span></div>
+                <div class="year-grid" id="infl-year-grid"></div>
+                <div class="src-cap">전국 총지수 전년대비 등락률(%). 연평균 지수끼리 비교한 값이라 12월 한 달 수치(2025년 12월 2.3%)와는 다릅니다.</div>
+                <a class="src-link" href="https://kosis.kr/statHtml/statHtml.do?orgId=101&amp;tblId=DT_1J22041" target="_blank" rel="noopener">KOSIS 연도별 소비자물가 등락률 →</a>
+              </div>
+              <div class="src-item">
+                <div class="src-head"><span class="src-amt">2.9%</span><span class="src-tag gov">국가데이터처</span></div>
+                <div class="src-desc">「2026년 9월 소비자물가동향」(2026.10.2 발표) — 소비자물가 <b>2.9%</b>, 농산물·석유류를 뺀 근원물가 <b>2.7%</b>, 생활물가 <b>2.5%</b>(모두 전년 같은 달 대비).</div>
+              </div>
+            </div>
+          </details>
         </div>
 
         <div class="input-group">
@@ -1371,12 +1555,52 @@
             <input type="number" id="retire-years" value="30" step="1" min="10" max="60">
             <span class="input-currency" id="retire-years-display">30년</span>
           </div>
-          <div class="input-hint">2024 생명표 60세 기대여명: 남 23.7년 · 여 28.4년</div>
-          <div class="preset-row cols-3" style="margin-top: 12px;">
-            <button class="preset-btn" data-retire-years="20">20년<br><span class="preset-sub">보수적</span></button>
-            <button class="preset-btn active" data-retire-years="30">30년<br><span class="preset-sub">표준</span></button>
-            <button class="preset-btn" data-retire-years="40">40년<br><span class="preset-sub">장수 대비</span></button>
+          <div class="input-hint" id="life-hint">2024년 생명표 · 60세 기대여명: 남 23.7년 · 여 28.4년</div>
+          <div class="preset-row cols-4 until-row" style="margin-top: 12px;">
+            <button class="preset-btn" data-until-age="85" data-retire-years="25">85세까지<br><span class="preset-sub">25년</span></button>
+            <button class="preset-btn active" data-until-age="90" data-retire-years="30">90세까지<br><span class="preset-sub">30년</span></button>
+            <button class="preset-btn" data-until-age="95" data-retire-years="35">95세까지<br><span class="preset-sub">35년</span></button>
+            <button class="preset-btn" data-until-age="100" data-retire-years="40">100세까지<br><span class="preset-sub">40년</span></button>
           </div>
+
+          <div class="mini-panel" id="life-panel"></div>
+
+          <details class="src-details">
+            <summary>📘 생명표로 보는 은퇴 기간</summary>
+            <div class="src-body">
+              <div class="src-item">
+                <div class="src-head"><span class="src-amt">기대여명</span><span class="src-tag gov">국가데이터처</span></div>
+                <div class="src-desc">그 나이인 사람이 <b>평균적으로</b> 앞으로 더 사는 햇수입니다. 평균이라서 이보다 오래 사는 사람이 적지 않습니다.</div>
+                <table class="mini-table">
+                  <tr><th>나이</th><th>남</th><th>여</th></tr>
+                  <tr><td>55세</td><td>28.1년</td><td>33.1년</td></tr>
+                  <tr><td>60세</td><td>23.7년</td><td>28.4년</td></tr>
+                  <tr><td>63세</td><td>21.2년</td><td>25.6년</td></tr>
+                  <tr><td>65세</td><td>19.5년</td><td>23.7년</td></tr>
+                  <tr><td>70세</td><td>15.5년</td><td>19.2년</td></tr>
+                </table>
+              </div>
+              <div class="src-item">
+                <div class="src-head"><span class="src-amt">생존 확률</span><span class="src-tag gov">국가데이터처</span></div>
+                <div class="src-desc">지금 60세인 사람이 그 나이까지 살아 있을 확률입니다.</div>
+                <table class="mini-table">
+                  <tr><th>60세 →</th><th>남</th><th>여</th></tr>
+                  <tr><td>80세</td><td>69.7%</td><td>85.6%</td></tr>
+                  <tr><td>85세</td><td>49.7%</td><td>71.0%</td></tr>
+                  <tr><td>90세</td><td>26.0%</td><td>47.1%</td></tr>
+                  <tr><td>95세</td><td>8.3%</td><td>20.9%</td></tr>
+                  <tr><td>100세</td><td>1.2%</td><td>5.0%</td></tr>
+                </table>
+                <div class="src-cap">부부라면 둘 중 한 사람이라도 오래 사는 경우까지 생각해야 해서, 실제로 돈이 필요한 기간은 이 표보다 더 길어질 수 있습니다.</div>
+              </div>
+              <div class="src-item">
+                <div class="src-head"><span class="src-amt">83.7년</span><span class="src-tag gov">국가데이터처</span></div>
+                <div class="src-desc">2024년에 태어난 아이의 기대수명 — 남 80.8년, 여 86.6년. 65세 기대여명(남 19.5년, 여 23.7년)은 OECD 평균(남 18.4년, 여 21.6년)보다 깁니다.</div>
+                <a class="src-link" href="https://mods.go.kr/board.es?mid=a10301010000&amp;bid=208&amp;act=view&amp;list_no=439533" target="_blank" rel="noopener">「2024년 생명표」 보도자료 (2025.12.3) →</a><br>
+                <a class="src-link" href="https://kosis.kr/statHtml/statHtml.do?orgId=101&amp;tblId=DT_1B42" target="_blank" rel="noopener">KOSIS 완전생명표(1세별) 원표 →</a>
+              </div>
+            </div>
+          </details>
         </div>
       </div>
     </div>
@@ -1589,6 +1813,94 @@
       <div class="preset-source" style="margin-top: 12px;">
         ※ 한국 투자자 관점 보수적 가정치 — 환율·세금·수수료를 감안해 미국 ETF 장기 평균보다 약 2~3%p 낮춰 잡은 값 · 2026년 4월 기준<br>
         ※ 인출기에는 배당률이 매년 (1+배당성장률)÷(1+시세차익률)배로 바뀝니다. <strong>배당성장률이 시세차익률보다 크면</strong> 배당률(=총수익률)이 해마다 올라가 결과가 더 낙관적으로 나옵니다.
+      </div>
+    </div>
+
+    <!-- ========== ETF 섞어서 경우의 수 비교 (조합 탐색기) ========== -->
+    <div class="sub-card cx-card" id="cx-card" style="margin-top: 20px;">
+      <div class="sub-card-title">ETF 섞어서 경우의 수 비교 <span class="cx-new">NEW</span></div>
+      <p class="sub-card-desc">
+        국내·미국 상장 <b id="cx-universe-count">전 종목</b>에서 최대 10개를 담으면, 비중을 <strong>10%(또는 5%) 단위로 바꾼 모든 조합</strong>을
+        위에 넣은 목표·나이·적립 조건으로 한 번에 계산합니다. 마음에 드는 조합의 <strong>[적용]</strong>을 누르면 아래 진단 결과가 그 조합으로 바뀝니다.
+      </p>
+
+      <div class="cx-search">
+        <div class="cx-tabs" id="cx-tabs">
+          <button class="cx-tab active" data-mkt="ALL">전체</button>
+          <button class="cx-tab" data-mkt="KR">국내상장</button>
+          <button class="cx-tab" data-mkt="US">미국상장</button>
+        </div>
+        <div class="cx-search-box">
+          <input type="search" id="cx-q" placeholder="종목명·코드 검색 (예: SCHD, 미국배당)" autocomplete="off">
+          <div class="cx-results" id="cx-results" hidden></div>
+        </div>
+        <div class="cx-data-state" id="cx-data-state">종목 데이터를 불러오는 중…</div>
+      </div>
+
+      <div class="cx-holds" id="cx-holds"></div>
+
+      <div class="cx-opts">
+        <div class="cx-opt">
+          <span class="cx-opt-label">비중 단위</span>
+          <div class="cx-seg" id="cx-step">
+            <button data-step="10" class="active">10%</button>
+            <button data-step="5">5%</button>
+          </div>
+        </div>
+        <div class="cx-opt">
+          <span class="cx-opt-label">시세차익 낮춰 잡기</span>
+          <div class="cx-num"><input type="number" id="cx-haircut" value="2.5" step="0.5" min="0" max="6"><span>%p</span></div>
+        </div>
+        <div class="cx-opt cx-opt-cap">
+          <span class="cx-opt-label">총수익률 상한</span>
+          <div class="cx-pair">
+            <label><span class="cx-sub">일반</span><span class="cx-num sm"><input type="number" id="cx-trcap" value="10" step="0.5" min="0" max="20"><span>%</span></span></label>
+            <label><span class="cx-sub">커버드콜</span><span class="cx-num sm"><input type="number" id="cx-cccap" value="8" step="0.5" min="0" max="20"><span>%</span></span></label>
+          </div>
+        </div>
+        <label class="cx-opt cx-check"><input type="checkbox" id="cx-cap" checked> 배당성장은 시세차익 이하로</label>
+      </div>
+      <div class="preset-source" style="margin-top: 6px;">
+        ※ 배당률은 최근 12개월 <b>실제 지급액 ÷ 현재가</b>(매일 갱신). 배당성장·시세차익은 <b>가정치</b>입니다 — 주요 종목은 배당 재투자 계산기와 같은 프리셋 값, 나머지는 유형별 기본값이고 직접 고칠 수 있습니다.<br>
+        ※ <b>시세차익 낮춰 잡기</b>: 이 계산기 프리셋처럼 환율·세금·수수료를 감안해 모든 종목의 시세차익을 같은 폭만큼 낮춥니다. <b>총수익률 상한</b>: 배당률+시세차익이 이 값을 넘으면 시세차익을 깎습니다. 분배율이 높은 커버드콜처럼 <b>분배한 만큼 가격이 빠지는</b> 상품이 총수익률 15~20%로 잡히는 것을 막습니다(기본 일반 10% = 이 페이지 QQQ 프리셋, 커버드콜 8% = 이 페이지 JEPI 프리셋의 총수익률 · 0이면 끔). <b>배당성장 상한</b>: 배당성장이 시세차익보다 크면 배당률이 해마다 불어나 결과가 지나치게 좋아지므로 시세차익까지로 묶습니다.
+      </div>
+
+      <div class="cx-summary" id="cx-summary"></div>
+
+      <div class="cx-controls" id="cx-controls">
+        <div class="cx-opt">
+          <span class="cx-opt-label">정렬</span>
+          <select id="cx-sort">
+            <option value="req">은퇴 때 필요 자산 적은 순</option>
+            <option value="can">지금 계획으로 받는 생활비 큰 순</option>
+            <option value="need">필요 월 적립 적은 순</option>
+            <option value="cov">첫해 배당 비중 큰 순</option>
+          </select>
+        </div>
+        <div class="cx-opt">
+          <span class="cx-opt-label">배당 비중</span>
+          <select id="cx-cov">
+            <option value="0">조건 없음</option>
+            <option value="30">첫해 생활비의 30% 이상</option>
+            <option value="50">첫해 생활비의 50% 이상</option>
+            <option value="100">배당만으로 첫해 생활비 충당</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cx-list" id="cx-list"></div>
+      <button class="cx-more" id="cx-more" hidden>10개 더 보기</button>
+
+      <div class="cx-chart-wrap" id="cx-chart-wrap">
+        <div class="chart-title" style="font-size:15px;">조합 전체 지도</div>
+        <div class="chart-subtitle" style="margin-bottom:10px;">점 하나가 조합 하나 · 왼쪽일수록 필요 자산이 적고, 위쪽일수록 첫해 생활비를 배당으로 많이 채웁니다</div>
+        <div class="chart-container sm"><canvas id="cx-scatter"></canvas></div>
+      </div>
+
+      <div class="preset-source" style="margin-top: 12px;">
+        ※ <b>은퇴 때 필요 자산*</b> = 그 조합으로 은퇴 기간 동안 목표 생활비(물가 반영)를 꺼내 써도 <b>마지막 해에 딱 바닥나는</b> 금액. 위 STEP 02의 인출률(4% 룰) 대신 조합의 배당률·시세차익으로 직접 계산합니다.<br>
+        ※ 비중은 매년 처음 비중으로 다시 맞춘다고 가정했습니다. 세전 기준이며 세금·수수료·환율 변동은 따로 빼지 않았습니다.<br>
+        ※ 순서는 가정치로 계산한 결과일 뿐 <b>특정 종목·비중을 추천하는 것이 아닙니다.</b> 시세차익 가정을 바꾸면 순위도 바뀝니다.
       </div>
     </div>
   </div>
@@ -2797,6 +3109,636 @@ function bindEvents() {
     });
   });
 }
+
+
+// ============================================================
+// 기간 & 인플레이션 — 공식 자료 (국가데이터처·한국은행)
+// ============================================================
+// 소비자물가 전국 총지수 전년대비 등락률(%) · KOSIS DT_1J22041 (갱신 2025-12-31)
+const CPI_YEARLY = {"1996":4.9,"1997":4.4,"1998":7.5,"1999":0.8,"2000":2.3,"2001":4.1,"2002":2.8,"2003":3.5,"2004":3.6,"2005":2.8,"2006":2.2,"2007":2.5,"2008":4.7,"2009":2.8,"2010":2.9,"2011":4.0,"2012":2.2,"2013":1.3,"2014":1.3,"2015":0.7,"2016":1.0,"2017":1.9,"2018":1.5,"2019":0.4,"2020":0.5,"2021":2.5,"2022":5.1,"2023":3.6,"2024":2.3,"2025":2.1};
+const BOK_TARGET = 2.0;
+// 2024년 생명표 · KOSIS DT_1B42 완전생명표(1세별) · 2025.12.3 공표
+// 기대여명(년) 50~85세
+const LIFE_EX = {
+  m: {50:32.5,51:31.6,52:30.7,53:29.8,54:28.9,55:28.1,56:27.2,57:26.3,58:25.4,59:24.6,60:23.7,61:22.9,62:22.0,63:21.2,64:20.4,65:19.5,66:18.7,67:17.9,68:17.1,69:16.3,70:15.5,71:14.8,72:14.0,73:13.3,74:12.6,75:11.8,76:11.1,77:10.5,78:9.8,79:9.1,80:8.5,81:7.9,82:7.4,83:6.9,84:6.4,85:5.9},
+  f: {50:37.8,51:36.9,52:35.9,53:35.0,54:34.0,55:33.1,56:32.1,57:31.2,58:30.3,59:29.3,60:28.4,61:27.5,62:26.5,63:25.6,64:24.7,65:23.7,66:22.8,67:21.9,68:21.0,69:20.1,70:19.2,71:18.3,72:17.4,73:16.6,74:15.7,75:14.9,76:14.0,77:13.2,78:12.4,79:11.6,80:10.9,81:10.2,82:9.5,83:8.8,84:8.2,85:7.6},
+};
+// 생존자수 lx (출생 10만 명 기준) 50~100세 — 100은 '100세 이상'
+const LIFE_LX = {
+  m: {50:96368,51:96095,52:95798,53:95477,54:95129,55:94748,56:94332,57:93882,58:93401,59:92885,60:92331,61:91736,62:91094,63:90403,64:89662,65:88874,66:88038,67:87141,68:86167,69:85108,70:83948,71:82669,72:81259,73:79707,74:78017,75:76176,76:74189,77:72041,78:69719,79:67186,80:64373,81:61238,82:57781,83:54039,84:50066,85:45883,86:41541,87:37105,88:32651,89:28263,90:24025,91:20022,92:16329,93:13008,94:10101,95:7631,96:5596,97:3976,98:2730,99:1808,100:1153},
+  f: {50:97758,51:97625,52:97483,53:97332,54:97174,55:97011,56:96842,57:96665,58:96478,59:96278,60:96068,61:95847,62:95610,63:95352,64:95067,65:94755,66:94419,67:94055,68:93657,69:93215,70:92720,71:92165,72:91540,73:90835,74:90039,75:89132,76:88101,77:86925,78:85580,79:84029,80:82221,81:80118,82:77690,83:74905,84:71746,85:68188,86:64242,87:59925,88:55273,89:50340,90:45202,91:39953,92:34700,93:29561,94:24655,95:20093,96:15968,97:12350,98:9276,99:6754,100:4758},
+};
+function survivalPct(sex, fromAge, toAge) {
+  const lx = LIFE_LX[sex];
+  if (lx[fromAge] == null) return null;
+  const t = Math.min(100, toAge);
+  if (lx[t] == null) return null;
+  return lx[t] / lx[fromAge] * 100;
+}
+
+function renderInflYearGrid() {
+  const g = document.getElementById('infl-year-grid');
+  if (!g) return;
+  g.innerHTML = Object.keys(CPI_YEARLY).sort((a, b) => b - a).map(y =>
+    `<div class="${CPI_YEARLY[y] >= 3.5 ? 'hot' : ''}"><span>${y}</span>${CPI_YEARLY[y].toFixed(1)}%</div>`).join('');
+}
+
+function updateInflPanel(result) {
+  const inp = result.inputs;
+  const infl = inp.inflation * 100;
+  const years = ['2021', '2022', '2023', '2024', '2025'];
+  const top = 6; // 막대 높이 기준 (%)
+  const box = document.getElementById('infl-bars');
+  if (box) {
+    const H = 90, px = v => Math.max(0, Math.min(v, top)) / top * H;
+    box.innerHTML = `<div class="infl-area">` +
+      years.map(y => { const v = CPI_YEARLY[y]; return `<div class="infl-bar ${v >= 3.5 ? 'hot' : ''}"><span class="b" style="height:${px(v)}px"><span class="v">${v.toFixed(1)}%</span></span></div>`; }).join('') +
+      `<div class="infl-line target" style="bottom:${px(BOK_TARGET)}px"></div>` +
+      `<div class="infl-line mine" style="bottom:${px(infl)}px"></div></div>` +
+      `<div class="infl-years">${years.map(y => `<span>${y}</span>`).join('')}</div>` +
+      `<div class="infl-legend"><span><i></i>한은 목표 2%</span><span><i class="mine"></i>내 가정 ${infl.toFixed(1)}%${infl > top ? ' (그래프 위)' : ''}</span></div>`;
+  }
+  const imp = document.getElementById('infl-impact');
+  if (imp) {
+    const n = inp.accumYears;
+    const fut = result.futureMonthly / 10000;
+    const today = inp.targetMonthly / 10000;
+    imp.innerHTML = n > 0
+      ? `물가가 연 ${infl.toFixed(1)}%씩 오르면, 지금의 월 ${Math.round(today).toLocaleString()}만원은 은퇴하는 <b>${n}년 뒤 월 ${Math.round(fut).toLocaleString()}만원</b>과 같은 돈입니다. 같은 기간 물가가 2.7%(30년 평균)였다면 월 ${Math.round(today * Math.pow(1.027, n)).toLocaleString()}만원이 필요합니다.`
+      : '';
+  }
+}
+
+function updateLifePanel(result) {
+  const inp = result.inputs;
+  const ra = inp.retireAge, yrs = inp.retireYears, end = ra + yrs;
+  const hint = document.getElementById('life-hint');
+  const panel = document.getElementById('life-panel');
+  const inTable = LIFE_EX.m[ra] != null;
+  if (hint) {
+    hint.textContent = inTable
+      ? `2024년 생명표 · ${ra}세 기대여명: 남 ${LIFE_EX.m[ra].toFixed(1)}년 · 여 ${LIFE_EX.f[ra].toFixed(1)}년`
+      : '2024년 생명표 · 60세 기대여명: 남 23.7년 · 여 28.4년 (은퇴 나이 50~85세일 때 그 나이 값으로 바뀝니다)';
+  }
+  // '○세까지' 버튼: 은퇴 나이에 맞춰 받는 햇수 갱신
+  document.querySelectorAll('[data-until-age]').forEach(btn => {
+    const y = Number(btn.dataset.untilAge) - ra;
+    const ok = y >= 10 && y <= 60;
+    btn.dataset.retireYears = String(Math.max(10, Math.min(60, y)));
+    btn.disabled = !ok;
+    btn.querySelector('.preset-sub').textContent = ok ? `${y}년` : '해당 없음';
+    btn.classList.toggle('active', ok && y === yrs);
+  });
+  if (!panel) return;
+  if (!inTable) {
+    panel.innerHTML = `<div class="life-route">${ra}세 은퇴 → <em>${end}세까지</em> ${yrs}년</div><div class="life-note">생존 확률은 은퇴 나이 50~85세일 때 보여 드립니다.</div>`;
+    return;
+  }
+  const pm = survivalPct('m', ra, end), pf = survivalPct('f', ra, end);
+  const lab = end >= 100 ? '100세 이상' : `${end}세`;
+  const row = (cls, sx, p) => `<div class="life-row ${cls}"><span class="sx">${sx}</span><span class="track"><span class="fill" style="width:${p.toFixed(1)}%;display:block"></span></span><span class="pct">${p.toFixed(1)}%</span></div>`;
+  const exM = LIFE_EX.m[ra], exF = LIFE_EX.f[ra];
+  let note;
+  if (yrs < exF) {
+    note = `준비 기간 ${yrs}년이 ${ra}세 여성 기대여명(${exF.toFixed(1)}년)보다 짧습니다. 기대여명은 <b>평균</b>이라 그보다 오래 사는 사람이 많으니, 돈이 먼저 떨어지지 않게 기간을 넉넉히 잡아 보세요.`;
+  } else {
+    note = `기대여명(남 ${exM.toFixed(1)}년 · 여 ${exF.toFixed(1)}년)보다 긴 기간을 잡았습니다. 그래도 ${ra}세 ${pf >= pm ? '여성' : '남성'} <b>${Math.max(pm, pf).toFixed(0)}%</b>는 ${lab}까지 살아 있습니다. 부부라면 둘 중 한 명이라도 오래 살 가능성까지 생각해야 합니다.`;
+  }
+  panel.innerHTML =
+    `<div class="life-route">${ra}세 은퇴 → <em>${end}세까지</em> ${yrs}년 받기</div>` +
+    `<div class="mini-head" style="margin-bottom:4px">${ra}세인 사람이 ${lab}까지 살아 있을 확률 <span>2024년 생명표</span></div>` +
+    row('m', '남성', pm) + row('f', '여성', pf) +
+    `<div class="life-note">${note}</div>`;
+}
+
+// ============================================================
+// ETF 섞어서 경우의 수 비교 (조합 탐색기)
+// ============================================================
+const CX = (() => {
+  const DATA_BASE = 'https://ttokjaetv.github.io/portfolio-sheet-data/data/';
+  const MAX = 10;
+  const COLORS = ['#D9542B', '#3A6F8F', '#8B6F47', '#7A9A3A', '#9C3D54', '#C4A57B', '#5A6B5A', '#E89A6F', '#7E6BA0', '#4F8A8B'];
+  // 주요 종목 성장률 프리셋 — 배당 재투자 계산기와 같은 값 [이름, 배당률(데이터 없을 때), 배당성장, 시세차익]
+  const PRESET = {
+    'KR:161510': ['PLUS 고배당주', 5.8, 10.5, 7.0], 'KR:466940': ['TIGER 은행고배당플러스TOP10', 6.5, 5.0, 6.0],
+    'KR:441800': ['TIME Korea플러스배당액티브', 4.5, 8.0, 9.0], 'KR:0052D0': ['TIGER 코리아배당다우존스', 4.2, 7.0, 7.0],
+    'KR:091170': ['KODEX 은행', 5.5, 4.0, 5.5], 'KR:484880': ['SOL 금융지주플러스고배당', 7.0, 5.0, 6.0],
+    'KR:0153K0': ['KODEX 주주환원고배당주', 5.0, 7.0, 7.0], 'KR:0089D0': ['KODEX 금융고배당TOP10', 6.2, 5.5, 6.0],
+    'KR:498400': ['KODEX 200타겟위클리커버드콜', 12.0, 0.5, 3.0],
+    'KR:005930': ['삼성전자', 2.5, 4.0, 6.0], 'KR:000660': ['SK하이닉스', 1.0, 5.0, 12.0], 'KR:033780': ['KT&G', 5.5, 4.0, 4.0],
+    'KR:105560': ['KB금융', 4.5, 8.0, 7.0], 'KR:055550': ['신한지주', 4.8, 7.0, 6.5], 'KR:086790': ['하나금융지주', 6.0, 6.0, 6.0],
+    'KR:316140': ['우리금융지주', 6.5, 5.0, 5.0], 'KR:024110': ['기업은행', 7.0, 4.0, 4.5], 'KR:005380': ['현대차', 4.0, 5.0, 7.0],
+    'KR:000270': ['기아', 4.5, 5.0, 7.0], 'KR:017670': ['SK텔레콤', 5.5, 3.0, 4.0], 'KR:030200': ['KT', 5.0, 4.0, 4.5],
+    'KR:005490': ['POSCO홀딩스', 3.5, 4.0, 5.0],
+    'KR:458730': ['TIGER 미국배당다우존스', 3.2, 9.0, 8.0], 'KR:0046Y0': ['ACE 미국배당퀄리티', 3.0, 9.0, 8.0],
+    'KR:441640': ['KODEX 미국배당커버드콜액티브', 9.4, 1.5, 4.5], 'KR:458760': ['TIGER 미국배당다우존스타겟커버드콜2호', 11.6, 1.0, 4.0],
+    'KR:494300': ['KODEX 미국나스닥100데일리커버드콜OTM', 19.7, 0.0, 1.5], 'KR:491620': ['RISE 미국테크100데일리고정커버드콜', 20.7, 0.0, 0.5],
+    'KR:473330': ['SOL 미국30년국채커버드콜(합성)', 10.1, 0.5, 2.0], 'KR:441680': ['TIGER 미국나스닥100커버드콜(합성)', 11.3, 0.5, 3.0],
+    'KR:0040Y0': ['SOL 팔란티어커버드콜OTM채권혼합', 26.2, 0.0, 0.0],
+    'US:SCHD': ['SCHD', 3.5, 11.0, 8.0], 'US:JEPI': ['JEPI', 7.5, 2.0, 4.0], 'US:JEPQ': ['JEPQ', 9.5, 3.0, 6.0],
+    'US:VYM': ['VYM', 3.0, 7.0, 7.0], 'US:VOO': ['VOO', 1.3, 6.0, 10.0], 'US:QQQ': ['QQQ', 0.6, 8.0, 12.0],
+    'US:O': ['O', 5.5, 4.0, 3.0], 'US:KO': ['KO', 3.1, 5.0, 6.0], 'US:PEP': ['PEP', 3.5, 6.0, 6.0], 'US:JNJ': ['JNJ', 3.0, 6.0, 6.0],
+    'US:PG': ['PG', 2.5, 5.0, 7.0], 'US:MCD': ['MCD', 2.4, 8.0, 8.0], 'US:MO': ['MO', 8.0, 4.0, 2.0], 'US:XOM': ['XOM', 3.5, 4.0, 5.0],
+    'US:CVX': ['CVX', 4.2, 5.0, 5.0], 'US:T': ['T', 6.5, 1.0, 3.0], 'US:VZ': ['VZ', 6.8, 2.0, 3.0], 'US:AAPL': ['AAPL', 0.5, 5.0, 12.0],
+    'US:MSFT': ['MSFT', 0.7, 10.0, 13.0],
+  };
+  // 유형별 기본값 (실데이터 아님 · 가정치) — 배당 재투자 계산기와 같은 표
+  const TYPE = {
+    levInv: { label: '레버리지·인버스', dg: 0, pg: 0, warn: '레버리지·인버스 상품은 장기 보유 시 지수와 수익률이 크게 벌어져 이 계산에 맞지 않습니다' },
+    cc: { label: '커버드콜', dg: 0.5, pg: 2.0 }, rate: { label: '금리·초단기채', dg: 0, pg: 2.5 }, bond: { label: '채권', dg: 0, pg: 0 },
+    reit: { label: '리츠·부동산', dg: 2.0, pg: 2.0 }, mixed: { label: '채권혼합', dg: 2.0, pg: 3.0 }, commod: { label: '원자재·가상자산', dg: 0, pg: 4.0 },
+    currency: { label: '통화', dg: 0, pg: 1.0 }, etc: { label: '기타', dg: 0, pg: 3.0 }, krDivEtf: { label: '국내 배당주 ETF', dg: 6.0, pg: 6.0 },
+    overseasEtf: { label: '해외주식 ETF(국내상장)', dg: 6.0, pg: 8.0 }, krEqEtf: { label: '국내주식 ETF', dg: 5.0, pg: 6.0 },
+    krStock: { label: '국내 개별주', dg: 4.0, pg: 5.0 }, spac: { label: '스팩', dg: 0, pg: 0 }, usDivEtf: { label: '미국 배당 ETF', dg: 6.0, pg: 7.0 },
+    usEtf: { label: '미국 주식 ETF', dg: 6.0, pg: 8.0 }, usStock: { label: '미국 개별주', dg: 5.0, pg: 7.0 },
+  };
+  const RATE_RE = /금리|KOFR|SOFR|CD|머니마켓|단기자금/;
+  function classify(it) {
+    const n = it.name;
+    if (it.kind === '국내ETF') {
+      if (/레버리지|인버스|2X|곱버스/i.test(n)) return 'levInv';
+      if (/커버드콜|프리미엄|옵션|버퍼/.test(n)) return 'cc';
+      if (it.asset === '채권') return it.yieldTTM < 1 ? 'rate' : 'bond';
+      if (it.asset === '부동산') return 'reit';
+      if (it.asset === '혼합자산') return 'mixed';
+      if (it.asset === '원자재') return 'commod';
+      if (it.asset === '통화') return RATE_RE.test(n) ? 'rate' : 'currency';
+      if (it.asset === '기타') return RATE_RE.test(n) ? 'rate' : 'etc';
+      if (/배당/.test(n)) return 'krDivEtf';
+      if (/미국|나스닥|S&P|글로벌|선진|일본|중국|차이나|인도|베트남|유럽|신흥|MSCI|필라델피아|월드/i.test(n)) return 'overseasEtf';
+      return 'krEqEtf';
+    }
+    if (it.kind === '국내주식') { if (/스팩/.test(n)) return 'spac'; if (/리츠|인프라/.test(n)) return 'reit'; return 'krStock'; }
+    if (it.kind === '미국ETF') {
+      if (/\b(2x|3x|ultra|leveraged|inverse|bear|short)\b/i.test(n)) return 'levInv';
+      if (/covered call|option|premium income|buywrite|yieldmax|buffer/i.test(n)) return 'cc';
+      if (/t-bill|treasury bill|money market|ultra.?short|0-3 month|floating rate/i.test(n)) return 'rate';
+      if (/bond|treasury|muni|clo\b|fixed income|aggregate|corporate|high yield|mortgage|tips|income securities/i.test(n)) return 'bond';
+      if (/reit|real estate/i.test(n)) return 'reit';
+      if (/gold|silver|oil|commodit|bitcoin|ether|crypto|copper|uranium/i.test(n)) return 'commod';
+      if (/dividend/i.test(n)) return 'usDivEtf';
+      return 'usEtf';
+    }
+    return 'usStock';
+  }
+
+  // ---------- 데이터 ----------
+  const U = new Map(); let LIST = [];
+  const ST = { status: 'loading', krUpdated: '', usUpdated: '' };
+  function parseCSV(text) {
+    const rows = []; let row = [], field = '', q = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; } else field += c; }
+      else if (c === '"') q = true;
+      else if (c === ',') { row.push(field); field = ''; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+      else if (c !== '\r') field += c;
+    }
+    if (field !== '' || row.length) { row.push(field); rows.push(row); }
+    const head = (rows.shift() || []).map(h => h.replace(/^﻿/, '').trim());
+    return rows.filter(r => r.length > 1).map(r => { const o = {}; head.forEach((h, i) => { o[h] = (r[i] ?? '').trim(); }); return o; });
+  }
+  const fetchCSV = name => fetch(DATA_BASE + name, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(name); return r.text(); }).then(parseCSV);
+  const num = v => { const n = parseFloat(v); return isFinite(n) ? n : null; };
+  const norm = s => String(s || '').toLowerCase().replace(/[\s·\-_().&,+]/g, '');
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function add(it) { it.norm = norm(it.name); it.codeNorm = it.code.toLowerCase(); it.type = classify(it); U.set(it.key, it); }
+  async function loadKR() {
+    const [etfs, stocks, divs] = await Promise.all([fetchCSV('etf_prices.csv'), fetchCSV('kr_stocks.csv'), fetchCSV('dividends.csv')]);
+    const dmap = new Map(divs.map(d => [d['종목코드'], d]));
+    const mk = (code, name, kind, price, extra) => {
+      const d = dmap.get(code); let ttm = null;
+      if (d) { ttm = num(d['배당수익률']); const paid = num(d['연배당_실지급']); if (ttm == null && paid != null && price) ttm = paid / price * 100; }
+      add(Object.assign({ key: 'KR:' + code, code, name, market: 'KR', kind, yieldTTM: ttm ?? 0, hasDiv: !!d && (ttm ?? 0) > 0 }, extra));
+    };
+    etfs.forEach(r => mk(r['종목코드'], r['종목명'], '국내ETF', num(r['현재가']), { asset: r['자산군'] }));
+    stocks.forEach(r => mk(r['종목코드'], r['종목명'], '국내주식', num(r['현재가']), {}));
+    ST.krUpdated = (divs[0] && divs[0]['갱신시각']) || (etfs[0] && etfs[0]['갱신시각']) || '';
+  }
+  async function loadUS() {
+    const [prices, divs] = await Promise.all([fetchCSV('us_prices.csv'), fetchCSV('us_dividends.csv')]);
+    const dmap = new Map(divs.map(d => [d['티커'], d]));
+    prices.forEach(r => {
+      const t = r['티커']; const d = dmap.get(t); const price = num(r['현재가USD']); let ttm = 0;
+      if (d) { ttm = num(d['배당수익률']); if (ttm == null) { const a = num(d['연배당USD']); ttm = (a && price) ? a / price * 100 : 0; } }
+      add({ key: 'US:' + t, code: t, name: r['종목명'], market: 'US', kind: r['구분'] === 'ETF' ? '미국ETF' : '미국주식', yieldTTM: ttm || 0, hasDiv: !!d && ttm > 0 });
+    });
+    ST.usUpdated = (divs[0] && divs[0]['갱신시각']) || '';
+  }
+
+  // ---------- 상태 ----------
+  // y·dg·pg: 화면에 보이는 원래 값(%) · ySrc: real|none|preset|man · gSrc: preset|type|man
+  let holds = [];
+  const opt = { step: 10, haircut: 2.5, trCap: 10, ccCap: 8, cap: true, sort: 'req', minCov: 0, shown: 10, mkt: 'ALL' };
+  let appliedSig = '';
+  let colorSeq = 0;
+
+  function makeHold(key) {
+    const it = U.get(key), p = PRESET[key];
+    const h = { key, color: COLORS[colorSeq++ % COLORS.length] };
+    h.name = p ? p[0] : (it ? it.name : key.split(':')[1]);
+    h.code = key.split(':')[1];
+    h.market = key.slice(0, 2);
+    h.type = it ? it.type : (p ? null : 'etc');
+    if (it) { h.y = round2(it.yieldTTM || 0); h.ySrc = it.hasDiv ? 'real' : 'none'; }
+    else if (p) { h.y = p[1]; h.ySrc = 'preset'; }
+    else { h.y = 0; h.ySrc = 'none'; }
+    if (p) { h.dg = p[2]; h.pg = p[3]; h.gSrc = 'preset'; }
+    else { const d = TYPE[h.type] || TYPE.etc; h.dg = d.dg; h.pg = d.pg; h.gSrc = 'type'; }
+    return h;
+  }
+  const round2 = v => Math.round(v * 100) / 100;
+  // 데이터가 늦게 오면 실제 배당률로 덮어쓰기 (직접 고친 값은 유지)
+  function refreshFromData() {
+    holds.forEach(h => {
+      const it = U.get(h.key); if (!it) return;
+      if (!PRESET[h.key]) h.name = it.name;
+      h.type = it.type;
+      if (h.ySrc !== 'man') { h.y = round2(it.yieldTTM || 0); h.ySrc = it.hasDiv ? 'real' : 'none'; }
+      if (h.gSrc === 'type') { const d = TYPE[it.type] || TYPE.etc; h.dg = d.dg; h.pg = d.pg; }
+    });
+  }
+
+  // 계산에 쓰는 값 (소수)
+  function eff(h) {
+    const d = Math.max(0, h.y) / 100;
+    let p = (h.pg - opt.haircut) / 100;
+    // 총수익률(배당+시세) 상한: 고분배 상품은 분배한 만큼 가격이 빠지는 구조를 반영
+    let lim = opt.trCap > 0 ? opt.trCap : Infinity;
+    if (h.type === 'cc' && opt.ccCap > 0) lim = Math.min(lim, opt.ccCap);
+    const capped = d + p > lim / 100;
+    if (capped) p = lim / 100 - d;
+    let g = h.dg / 100;
+    if (opt.cap) g = Math.min(g, p);
+    return { d, g, p, capped };
+  }
+
+  // ---------- 조합 계산 ----------
+  function comb(n, k) { let r = 1; for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); }
+  function comboCount(n, step) { return n ? comb(100 / step + n - 1, n - 1) : 0; }
+  function stepAllowed(n, step) { return comboCount(n, step) <= 120000; }
+
+  let RES = null;
+  function base() {
+    const v = id => Number(document.getElementById(id).value) || 0;
+    const currentAge = Math.max(20, Math.min(85, v('current-age') || 35));
+    const retireAge = Math.max(currentAge + 1, Math.min(95, v('retire-age') || 60));
+    const accumYears = retireAge - currentAge;
+    const inflation = v('inflation') / 100;
+    const target = v('target-monthly') * 10000;
+    return {
+      target, inflation, accumYears, retireAge,
+      retireYears: Math.max(1, Math.min(60, v('retire-years') || 30)),
+      assets: Math.max(0, v('current-assets') * 10000),
+      saving: Math.max(0, v('monthly-saving') * 10000),
+      futureAnnual: target * Math.pow(1 + inflation, accumYears) * 12,
+    };
+  }
+
+  function run() {
+    const n = holds.length;
+    if (!n) { RES = null; renderResults(); return; }
+    if (!stepAllowed(n, opt.step)) opt.step = 10;
+    const t0 = performance.now();
+    const B = base();
+    const N = B.retireYears, units = 100 / opt.step;
+    const E = holds.map(eff);
+    // T[i*N+y] = 그해 총수익률(배당률 + 시세차익) — 배당률은 (1+g)/(1+p)씩 변함
+    const T = new Float64Array(n * N), D0 = new Float64Array(n), A0 = new Float64Array(n);
+    E.forEach((e, i) => {
+      const k = (1 + e.g) / (1 + e.p); let d = e.d;
+      for (let y = 0; y < N; y++) { T[i * N + y] = d + e.p; d *= k; }
+      D0[i] = e.d; A0[i] = e.d + e.p;
+    });
+    const count = comboCount(n, opt.step);
+    const W = new Uint8Array(count * n);
+    const req = new Float64Array(count), proj = new Float64Array(count), need = new Float64Array(count), cov = new Float64Array(count), can = new Float64Array(count);
+    const nM = B.accumYears * 12;
+    const R = new Float64Array(N);
+    const w = new Array(n).fill(0);
+    let c = 0;
+    const evalCombo = () => {
+      let racc = 0, d0 = 0;
+      for (let i = 0; i < n; i++) { const f = w[i] / units; racc += f * A0[i]; d0 += f * D0[i]; }
+      for (let y = 0; y < N; y++) { let s = 0; for (let i = 0; i < n; i++) if (w[i]) s += (w[i] / units) * T[i * N + y]; R[y] = s; }
+      // 적립기: 메인 계산과 같은 월복리
+      const r = Math.pow(1 + racc, 1 / 12) - 1;
+      const f = Math.pow(1 + r, nM);
+      const ann = Math.abs(r) > 1e-12 ? (f - 1) / r : nM;
+      const pj = B.assets * f + B.saving * ann;
+      // 인출기: 연초 인출 → 남은 돈이 그해 수익률로 굴러감. 마지막 해에 딱 0이 되는 은퇴 자산
+      let disc = 1, wd = B.futureAnnual, rq = 0, bad = false;
+      for (let y = 0; y < N; y++) { rq += wd / disc; const g = 1 + R[y]; if (g <= 0) { bad = true; break; } disc *= g; wd *= (1 + B.inflation); }
+      if (bad) rq = Infinity;
+      for (let i = 0; i < n; i++) W[c * n + i] = w[i];
+      req[c] = rq; proj[c] = pj;
+      need[c] = Math.max(0, rq - B.assets * f) / ann;
+      cov[c] = B.futureAnnual > 0 ? d0 * rq / B.futureAnnual : 0;
+      can[c] = rq > 0 && isFinite(rq) ? pj / rq * B.target : 0;
+      c++;
+    };
+    const rec = (i, left) => {
+      if (i === n - 1) { w[i] = left; evalCombo(); return; }
+      for (let x = left; x >= 0; x--) { w[i] = x; rec(i + 1, left - x); }
+    };
+    rec(0, units);
+    RES = { n, count: c, W, req, proj, need, cov, can, units, B, ms: performance.now() - t0, E };
+    sortAndRender(true);
+  }
+
+  let ORDER = [];
+  function sortAndRender(resetShown) {
+    if (resetShown) opt.shown = 10;
+    if (!RES) { renderResults(); return; }
+    const { count, req, need, cov, can } = RES;
+    const idx = [];
+    const minCov = opt.minCov / 100;
+    for (let i = 0; i < count; i++) if (isFinite(req[i]) && cov[i] + 1e-9 >= minCov) idx.push(i);
+    const key = { req: i => req[i], need: i => need[i], can: i => -can[i], cov: i => -cov[i] }[opt.sort];
+    idx.sort((a, b) => (key(a) - key(b)) || (req[a] - req[b]));
+    ORDER = idx;
+    renderResults();
+  }
+
+  // ---------- 화면 ----------
+  const $ = id => document.getElementById(id);
+  const eok = won => {
+    if (!isFinite(won)) return '-';
+    const m = Math.round(won / 10000);
+    if (m >= 10000) return (m / 10000).toFixed(m >= 100000 ? 1 : 2).replace(/\.?0+$/, '') + '억';
+    return m.toLocaleString() + '만';
+  };
+  const typeLabel = h => (TYPE[h.type] && TYPE[h.type].label) || (h.gSrc === 'preset' ? '프리셋' : '');
+  const srcLabel = { real: '실지급 12개월', none: '배당 없음', preset: '프리셋 값', man: '직접 수정' };
+
+  function renderHolds() {
+    const box = $('cx-holds');
+    if (!holds.length) { box.innerHTML = '<div class="cx-empty-holds">위 검색창에서 종목을 담아 주세요 (최대 10개)</div>'; return; }
+    box.innerHTML = holds.map((h, i) => {
+      const e = eff(h);
+      const effTxt = (Math.abs(e.p * 100 - h.pg) > 1e-9 || Math.abs(e.g * 100 - h.dg) > 1e-9)
+        ? `<div class="cx-eff">계산 적용값: 배당성장 ${(e.g * 100).toFixed(1)}% · 시세차익 ${(e.p * 100).toFixed(1)}% → 총수익률 ${((e.d + e.p) * 100).toFixed(1)}%${e.capped ? ' (상한 적용)' : ''}</div>` : '';
+      const warn = TYPE[h.type] && TYPE[h.type].warn ? `<div class="cx-warn">⚠ ${TYPE[h.type].warn}</div>` : '';
+      const mk = h.market === 'KR' ? '국내상장' : '미국상장';
+      return `<div class="cx-hold" style="--c:${h.color}">
+        <div class="cx-hold-top"><div class="cx-hold-nm"><b>${esc(h.name)}</b><span class="cd">${esc(h.code)} · ${mk}${typeLabel(h) ? ' · ' + esc(typeLabel(h)) : ''}</span></div>
+          <button class="cx-del" data-del="${i}" aria-label="${esc(h.name)} 빼기">×</button></div>
+        <div class="cx-hold-in">
+          <div class="cx-f"><label>배당률</label><div class="cx-num"><input type="number" step="0.1" min="0" max="40" value="${h.y}" data-i="${i}" data-k="y"><span>%</span></div><span class="src ${h.ySrc === 'real' ? 'real' : h.ySrc === 'man' ? 'man' : ''}">${srcLabel[h.ySrc]}</span></div>
+          <div class="cx-f"><label>배당성장</label><div class="cx-num"><input type="number" step="0.5" min="-10" max="30" value="${h.dg}" data-i="${i}" data-k="dg"><span>%</span></div><span class="src ${h.gSrc === 'man' ? 'man' : ''}">${h.gSrc === 'preset' ? '프리셋 가정치' : h.gSrc === 'man' ? '직접 수정' : '유형 기본값'}</span></div>
+          <div class="cx-f"><label>시세차익</label><div class="cx-num"><input type="number" step="0.5" min="-10" max="30" value="${h.pg}" data-i="${i}" data-k="pg"><span>%</span></div><span class="src ${h.gSrc === 'man' ? 'man' : ''}">${h.gSrc === 'preset' ? '프리셋 가정치' : h.gSrc === 'man' ? '직접 수정' : '유형 기본값'}</span></div>
+        </div>${effTxt}${warn}</div>`;
+    }).join('');
+  }
+
+  function renderStepButtons() {
+    const n = holds.length;
+    document.querySelectorAll('#cx-step button').forEach(b => {
+      const s = Number(b.dataset.step);
+      const ok = stepAllowed(n, s);
+      b.disabled = !ok;
+      b.title = ok ? '' : `${n}종목은 5% 단위 조합이 너무 많아(${comboCount(n, s).toLocaleString()}가지) 10% 단위만 됩니다`;
+      b.classList.toggle('active', s === opt.step);
+    });
+  }
+
+  function chips(ci) {
+    const { W, n, units } = RES;
+    const out = [];
+    for (let i = 0; i < n; i++) { const u = W[ci * n + i]; if (u) out.push([i, u]); }
+    out.sort((a, b) => b[1] - a[1]);
+    return out.map(([i, u]) => `<span class="cx-chip" style="--c:${holds[i].color}">${esc(shortName(holds[i]))} ${Math.round(u / units * 100)}%</span>`).join('');
+  }
+  const shortName = h => h.market === 'US' && !PRESET[h.key] ? h.code : h.name;
+  const comboText = ci => {
+    const { W, n, units } = RES; const out = [];
+    for (let i = 0; i < n; i++) { const u = W[ci * n + i]; if (u) out.push(`${shortName(holds[i])} ${Math.round(u / units * 100)}%`); }
+    return out.join(' + ');
+  };
+  const sigOf = ci => holds.map((h, i) => h.key + ':' + RES.W[ci * RES.n + i]).join('|') + '|' + holds.map(h => [h.y, h.dg, h.pg].join(',')).join(';') + '|' + opt.haircut + '|' + opt.trCap + '|' + opt.ccCap + '|' + opt.cap;
+
+  function renderResults() {
+    renderStepButtons();
+    const sum = $('cx-summary'), list = $('cx-list'), more = $('cx-more'), ctrl = $('cx-controls'), cw = $('cx-chart-wrap');
+    if (!RES) { sum.innerHTML = ''; list.innerHTML = ''; more.hidden = true; ctrl.style.display = 'none'; cw.style.display = 'none'; return; }
+    ctrl.style.display = ''; cw.style.display = '';
+    const { count, req, need, cov, can, B, ms } = RES;
+    let mn = Infinity, mx = -Infinity, divOnly = 0, minI = -1;
+    for (let i = 0; i < count; i++) { if (!isFinite(req[i])) continue; if (req[i] < mn) { mn = req[i]; minI = i; } if (req[i] > mx) mx = req[i]; if (cov[i] >= 1) divOnly++; }
+    const tgt = Math.round(B.target / 10000).toLocaleString();
+    sum.innerHTML = `<div class="cx-sum-line">담은 ${RES.n}종목을 ${opt.step}% 단위로 섞은 <b>${count.toLocaleString()}가지</b> 조합을 모두 계산했습니다 <span style="color:var(--ink-mute);font-weight:600">(${(ms / 1000).toFixed(2)}초)</span></div>
+      <div class="cx-sum-grid">
+        <div class="cx-sum-box"><div class="k">은퇴 때 필요 자산 범위</div><div class="v">${eok(mn)} ~ ${eok(mx)}</div><div class="s">오늘 돈 월 ${tgt}만원을 ${B.retireYears}년간 꺼내 쓰는 데 드는 돈</div></div>
+        <div class="cx-sum-box"><div class="k">필요 자산이 가장 적은 조합</div><div class="v">${eok(mn)}</div><div class="s">${esc(minI >= 0 ? comboText(minI) : '-')}</div></div>
+        <div class="cx-sum-box"><div class="k">배당만으로 첫해 생활비 충당</div><div class="v">${divOnly.toLocaleString()}가지</div><div class="s">첫해 배당 ≥ 첫해 생활비인 조합 수</div></div>
+      </div>
+      <div class="cx-sum-note">위 STEP 02 인출률 ${(Number(document.getElementById('withdrawal-rate').value) || 4).toFixed(1)}% 방식으로는 <b>${eok(B.futureAnnual / ((Number(document.getElementById('withdrawal-rate').value) || 4) / 100))}</b>이 필요합니다. 여기 숫자는 <b>평균 수익률이 매년 그대로 나온다</b>고 가정해 그보다 적게 나옵니다. 은퇴 초반에 하락장이 오면 더 필요하니 순서 비교용으로 보세요. 필요 월 적립이 초록색이면 지금 적립액(월 ${eok(B.saving)})으로 충분한 조합입니다.</div>`;
+    if (!ORDER.length) { list.innerHTML = '<div class="cx-list-empty">조건에 맞는 조합이 없습니다. 배당 비중 조건을 낮춰 보세요.</div>'; more.hidden = true; drawScatter(); return; }
+    const show = ORDER.slice(0, opt.shown);
+    list.innerHTML = show.map((ci, r) => {
+      const sig = sigOf(ci);
+      const rate = B.target > 0 ? can[ci] / B.target * 100 : 0;
+      return `<div class="cx-row ${sig === appliedSig ? 'applied' : ''}">
+        <div class="cx-rank">${r + 1}</div>
+        <div><div class="cx-chips">${chips(ci)}</div>
+          <div class="cx-metrics">
+            <span><em>은퇴 때 필요 자산*</em><b>${eok(req[ci])}</b></span>
+            <span><em>지금 계획 달성률</em><b class="${rate >= 100 ? 'good' : ''}">${rate >= 999 ? '999%+' : rate.toFixed(0) + '%'}</b></span>
+            <span><em>첫해 배당 비중</em><b class="${cov[ci] >= 1 ? 'good' : ''}">${(cov[ci] * 100).toFixed(0)}%</b></span>
+            <span><em>필요 월 적립</em><b class="${need[ci] <= B.saving ? 'good' : ''}">${need[ci] <= 0 ? '0원' : eok(need[ci])}</b></span>
+          </div></div>
+        <button class="cx-apply" data-apply="${ci}">${sig === appliedSig ? '적용됨' : '적용'}</button>
+      </div>`;
+    }).join('');
+    more.hidden = ORDER.length <= opt.shown;
+    more.textContent = `10개 더 보기 (${Math.min(opt.shown, ORDER.length).toLocaleString()} / ${ORDER.length.toLocaleString()})`;
+    drawScatter();
+  }
+
+  let scatter = null;
+  function drawScatter() {
+    const cv = $('cx-scatter'); if (!cv || !RES || typeof Chart === 'undefined') return;
+    const { count, req, cov, W, n, units } = RES;
+    const top = new Set(ORDER.slice(0, 10));
+    const all = [], best = [], single = [];
+    const stepS = Math.max(1, Math.ceil(count / 2500));
+    for (let i = 0; i < count; i++) {
+      if (!isFinite(req[i])) continue;
+      const pt = { x: req[i] / 1e8, y: cov[i] * 100, ci: i };
+      let isSingle = false; for (let k = 0; k < n; k++) if (W[i * n + k] === units) isSingle = true;
+      if (top.has(i)) best.push(pt); else if (isSingle) single.push(pt); else if (i % stepS === 0) all.push(pt);
+    }
+    const data = { datasets: [
+      { label: `상위 10개 (${{ req: '필요 자산', can: '생활비', need: '월 적립', cov: '배당 비중' }[opt.sort]} 기준)`, data: best, backgroundColor: '#D9542B', pointRadius: 5, pointHoverRadius: 7, order: 0 },
+      { label: '한 종목 100%', data: single, backgroundColor: '#3A2F26', pointStyle: 'rectRot', pointRadius: 6, pointHoverRadius: 8, order: 1 },
+      { label: stepS > 1 ? `나머지 조합 (일부 표시)` : '나머지 조합', data: all, backgroundColor: 'rgba(196,165,123,0.45)', pointRadius: 2.5, pointHoverRadius: 5, order: 2 },
+    ] };
+    const options = {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: {
+        legend: { position: 'top', labels: { font: { family: 'Pretendard', size: 11, weight: 600 }, color: '#1A1A1A', usePointStyle: true, padding: 10, boxWidth: 8 } },
+        tooltip: Object.assign({}, chartCommonOptions.plugins.tooltip, { callbacks: {
+          title: items => comboText(items[0].raw.ci),
+          label: it => [`필요 자산 ${eok(it.raw.x * 1e8)}`, `첫해 배당 비중 ${it.raw.y.toFixed(0)}%`],
+        } }),
+      },
+      scales: {
+        x: { type: 'linear', title: { display: true, text: '은퇴 때 필요 자산 (억원)', font: { family: 'Pretendard', size: 11, weight: 700 }, color: '#8B8276' }, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'Pretendard', size: 11, weight: 600 }, color: '#8B8276' } },
+        y: { title: { display: true, text: '첫해 배당 비중 (%)', font: { family: 'Pretendard', size: 11, weight: 700 }, color: '#8B8276' }, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'Pretendard', size: 11, weight: 600 }, color: '#8B8276', callback: v => v + '%' }, suggestedMin: 0 },
+      },
+    };
+    if (scatter) { scatter.data = data; scatter.options = options; scatter.update('none'); }
+    else scatter = new Chart(cv, { type: 'scatter', data, options });
+  }
+
+  // 조합을 아래 진단에 적용: 가중평균 배당률·시세차익 + 첫해 배당 변화와 같아지는 배당성장률
+  function applyCombo(ci) {
+    const { W, n, units, E } = RES;
+    let d0 = 0, d1 = 0, p = 0;
+    for (let i = 0; i < n; i++) { const f = W[ci * n + i] / units; d0 += f * E[i].d; d1 += f * E[i].d * (1 + E[i].g) / (1 + E[i].p); p += f * E[i].p; }
+    const g = d0 > 0 ? (d1 / d0) * (1 + p) - 1 : 0;
+    const fix = v => String(Math.round(v * 10000) / 100);
+    document.getElementById('dividend-yield').value = fix(Math.min(0.20, d0));
+    document.getElementById('price-appreciation').value = fix(Math.max(-0.05, Math.min(0.20, p)));
+    document.getElementById('dividend-growth').value = fix(Math.max(0, Math.min(0.30, g)));
+    document.querySelectorAll('.etf-preset').forEach(b => b.classList.remove('active'));
+    document.querySelector('.etf-custom')?.classList.add('active');
+    appliedSig = sigOf(ci);
+    ['dividend-yield', 'dividend-growth', 'price-appreciation'].forEach(id => {
+      const el = document.getElementById(id); el.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    renderResults();
+    const vb = document.getElementById('verdict-box');
+    if (vb) vb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ---------- 검색 ----------
+  let resList = [], resOn = -1;
+  function search(q) {
+    const nq = norm(q); if (!nq) return [];
+    const out = [];
+    for (const it of LIST) {
+      if (opt.mkt !== 'ALL' && it.market !== opt.mkt) continue;
+      let s;
+      if (it.codeNorm === nq) s = 100; else if (it.codeNorm.startsWith(nq)) s = 75;
+      else if (it.norm.startsWith(nq)) s = 70; else if (it.norm.includes(nq)) s = 50; else continue;
+      if (it.kind.includes('ETF')) s += 8; if (it.hasDiv) s += 4; if (PRESET[it.key]) s += 12;
+      out.push([s, it]);
+    }
+    out.sort((a, b) => (b[0] - a[0]) || (a[1].name.length - b[1].name.length));
+    return out.slice(0, 40).map(x => x[1]);
+  }
+  function renderSearch() {
+    const box = $('cx-results'), q = $('cx-q').value.trim();
+    if (!q) { box.hidden = true; return; }
+    if (ST.status !== 'ok') { box.innerHTML = `<div class="cx-res-empty">${ST.status === 'error' ? '종목 데이터를 불러오지 못했습니다. 새로고침해 주세요.' : '종목 데이터를 불러오는 중입니다…'}</div>`; box.hidden = false; return; }
+    resList = search(q); resOn = resList.length ? 0 : -1;
+    box.innerHTML = resList.length ? resList.map((it, i) => {
+      const had = holds.some(h => h.key === it.key);
+      return `<button class="cx-res ${i === resOn ? 'on' : ''}" data-key="${esc(it.key)}" ${had ? 'disabled style="opacity:.45"' : ''}>
+        <span class="nm">${esc(it.name)}</span><span class="cd">${esc(it.code)} · ${it.market === 'KR' ? '국내' : '미국'}</span><span class="yd">${it.hasDiv ? it.yieldTTM.toFixed(2) + '%' : '배당 없음'}</span></button>`;
+    }).join('') : '<div class="cx-res-empty">검색 결과가 없습니다</div>';
+    box.hidden = false;
+  }
+  function addKey(key) {
+    if (holds.length >= MAX) { alert('최대 10종목까지 담을 수 있습니다.'); return; }
+    if (holds.some(h => h.key === key)) return;
+    holds.push(makeHold(key));
+    $('cx-q').value = ''; $('cx-results').hidden = true;
+    renderHolds(); schedule(0);
+  }
+
+  // ---------- 이벤트 ----------
+  let timer = null;
+  function schedule(ms) { clearTimeout(timer); timer = setTimeout(run, ms == null ? 250 : ms); }
+
+  function bind() {
+    $('cx-q').addEventListener('input', renderSearch);
+    $('cx-q').addEventListener('focus', renderSearch);
+    $('cx-q').addEventListener('keydown', e => {
+      const btns = [...document.querySelectorAll('#cx-results .cx-res')];
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault(); if (!btns.length) return;
+        resOn = (resOn + (e.key === 'ArrowDown' ? 1 : -1) + btns.length) % btns.length;
+        btns.forEach((b, i) => b.classList.toggle('on', i === resOn)); btns[resOn].scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') { e.preventDefault(); if (resOn >= 0 && btns[resOn] && !btns[resOn].disabled) addKey(btns[resOn].dataset.key); }
+      else if (e.key === 'Escape') $('cx-results').hidden = true;
+    });
+    $('cx-results').addEventListener('mousedown', e => e.preventDefault());
+    $('cx-results').addEventListener('click', e => { const b = e.target.closest('.cx-res'); if (b && !b.disabled) addKey(b.dataset.key); });
+    document.addEventListener('click', e => { if (!e.target.closest('.cx-search-box')) $('cx-results').hidden = true; });
+    $('cx-tabs').addEventListener('click', e => {
+      const b = e.target.closest('.cx-tab'); if (!b) return;
+      opt.mkt = b.dataset.mkt;
+      document.querySelectorAll('.cx-tab').forEach(x => x.classList.toggle('active', x === b));
+      renderSearch(); $('cx-q').focus();
+    });
+    $('cx-holds').addEventListener('click', e => {
+      const d = e.target.closest('[data-del]'); if (!d) return;
+      holds.splice(Number(d.dataset.del), 1); renderHolds(); schedule(0);
+    });
+    $('cx-holds').addEventListener('input', e => {
+      const el = e.target; if (!el.dataset.k) return;
+      const h = holds[Number(el.dataset.i)]; const v = parseFloat(el.value);
+      if (!isFinite(v)) return;
+      h[el.dataset.k] = v;
+      if (el.dataset.k === 'y') h.ySrc = 'man'; else h.gSrc = 'man';
+      const f = el.closest('.cx-f').querySelector('.src');
+      if (f) { f.textContent = '직접 수정'; f.className = 'src man'; }
+      if (el.dataset.k !== 'y') el.closest('.cx-hold-in').querySelectorAll('.cx-f .src').forEach((s, j) => { if (j > 0) { s.textContent = '직접 수정'; s.className = 'src man'; } });
+      schedule();
+    });
+    $('cx-holds').addEventListener('change', () => renderHolds());
+    $('cx-step').addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b || b.disabled) return;
+      opt.step = Number(b.dataset.step); schedule(0);
+    });
+    $('cx-haircut').addEventListener('input', () => { const v = parseFloat($('cx-haircut').value); opt.haircut = isFinite(v) ? Math.max(0, Math.min(10, v)) : 0; renderHolds(); schedule(); });
+    $('cx-trcap').addEventListener('input', () => { const v = parseFloat($('cx-trcap').value); opt.trCap = isFinite(v) ? Math.max(0, Math.min(30, v)) : 0; renderHolds(); schedule(); });
+    $('cx-cccap').addEventListener('input', () => { const v = parseFloat($('cx-cccap').value); opt.ccCap = isFinite(v) ? Math.max(0, Math.min(30, v)) : 0; renderHolds(); schedule(); });
+    $('cx-cap').addEventListener('change', () => { opt.cap = $('cx-cap').checked; renderHolds(); schedule(0); });
+    $('cx-sort').addEventListener('change', () => { opt.sort = $('cx-sort').value; sortAndRender(true); });
+    $('cx-cov').addEventListener('change', () => { opt.minCov = Number($('cx-cov').value); sortAndRender(true); });
+    $('cx-more').addEventListener('click', () => { opt.shown += 10; renderResults(); });
+    $('cx-list').addEventListener('click', e => { const b = e.target.closest('[data-apply]'); if (b) applyCombo(Number(b.dataset.apply)); });
+    // 목표·나이·적립·물가·기간이 바뀌면 조합도 다시 계산
+    ['target-monthly', 'inflation', 'retire-years', 'current-age', 'retire-age', 'current-assets', 'monthly-saving', 'withdrawal-rate'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.addEventListener('input', () => schedule());
+    });
+    document.querySelectorAll('[data-target],[data-inflation],[data-retire-years],[data-rate]').forEach(b => b.addEventListener('click', () => schedule()));
+  }
+
+  async function init() {
+    ['US:SCHD', 'US:JEPI', 'US:QQQ', 'US:VOO'].forEach(k => holds.push(makeHold(k)));
+    bind(); renderHolds(); run();
+    const results = await Promise.allSettled([loadKR(), loadUS()]);
+    LIST = [...U.values()];
+    const okKR = results[0].status === 'fulfilled', okUS = results[1].status === 'fulfilled';
+    ST.status = (okKR || okUS) ? 'ok' : 'error';
+    const kr = LIST.filter(x => x.market === 'KR').length, us = LIST.length - kr;
+    $('cx-data-state').textContent = ST.status === 'ok'
+      ? `국내상장 ${kr.toLocaleString()}개 · 미국상장 ${us.toLocaleString()}개 검색 가능 · 배당률 갱신 ${(ST.krUpdated || ST.usUpdated || '').slice(0, 10)}${okKR && okUS ? '' : ' (일부 시장 불러오기 실패)'}`
+      : '종목 데이터를 불러오지 못했습니다. 담긴 종목은 프리셋 값으로 계산합니다.';
+    if (ST.status === 'ok') {
+      $('cx-universe-count').textContent = `${(kr + us).toLocaleString()}개 종목`;
+      refreshFromData(); renderHolds(); run();
+      if ($('cx-q').value.trim()) renderSearch();
+    }
+  }
+  return { init };
+})();
+
+// 메인 render 뒤에 공식 자료 패널 갱신
+const __baseRender = render;
+render = function (result) {
+  __baseRender(result);
+  try { updateInflPanel(result); updateLifePanel(result); } catch (e) { console.error(e); }
+};
+window.addEventListener('DOMContentLoaded', () => {
+  renderInflYearGrid();
+  CX.init();
+});
 
 // ============== 초기 렌더 ==============
 window.addEventListener('DOMContentLoaded', () => {
