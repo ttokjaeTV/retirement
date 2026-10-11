@@ -1390,6 +1390,12 @@
     .goal-link-bar { padding: 14px; }
     .goal-link-btn { width: 100%; justify-content: center; }
   }
+
+  /* 표 내려받기 (CSV·엑셀) */
+  .dl-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 0 0 12px; }
+  .dl-btn { font-family: inherit; font-size: 13px; font-weight: 700; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--accent, #D9542B); background: #FBF7F0; color: var(--accent, #D9542B); cursor: pointer; line-height: 1.2; }
+  .dl-btn:hover { background: var(--accent, #D9542B); color: #fff; }
+  .dl-note { font-size: 12px; color: #8B7B6B; font-weight: 600; word-break: keep-all; }
 </style>
 </head>
 <body>
@@ -2047,6 +2053,11 @@
       적립기와 인출기 전체 연도별 자산 변화. 명목·실질가치, 연 인출액까지 포함합니다.
       인출기에는 매년 초 1년치 생활비를 먼저 꺼내고 남은 자산이 굴러간다고 계산합니다(4% 룰 표준 방식).
     </p>
+    <div class="dl-bar">
+      <button type="button" class="dl-btn" id="dl-csv">CSV 내려받기</button>
+      <button type="button" class="dl-btn" id="dl-xlsx">엑셀(.xlsx) 내려받기</button>
+      <span class="dl-note">엑셀에는 연도별 표와 적립기 월별 표가 함께 들어갑니다 (원 단위 숫자)</span>
+    </div>
     <div class="table-wrap">
       <table class="data-table">
         <thead>
@@ -2102,6 +2113,86 @@
 </div>
 
 <script>
+// ============== 표 내려받기 (CSV · 엑셀 .xlsx) — 외부 라이브러리 없이 동작 ==============
+// TJX.csv('파일이름', rows) · TJX.xlsx('파일이름', [{ name: '시트', rows, widths }])
+// rows = [[머리글...], [값...], ...]  숫자는 숫자 그대로 넣으면 엑셀에서 계산 가능한 숫자 칸이 됩니다
+const TJX = (() => {
+  const enc = new TextEncoder();
+  function csvText(rows) {
+    return '﻿' + rows.map(r => r.map(v => {
+      if (v == null) return '';
+      if (typeof v === 'number') return isFinite(v) ? String(Math.round(v * 100) / 100) : '';
+      const t = String(v);
+      return /[",\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+    }).join(',')).join('\r\n');
+  }
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(b) { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  function zipStore(files) {   // 압축 없이 묶기 (엑셀은 이 형식도 그대로 엽니다)
+    const parts = [], central = []; let off = 0;
+    for (const f of files) {
+      const nm = enc.encode(f.name), d = enc.encode(f.text), c = crc32(d);
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true);
+      lh.setUint16(12, 0x21, true); lh.setUint32(14, c, true); lh.setUint32(18, d.length, true); lh.setUint32(22, d.length, true);
+      lh.setUint16(26, nm.length, true);
+      parts.push(new Uint8Array(lh.buffer), nm, d);
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true);
+      ch.setUint16(14, 0x21, true); ch.setUint32(16, c, true); ch.setUint32(20, d.length, true); ch.setUint32(24, d.length, true);
+      ch.setUint16(28, nm.length, true); ch.setUint32(42, off, true);
+      central.push(new Uint8Array(ch.buffer), nm);
+      off += 30 + nm.length + d.length;
+    }
+    const cs = central.reduce((s, a) => s + a.length, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, cs, true); end.setUint32(16, off, true);
+    return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const colName = i => { let s = ''; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  function sheetXml(sh) {
+    const rows = sh.rows || [];
+    const nCol = rows.reduce((m, r) => Math.max(m, r.length), 1);
+    const widths = sh.widths || [];
+    const cols = Array.from({ length: nCol }, (_, i) => `<col min="${i + 1}" max="${i + 1}" width="${widths[i] || (i === 0 ? 12 : 16)}" customWidth="1"/>`).join('');
+    const body = rows.map((r, ri) => `<row r="${ri + 1}">` + r.map((v, ci) => {
+      const ref = colName(ci) + (ri + 1);
+      if (v == null || v === '') return '';
+      if (typeof v === 'number' && isFinite(v)) {
+        const st = ri === 0 ? 2 : (Math.abs(v - Math.round(v)) < 1e-9 ? 1 : 3);
+        return `<c r="${ref}" s="${st}"><v>${Math.round(v * 10000) / 10000}</v></c>`;
+      }
+      return `<c r="${ref}" t="inlineStr"${ri === 0 ? ' s="2"' : ''}><is><t xml:space="preserve">${esc(v)}</t></is></c>`;
+    }).join('') + '</row>').join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${cols}</cols><sheetData>${body}</sheetData></worksheet>`;
+  }
+  function xlsxBlob(sheets) {
+    const W = 'http://schemas.openxmlformats.org';
+    const files = [
+      { name: '[Content_Types].xml', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="${W}/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>` },
+      { name: '_rels/.rels', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${W}/package/2006/relationships"><Relationship Id="rId1" Type="${W}/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>` },
+      { name: 'xl/workbook.xml', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="${W}/spreadsheetml/2006/main" xmlns:r="${W}/officeDocument/2006/relationships"><sheets>${sheets.map((s, i) => `<sheet name="${esc(String(s.name || 'Sheet' + (i + 1)).replace(/[\\\/\?\*\[\]:]/g, ' ').slice(0, 31))}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets></workbook>` },
+      { name: 'xl/_rels/workbook.xml.rels', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="${W}/package/2006/relationships">${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="${W}/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${sheets.length + 1}" Type="${W}/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>` },
+      { name: 'xl/styles.xml', text: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="${W}/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="맑은 고딕"/></font><font><b/><sz val="11"/><name val="맑은 고딕"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>` },
+      ...sheets.map((s, i) => ({ name: `xl/worksheets/sheet${i + 1}.xml`, text: sheetXml(s) })),
+    ];
+    return zipStore(files);
+  }
+  function save(blob, name) {
+    const a = document.createElement('a'), u = URL.createObjectURL(blob);
+    a.href = u; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(u); a.remove(); }, 1500);
+  }
+  const stamp = () => { const d = new Date(); return `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`; };
+  return {
+    csvText, xlsxBlob,
+    csv(name, rows) { save(new Blob([csvText(rows)], { type: 'text/csv;charset=utf-8' }), `${name}_${stamp()}.csv`); },
+    xlsx(name, sheets) { save(xlsxBlob(sheets), `${name}_${stamp()}.xlsx`); },
+  };
+})();
+
 // ============================================================
 // 평생 월 300만원 현금흐름 역산 계산기
 // 똑재TV · 평생 월 300만원 현금흐름 역산 시뮬레이터
@@ -2200,15 +2291,16 @@ const chartCommonOptions = {
 };
 
 // ============== 핵심 시뮬레이션 ==============
-function simulate() {
+function simulate(ov) {
+  ov = ov || {};  // 해결 방법 계산용: 은퇴 나이·목표 생활비만 바꿔서 다시 돌려볼 때 사용
   // 입력값 파싱 (만원 → 원, % → 소수)
-  const targetMonthly = (Number(document.getElementById('target-monthly').value) || 0) * 10000;
+  const targetMonthly = ov.targetMonthly != null ? ov.targetMonthly : (Number(document.getElementById('target-monthly').value) || 0) * 10000;
   const inflation = (Number(document.getElementById('inflation').value) || 0) / 100;
   const retireYears = Math.max(1, Math.min(60, Number(document.getElementById('retire-years').value) || 30));
   const withdrawalRate = (Number(document.getElementById('withdrawal-rate').value) || 4) / 100;
 
   const currentAge = Math.max(20, Math.min(85, Number(document.getElementById('current-age').value) || 35));
-  let retireAge = Math.max(currentAge + 1, Math.min(95, Number(document.getElementById('retire-age').value) || 60));
+  let retireAge = Math.max(currentAge + 1, Math.min(95, ov.retireAge != null ? ov.retireAge : (Number(document.getElementById('retire-age').value) || 60)));
   const accumYears = retireAge - currentAge;
 
   const currentAssets = Math.max(0, (Number(document.getElementById('current-assets').value) || 0) * 10000);
@@ -2364,6 +2456,46 @@ function simulate() {
   };
 }
 
+// ============== 부족분 해결 레버 (은퇴 늦추기 · 생활비 줄이기) ==============
+// 성공 = 필요 자산 도달 + 인출 기간 동안 바닥나지 않음
+function planOk(r) { return r.progressPct >= 100 && r.depletedAtYear < 0; }
+function computeLevers(result) {
+  const inp = result.inputs;
+  const out = { delayYears: -1, delayAge: -1, maxTarget: -1 };
+  // ① 은퇴 나이를 1년씩 늦춰 가며 처음 성공하는 나이 (최대 95세)
+  for (let age = inp.retireAge + 1; age <= 95; age++) {
+    if (planOk(simulate({ retireAge: age }))) { out.delayAge = age; out.delayYears = age - inp.retireAge; break; }
+  }
+  // ② 지금 은퇴 나이 그대로 둘 때 버틸 수 있는 최대 월 생활비 (오늘 화폐 기준, 이분 탐색)
+  if (inp.targetMonthly > 0) {
+    let lo = 0, hi = inp.targetMonthly;
+    for (let i = 0; i < 40; i++) {
+      const mid = (lo + hi) / 2;
+      if (planOk(simulate({ targetMonthly: mid }))) lo = mid; else hi = mid;
+    }
+    out.maxTarget = Math.floor(lo / 10000) * 10000;  // 만원 단위 내림 (보수적)
+  }
+  return out;
+}
+function leverItemsHTML(result, startNum) {
+  const inp = result.inputs;
+  const L = computeLevers(result);
+  const nums = ['①','②','③','④','⑤'];
+  let i = startNum - 1, html = '';
+  html += `<div class="verdict-item"><span class="verdict-num">${nums[i++]}</span> <span><strong>은퇴 늦추기</strong> — ` +
+    (L.delayAge > 0
+      ? `만 ${inp.retireAge}세 → <strong>만 ${L.delayAge}세</strong> <span class="verdict-sub">(${L.delayYears}년 연기 · 지금 적립금 그대로 · 인출 ${inp.retireYears}년 동안 바닥나지 않는 기준)</span>`
+      : `만 95세까지 늦춰도 이 조건으로는 어렵습니다 <span class="verdict-sub">(수익률이 물가를 충분히 넘지 못함)</span>`) + `</span></div>`;
+  const tgtM = Math.round(inp.targetMonthly / 10000);
+  const maxM = Math.round(L.maxTarget / 10000);
+  const cutPct = tgtM > 0 ? Math.round((1 - maxM / tgtM) * 100) : 0;
+  html += `<div class="verdict-item"><span class="verdict-num">${nums[i++]}</span> <span><strong>생활비 줄이기</strong> — ` +
+    (L.maxTarget > 0
+      ? `월 ${formatKRWManwon(tgtM)} → <strong>월 ${formatKRWManwon(maxM)}</strong> <span class="verdict-sub">(${cutPct}% 축소 · 오늘 화폐 기준 · 은퇴 나이 그대로 · 인출 ${inp.retireYears}년 동안 바닥나지 않는 기준)</span>`
+      : `지금 조건으로는 생활비를 줄여도 어렵습니다`) + `</span></div>`;
+  return html;
+}
+
 // ============== 결과 렌더링 ==============
 let lifecycleChart, compareChart, scenarioChart;
 
@@ -2428,8 +2560,9 @@ function render(result) {
           <span class="verdict-sub">(필요 자산 ${formatKRW(result.requiredAssets)}원의 ${pctText(result.progressPct)})</span></span></div>
         <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>원인</strong> — 총수익률 ${(inp.expectedReturn*100).toFixed(1)}% · 물가 ${(inp.inflation*100).toFixed(1)}% · 인출률 ${(inp.withdrawalRate*100).toFixed(1)}%
           <span class="verdict-sub">물가만큼 늘어나는 인출액을 수익이 따라가지 못해 ${inp.retireYears}년을 버티지 못합니다</span></span></div>
-        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>인출률 낮추기·인출 기간 줄이기·은퇴 시점 늦추기</strong></span></div>
+        ${leverItemsHTML(result, 3)}
       </div>
+      <div class="verdict-footer">세 방법 중 하나만 써도 되고, 조금씩 섞으면 각각의 부담이 줄어듭니다.</div>
     `;
   } else if (surplusOk) {
     verdictBox.classList.add('success');
@@ -2455,12 +2588,13 @@ function render(result) {
     verdictTitle.innerHTML = `${progressText(result, result.progressPct)} 달성 — 조금만 더 필요해요`;
     verdictDesc.innerHTML = `
       <div class="verdict-intro">현재 계획대로면 <strong>${progressText(result, result.progressPct)}</strong>까지 도달합니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
-      목표 달성에는 다음 두 가지 방법이 있습니다.</div>
+      목표 달성에는 다음 중 하나가 필요합니다.</div>
       <div class="verdict-list">
         <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(monthlyManwon)} → ${formatKRWManwon(neededManwon)}
           <span class="verdict-sub">(월 ${formatKRWManwon(neededManwon - monthlyManwon)} 추가)</span></span></div>
         <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(currentAssetsManwon)} → ${formatKRWManwon(neededTotalAssetsManwon)}
           <span class="verdict-sub">(지금 ${formatKRWManwon(neededExtraAssetsManwon)} 추가 필요)</span></span></div>
+        ${leverItemsHTML(result, 3)}
       </div>
       <div class="verdict-footer">절세계좌(연금저축·IRP·ISA)를 활용하면 같은 적립금으로도 세후 자산을 더 키울 수 있습니다.</div>
     `;
@@ -2477,7 +2611,7 @@ function render(result) {
           <span class="verdict-sub">(월 ${formatKRWManwon(neededManwon - monthlyManwon)} 추가)</span></span></div>
         <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(currentAssetsManwon)} → ${formatKRWManwon(neededTotalAssetsManwon)}
           <span class="verdict-sub">(지금 ${formatKRWManwon(neededExtraAssetsManwon)} 추가 필요)</span></span></div>
-        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>은퇴 시점 연장 또는 목표 생활비 조정</strong></span></div>
+        ${leverItemsHTML(result, 3)}
       </div>
     `;
   } else {
@@ -2491,7 +2625,7 @@ function render(result) {
       <div class="verdict-list">
         <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(neededManwon)}까지</span></div>
         <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(neededTotalAssetsManwon)}까지</span></div>
-        <div class="verdict-item"><span class="verdict-num">③</span> <span><strong>은퇴 시점 연장·목표 생활비 하향·부업으로 적립 여력 확보</strong></span></div>
+        ${leverItemsHTML(result, 3)}
       </div>
     `;
   }
@@ -2911,7 +3045,46 @@ function drawScenarioChart(result) {
 }
 
 // ============== 데이터 테이블 ==============
+// ===== 내려받기용 표 (원 단위 숫자) =====
+let lastTableResult = null;
+function exportRowsYearly(result) {
+  const inp = result.inputs, R = v => Math.round(v);
+  const rows = [['나이', '연차', '국면', '적립금(연)', '인출액(연, 실제 받은 돈)', '배당(연, 정보용)', '연말 총자산(명목)', '연말 총자산(오늘 가치)', '월 인출액(명목)', '월 인출액(오늘 가치)']];
+  result.accumYearly.forEach(r => {
+    const df = Math.pow(1 + inp.inflation, r.age - inp.currentAge);
+    rows.push([r.age, r.yearIdx, '적립', R(r.annualSaving), 0, '', R(r.asset), R(r.asset / df), '', '']);
+  });
+  result.withdrawYearly.forEach(r => {
+    const df = Math.pow(1 + inp.inflation, r.age - inp.currentAge);
+    const dfM = Math.pow(1 + inp.inflation, inp.accumYears + r.yearIdx - 1);
+    rows.push([r.age, r.yearIdx, r.depleted ? '인출(소진)' : '인출', 0, R(r.paid), R(r.annualDividend), R(r.asset), R(r.asset / df), R(r.paid / 12), R(r.paid / 12 / dfM)]);
+  });
+  return rows;
+}
+function exportRowsMonthly(result) {   // 적립기는 매달 복리로 계산하므로 월별로도 보여 줄 수 있다
+  const inp = result.inputs, R = v => Math.round(v);
+  const mr = Math.pow(1 + inp.expectedReturn, 1 / 12) - 1;
+  const rows = [['개월', '나이(만)', '적립금', '월말 자산(명목)', '월말 자산(오늘 가치)']];
+  let a = inp.currentAssets;
+  for (let m = 1; m <= inp.accumYears * 12; m++) {
+    a = a * (1 + mr) + inp.monthlySaving;
+    rows.push([m, Math.round((inp.currentAge + m / 12) * 10) / 10, R(inp.monthlySaving), R(a), R(a / Math.pow(1 + inp.inflation, m / 12))]);
+  }
+  return rows;
+}
+document.addEventListener('click', e => {
+  const id = e.target && e.target.id;
+  if (!lastTableResult || (id !== 'dl-csv' && id !== 'dl-xlsx')) return;
+  const name = '월300_은퇴역산_연차별자산흐름';
+  if (id === 'dl-csv') TJX.csv(name, exportRowsYearly(lastTableResult));
+  else TJX.xlsx(name, [
+    { name: '연도별', rows: exportRowsYearly(lastTableResult), widths: [8, 8, 11, 14, 18, 15, 17, 18, 15, 17] },
+    { name: '적립기 월별', rows: exportRowsMonthly(lastTableResult), widths: [8, 10, 12, 17, 19] },
+  ]);
+});
+
 function drawDataTable(result) {
+  lastTableResult = result;
   const inp = result.inputs;
   const tbody = document.getElementById('data-table-body');
   tbody.innerHTML = '';
