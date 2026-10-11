@@ -1372,6 +1372,24 @@
 @media (max-width: 768px) {
   input[type=text], input[type=number], input[type=search], input[type=tel], input:not([type]), select, textarea { font-size: 16px !important; }
 }
+  /* 목표금액 계산기로 넘기기 */
+  .goal-link-bar {
+    margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px 16px;
+    align-items: center; justify-content: space-between;
+    background: var(--bg-alt); border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px;
+  }
+  .goal-link-text { font-size: 14.5px; font-weight: 700; color: var(--ink); line-height: 1.55; }
+  .goal-link-text strong { color: var(--accent); }
+  .goal-link-btn {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--accent); color: var(--white);
+    text-decoration: none; font-size: 14px; font-weight: 800; padding: 10px 16px; border-radius: 10px;
+    white-space: nowrap; transition: all 0.15s ease;
+  }
+  .goal-link-btn:hover { background: var(--dark-warm); }
+  @media (max-width: 768px) {
+    .goal-link-bar { padding: 14px; }
+    .goal-link-btn { width: 100%; justify-content: center; }
+  }
 </style>
 </head>
 <body>
@@ -1957,6 +1975,10 @@
         <div class="stat-sub" id="r-years-left-sub">-</div>
       </div>
     </div>
+    <div class="goal-link-bar">
+      <span class="goal-link-text" id="goal-link-text">이 필요 자산, 매달 얼마씩 몇 년이면 모일까요?</span>
+      <a class="goal-link-btn" id="goal-link" href="https://ttokjaetv.github.io/goal-calc/" target="_blank" rel="noopener">목표금액 계산기로 보기 →</a>
+    </div>
 
     <!-- 보조 3지표 -->
     <div class="results-header" style="margin-top: 28px;">
@@ -2495,6 +2517,25 @@ function render(result) {
     result.neededMonthly <= 0 ? '추가 적립 불필요 (이미 목표 도달)' :
     savingDiff > 0 ? `현재 대비 +${formatKRW(savingDiff)}/월 추가` :
     savingDiff < 0 ? '현재 적립금으로 충분' : '현재 적립금과 동일';
+
+  // === 목표금액 계산기로 넘기기 (필요 자산 = 목표금액, 금액은 만원 단위, 이미 물가 반영 → basis=future) ===
+  const goalLink = document.getElementById('goal-link');
+  if (goalLink) {
+    const gq = new URLSearchParams({
+      from: 'retirement', mode: 'pmt',
+      goal: Math.round(result.requiredAssets / 10000),
+      current: Math.round(inp.currentAssets / 10000),
+      monthly: Math.round(inp.monthlySaving / 10000),
+      years: inp.accumYears,
+      rate: Math.round(inp.expectedReturn * 1000) / 10,
+      inflation: Math.round(inp.inflation * 1000) / 10,
+      basis: 'future',
+    });
+    goalLink.href = 'https://ttokjaetv.github.io/goal-calc/?' + gq.toString();
+    document.getElementById('goal-link-text').innerHTML = result.requiredAssets > 0
+      ? `필요 자산 <strong>${formatKRW(result.requiredAssets)}원</strong>, 매달 얼마씩 몇 년이면 모일까요?`
+      : '목표금액을 정해 매달 얼마씩 모을지 계산해 보세요.';
+  }
 
   document.getElementById('r-years-left').textContent = `${inp.accumYears}년`;
   document.getElementById('r-years-left-sub').textContent =
