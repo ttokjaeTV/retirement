@@ -4234,14 +4234,6 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   if (!filled) return;
   render(simulate());
-  if (q.get('from') === 'guide') {
-    const bar = document.createElement('div');
-    bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;background:var(--accent-soft);border:1px solid var(--accent);border-radius:14px;padding:14px 18px;margin-bottom:24px;font-size:14.5px;font-weight:700;line-height:1.6;';
-    bar.innerHTML = '<span>은퇴 5년 전 점검 가이드에서 가져온 값으로 채웠습니다. 점검 가이드는 생활비에서 국민연금을 빼고 평균 수익률로 계산하고, 여기는 국민연금 없이 인출률(기본 4% 룰)로 계산해 필요 자산이 보통 더 크게 나옵니다.</span>'
-      + '<a href="https://ttokjaetv.github.io/retire-check/" style="color:var(--accent);font-weight:800;white-space:nowrap;text-decoration:none;">← 점검 가이드로 돌아가기</a>';
-    const first = document.querySelector('.card');
-    if (first) first.parentNode.insertBefore(bar, first);
-  }
 });
 </script>
 </body>
