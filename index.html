@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>평생 월 300만원 현금흐름 역산 계산기 · 똑재TV</title>
+<title>현금흐름 역산 계산기 · 똑재TV</title>
 <meta name="description" content="은퇴 후 월 얼마가 필요한지 입력하면, 모아야 할 자산과 매달 적립금을 역산해드립니다. 4% Rule + 한국 통계 데이터 기반.">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 <style>
@@ -293,7 +293,7 @@
     font-weight: 800;
   }
 
-  /* 총수익률 디스플레이 (배당 + 시세차익 합계) */
+  /* 총수익률 디스플레이 (배당 + 주가성장 합계) */
   .total-return-display {
     display: flex;
     align-items: center;
@@ -1037,6 +1037,9 @@
     font-weight: 900;
   }
 
+  .hub-back { display: inline-block; font-size: 13px; color: var(--ink-mute); font-weight: 600; text-decoration: none; margin-bottom: 12px; }
+  .hub-back:hover { color: var(--accent); }
+
   /* 푸터 */
   footer {
     text-align: center;
@@ -1401,6 +1404,8 @@
 <body>
 <div class="container">
 
+  <a href="https://ttokjaetv.github.io/" class="hub-back">← 똑재TV 계산기 모음</a>
+
   <!-- ========== 헤더 ========== -->
   <header>
     <div class="logo">
@@ -1424,7 +1429,7 @@
     </h1>
     <p class="hero-desc">
       "은퇴 후 매달 받고 싶은 금액"을 입력하면<br>
-      필요한 자산·매월 적립금·도달 가능 여부를 즉시 역산해드립니다.
+      필요 자산·월 적립액·도달 가능 여부를 즉시 역산해드립니다.
     </p>
   </div>
 
@@ -1521,7 +1526,7 @@
         <div class="sub-card-title">기간 & 인플레이션</div>
 
         <div class="input-group">
-          <label class="label">예상 인플레이션 (연)</label>
+          <label class="label">물가상승률 (연)</label>
           <div class="input-wrap">
             <input type="number" id="inflation" value="2.5" step="0.1" min="0" max="10">
             <span class="input-currency" id="inflation-display">연 2.5%</span>
@@ -1694,7 +1699,7 @@
             <div class="tradeoff-side-label">↓ 인출률 낮추면</div>
             <div class="tradeoff-side-headline">자산 더 많이 필요<br>대신 평생 안 망함</div>
             <div class="tradeoff-side-detail">
-              월 300만 기준 3% → <strong>12억원</strong> 필요<br>
+              오늘 돈 월 300만 기준 3% → <strong>12억원</strong> 필요<br>
               (자산의 33.3배 · 성공률 ≈ 100%)
             </div>
           </div>
@@ -1703,7 +1708,7 @@
             <div class="tradeoff-side-label">↑ 인출률 높이면</div>
             <div class="tradeoff-side-headline">자산 적게 필요<br>대신 빨리 떨어질 위험</div>
             <div class="tradeoff-side-detail">
-              월 300만 기준 6% → <strong>6억원</strong> 필요<br>
+              오늘 돈 월 300만 기준 6% → <strong>6억원</strong> 필요<br>
               (자산의 16.7배 · 30년 성공률 50% 수준)
             </div>
           </div>
@@ -1724,7 +1729,7 @@
     </div>
     <h2 class="card-title">지금부터 얼마나 모을 수 있나요?</h2>
     <p class="card-subtitle">
-      현재 나이·기존 자산·매월 적립 가능 금액·예상 수익률을 입력하면 도달 가능 여부를 진단해드립니다.
+      현재 나이·기존 자산·월 적립액·예상 수익률을 입력하면 도달 가능 여부를 진단해드립니다.
     </p>
 
     <div class="grid-2" style="align-items: start;">
@@ -1746,7 +1751,7 @@
               <input type="number" id="retire-age" value="60" step="1" min="40" max="85">
               <span class="input-currency" id="retire-age-display">만 60세</span>
             </div>
-            <div class="input-hint">국민연금 수급 65세~</div>
+            <div class="input-hint">국민연금(65세~)은 이 계산에 넣지 않습니다</div>
           </div>
         </div>
       </div>
@@ -1755,15 +1760,15 @@
       <div class="sub-card">
         <div class="sub-card-title">얼마를 적립할 수 있나요?</div>
         <div class="input-group">
-          <label class="label">현재 보유 투자자산</label>
+          <label class="label">현재 투자자산</label>
           <div class="input-wrap">
             <input type="number" id="current-assets" value="3000" step="100" min="0">
             <span class="input-currency" id="current-assets-display">3,000만원</span>
           </div>
-          <div class="input-hint">단위: 만원 · 현금/예금 제외, 투자만</div>
+          <div class="input-hint">단위: 만원 · 노후에 쓸 투자자산(연금계좌·ISA·일반계좌) · 비상금은 빼고 넣으세요</div>
         </div>
         <div class="input-group">
-          <label class="label">매월 적립 가능 금액</label>
+          <label class="label">월 적립액</label>
           <div class="input-wrap">
             <input type="number" id="monthly-saving" value="100" step="10" min="0">
             <span class="input-currency" id="monthly-saving-display">월 100만원</span>
@@ -1773,25 +1778,25 @@
       </div>
     </div>
 
-    <!-- 투자 자산 프리셋 (배당률 + 배당성장 + 시세차익) -->
+    <!-- 투자 자산 프리셋 (배당률 + 배당성장 + 주가성장) -->
     <div class="sub-card" style="margin-top: 20px;">
-      <div class="sub-card-title">투자 포트폴리오 (배당 + 시세차익)</div>
+      <div class="sub-card-title">투자 포트폴리오 (배당 + 주가성장)</div>
       <p class="sub-card-desc">
-        실제 ETF 데이터 기반 프리셋을 선택하거나 직접 입력하세요. <strong>총수익률 = 배당률 + 시세차익</strong>으로
+        실제 ETF 데이터 기반 프리셋을 선택하거나 직접 입력하세요. <strong>총수익률 = 배당률 + 주가성장률</strong>으로
         은퇴 시점 자산이 결정되고, <strong>배당성장률</strong>은 인출기에 매년 받는 월배당이 늘어나는 속도입니다.
       </p>
 
       <div class="preset-row cols-6" style="margin-bottom: 18px;">
-        <button class="preset-btn etf-preset" data-yield="3.5" data-growth="7.0" data-price="5.5">
+        <button class="preset-btn etf-preset" data-yield="3.2" data-growth="5.5" data-price="5.5">
           SCHD<br><span class="preset-sub">배당성장 ETF</span>
         </button>
-        <button class="preset-btn etf-preset" data-yield="7.0" data-growth="1.0" data-price="1.0">
+        <button class="preset-btn etf-preset" data-yield="8.1" data-growth="0.0" data-price="-0.1">
           JEPI<br><span class="preset-sub">고배당 ETF</span>
         </button>
-        <button class="preset-btn etf-preset" data-yield="0.6" data-growth="8.0" data-price="9.4">
+        <button class="preset-btn etf-preset" data-yield="0.4" data-growth="8.0" data-price="9.5">
           QQQ<br><span class="preset-sub">성장형 ETF</span>
         </button>
-        <button class="preset-btn etf-preset" data-yield="1.5" data-growth="5.0" data-price="6.0">
+        <button class="preset-btn etf-preset" data-yield="1.0" data-growth="6.0" data-price="7.5">
           S&amp;P500<br><span class="preset-sub">시장 평균</span>
         </button>
         <button class="preset-btn etf-preset active" data-yield="2.5" data-growth="5.0" data-price="3.5">
@@ -1804,7 +1809,7 @@
 
       <div class="grid-3">
         <div class="input-group">
-          <label class="label">배당수익률 (%)</label>
+          <label class="label">배당률 (%)</label>
           <div class="input-wrap">
             <input type="number" id="dividend-yield" value="2.5" step="0.1" min="0" max="20">
             <span class="input-currency" id="dividend-yield-display">연 2.5%</span>
@@ -1814,18 +1819,18 @@
         <div class="input-group">
           <label class="label">배당성장률 (연 %)</label>
           <div class="input-wrap">
-            <input type="number" id="dividend-growth" value="5.0" step="0.1" min="0" max="20">
+            <input type="number" id="dividend-growth" value="5.0" step="0.1" min="0" max="30">
             <span class="input-currency" id="dividend-growth-display">연 5.0%</span>
           </div>
           <div class="input-hint">미래 배당이 매년 늘어나는 속도<br>※ 자산 총액 X, 인출기 월배당 ↑</div>
         </div>
         <div class="input-group">
-          <label class="label">시세차익 (연 %)</label>
+          <label class="label">주가성장률 (연 %)</label>
           <div class="input-wrap">
             <input type="number" id="price-appreciation" value="3.5" step="0.1" min="-5" max="20">
             <span class="input-currency" id="price-appreciation-display">연 3.5%</span>
           </div>
-          <div class="input-hint">주가 상승률 (배당 제외)</div>
+          <div class="input-hint">배당을 뺀 주가 상승 가정</div>
         </div>
       </div>
 
@@ -1833,13 +1838,13 @@
         <div class="total-return-label">예상 총수익률</div>
         <div class="total-return-value">
           <span id="total-return-display">6.0%</span>
-          <span class="total-return-formula" id="total-return-formula">배당 2.5% + 시세차익 3.5%</span>
+          <span class="total-return-formula" id="total-return-formula">배당 2.5% + 주가성장 3.5%</span>
         </div>
       </div>
 
       <div class="preset-source" style="margin-top: 12px;">
-        ※ 한국 투자자 관점 보수적 가정치 — 환율·세금·수수료를 감안해 미국 ETF 장기 평균보다 약 2~3%p 낮춰 잡은 값 · 2026년 4월 기준<br>
-        ※ 인출기에는 배당률이 매년 (1+배당성장률)÷(1+시세차익률)배로 바뀝니다. <strong>배당성장률이 시세차익률보다 크면</strong> 배당률(=총수익률)이 해마다 올라가 결과가 더 낙관적으로 나옵니다.
+        ※ 한국 투자자 관점 보수적 가정치 — 배당 재투자 계산기와 같은 프리셋에 아래 조합 탐색기 기본 설정(주가성장률 2.5%p 낮춰 잡기·총수익률 상한 10%, 커버드콜 8%·배당성장은 주가성장 이하)을 적용한 값입니다. 배당률은 2026-10-12 기준 고정값이라, 매일 갱신되는 조합 탐색기 배당률과 조금 다를 수 있습니다<br>
+        ※ 인출기에는 배당률이 매년 (1+배당성장률)÷(1+주가성장률)배로 바뀝니다. <strong>배당성장률이 주가성장률보다 크면</strong> 배당률(=총수익률)이 해마다 올라가 결과가 더 낙관적으로 나옵니다.
       </div>
     </div>
 
@@ -1875,21 +1880,21 @@
           </div>
         </div>
         <div class="cx-opt">
-          <span class="cx-opt-label">시세차익 낮춰 잡기</span>
-          <div class="cx-num"><input type="number" id="cx-haircut" value="2.5" step="0.5" min="0" max="6"><span>%p</span></div>
+          <span class="cx-opt-label">주가성장률 낮춰 잡기</span>
+          <div class="cx-num"><input type="number" id="cx-haircut" value="2.5" step="0.5" min="0" max="10"><span>%p</span></div>
         </div>
         <div class="cx-opt cx-opt-cap">
           <span class="cx-opt-label">총수익률 상한</span>
           <div class="cx-pair">
-            <label><span class="cx-sub">일반</span><span class="cx-num sm"><input type="number" id="cx-trcap" value="10" step="0.5" min="0" max="20"><span>%</span></span></label>
-            <label><span class="cx-sub">커버드콜</span><span class="cx-num sm"><input type="number" id="cx-cccap" value="8" step="0.5" min="0" max="20"><span>%</span></span></label>
+            <label><span class="cx-sub">일반</span><span class="cx-num sm"><input type="number" id="cx-trcap" value="10" step="0.5" min="0" max="30"><span>%</span></span></label>
+            <label><span class="cx-sub">커버드콜</span><span class="cx-num sm"><input type="number" id="cx-cccap" value="8" step="0.5" min="0" max="30"><span>%</span></span></label>
           </div>
         </div>
-        <label class="cx-opt cx-check"><input type="checkbox" id="cx-cap" checked> 배당성장은 시세차익 이하로</label>
+        <label class="cx-opt cx-check"><input type="checkbox" id="cx-cap" checked> 배당성장은 주가성장 이하로</label>
       </div>
       <div class="preset-source" style="margin-top: 6px;">
-        ※ 배당률은 최근 12개월 <b>실제 지급액 ÷ 현재가</b>(매일 갱신). 배당성장·시세차익은 <b>가정치</b>입니다 — 주요 종목은 배당 재투자 계산기와 같은 프리셋 값, 나머지는 유형별 기본값이고 직접 고칠 수 있습니다.<br>
-        ※ <b>시세차익 낮춰 잡기</b>: 이 계산기 프리셋처럼 환율·세금·수수료를 감안해 모든 종목의 시세차익을 같은 폭만큼 낮춥니다. <b>총수익률 상한</b>: 배당률+시세차익이 이 값을 넘으면 시세차익을 깎습니다. 분배율이 높은 커버드콜처럼 <b>분배한 만큼 가격이 빠지는</b> 상품이 총수익률 15~20%로 잡히는 것을 막습니다(기본 일반 10% = 이 페이지 QQQ 프리셋, 커버드콜 8% = 이 페이지 JEPI 프리셋의 총수익률 · 0이면 끔). <b>배당성장 상한</b>: 배당성장이 시세차익보다 크면 배당률이 해마다 불어나 결과가 지나치게 좋아지므로 시세차익까지로 묶습니다.
+        ※ 배당률은 최근 12개월 <b>실제 지급액 ÷ 현재가</b>(매일 갱신). 배당성장·주가성장률은 <b>가정치</b>입니다 — 주요 종목은 배당 재투자 계산기와 같은 프리셋 값, 나머지는 유형별 기본값이고 직접 고칠 수 있습니다.<br>
+        ※ <b>주가성장률 낮춰 잡기</b>: 이 계산기 프리셋처럼 환율·세금·수수료를 감안해 모든 종목의 주가성장률을 같은 폭만큼 낮춥니다. <b>총수익률 상한</b>: 배당률+주가성장률이 이 값을 넘으면 주가성장률을 깎습니다. 분배율이 높은 커버드콜처럼 <b>분배한 만큼 가격이 빠지는</b> 상품이 총수익률 15~20%로 잡히는 것을 막습니다(기본 일반 10% = 이 페이지 QQQ 프리셋, 커버드콜 8% = 이 페이지 JEPI 프리셋의 총수익률 · 0이면 끔). <b>배당성장 상한</b>: 배당성장이 주가성장보다 크면 배당률이 해마다 불어나 결과가 지나치게 좋아지므로 주가성장률까지로 묶습니다.
       </div>
 
       <div class="cx-summary" id="cx-summary"></div>
@@ -1898,7 +1903,7 @@
         <div class="cx-opt">
           <span class="cx-opt-label">정렬</span>
           <select id="cx-sort">
-            <option value="req">은퇴 때 필요 자산 적은 순</option>
+            <option value="req">필요 자산 적은 순</option>
             <option value="can">지금 계획으로 받는 생활비 큰 순</option>
             <option value="need">필요 월 적립 적은 순</option>
             <option value="cov">첫해 배당 비중 큰 순</option>
@@ -1925,9 +1930,9 @@
       </div>
 
       <div class="preset-source" style="margin-top: 12px;">
-        ※ <b>은퇴 때 필요 자산*</b> = 그 조합으로 은퇴 기간 동안 목표 생활비(물가 반영)를 꺼내 써도 <b>마지막 해에 딱 바닥나는</b> 금액. 위 STEP 02의 인출률(4% 룰) 대신 조합의 배당률·시세차익으로 직접 계산합니다.<br>
+        ※ <b>필요 자산 (평균 수익률 가정)*</b> = 그 조합으로 은퇴 기간 동안 목표 생활비(물가 반영)를 꺼내 써도 <b>마지막 해에 딱 바닥나는</b> 금액. 위 STEP 02의 인출률(4% 룰) 대신 조합의 배당률·주가성장률이 해마다 가정대로 나온다고 보고(하락장 순서 없음) 계산합니다. 4% 룰은 은퇴 초반 하락장 순서까지 감안한 보수적 기준이라 보통 더 크게 나옵니다(수익률을 낮게 잡거나 인출률을 4%보다 높이면 반대가 될 수도 있습니다).<br>
         ※ 비중은 매년 처음 비중으로 다시 맞춘다고 가정했습니다. 세전 기준이며 세금·수수료·환율 변동은 따로 빼지 않았습니다.<br>
-        ※ 순서는 가정치로 계산한 결과일 뿐 <b>특정 종목·비중을 추천하는 것이 아닙니다.</b> 시세차익 가정을 바꾸면 순위도 바뀝니다.
+        ※ 순서는 가정치로 계산한 결과일 뿐 <b>특정 종목·비중을 추천하는 것이 아닙니다.</b> 주가성장률 가정을 바꾸면 순위도 바뀝니다.
       </div>
     </div>
   </div>
@@ -1961,7 +1966,7 @@
     </div>
     <div class="grid-4">
       <div class="stat-card accent-orange">
-        <div class="stat-label">은퇴 시점 필요 자산</div>
+        <div class="stat-label" id="r-required-label">필요 자산 (4% 룰)</div>
         <div class="stat-value" id="r-required">-</div>
         <div class="stat-sub" id="r-required-sub">-</div>
       </div>
@@ -1971,7 +1976,7 @@
         <div class="stat-sub" id="r-projected-sub">-</div>
       </div>
       <div class="stat-card accent-green">
-        <div class="stat-label">필요한 매월 적립금</div>
+        <div class="stat-label">필요한 월 적립액</div>
         <div class="stat-value" id="r-needed-saving">-</div>
         <div class="stat-sub" id="r-needed-saving-sub">-</div>
       </div>
@@ -2037,7 +2042,7 @@
 
   <!-- ========== 차트 3: 부족분 시나리오 ========== -->
   <div class="card">
-    <h3 class="chart-title">🎯 매월 적립금별 도달 가능 자산</h3>
+    <h3 class="chart-title">🎯 월 적립액별 도달 가능 자산</h3>
     <p class="chart-subtitle">
       매월 얼마씩 적립하느냐에 따라 은퇴 시점 자산이 어떻게 달라지는지 시나리오별로 보여줍니다.
     </p>
@@ -2103,7 +2108,7 @@
 
   <!-- ========== 푸터 ========== -->
   <footer>
-    ※ 본 시뮬레이터는 단순 계산 도구로 세금·수수료·환율 변동을 직접 계산하지 않습니다(ETF 프리셋 수익률만 이를 감안해 낮춰 잡았습니다).<br>
+    ※ 본 시뮬레이터는 단순 계산 도구로 세금·수수료·환율 변동을 직접 계산하지 않고(ETF 프리셋 수익률만 이를 감안해 낮춰 잡았습니다), 국민연금도 넣지 않았습니다.<br>
     실제 투자 결과와는 차이가 있을 수 있으며, 투자 판단의 책임은 본인에게 있습니다.<br>
     <br>
     데이터 출처: 국가데이터처 「2025 가계금융복지조사」 · 국민연금연구원 「국민노후보장패널 10차」 · 국민연금공단 공표통계 · KCGI자산운용 설문(2025) ·
@@ -2306,11 +2311,11 @@ function simulate(ov) {
   const currentAssets = Math.max(0, (Number(document.getElementById('current-assets').value) || 0) * 10000);
   const monthlySaving = Math.max(0, (Number(document.getElementById('monthly-saving').value) || 0) * 10000);
 
-  // 수익률 분리 입력: 배당 + 시세차익 = 총수익률
+  // 수익률 분리 입력: 배당 + 주가성장 = 총수익률
   const dividendYield = Math.max(0, Math.min(0.20, (Number(document.getElementById('dividend-yield').value) || 0) / 100));
   const dividendGrowth = Math.max(0, Math.min(0.30, (Number(document.getElementById('dividend-growth').value) || 0) / 100));
   const priceAppreciation = Math.max(-0.05, Math.min(0.20, (Number(document.getElementById('price-appreciation').value) || 0) / 100));
-  // 총수익률 = 배당 + 시세차익 (입력 한도 안에서 음수도 허용) — 적립기·인출기 모두 같은 값을 쓴다
+  // 총수익률 = 배당 + 주가성장 (입력 한도 안에서 음수도 허용) — 적립기·인출기 모두 같은 값을 쓴다
   const expectedReturn = dividendYield + priceAppreciation;
 
   // === 1. 은퇴 시점 필요 자산 (역산) ===
@@ -2321,7 +2326,7 @@ function simulate(ov) {
   const requiredAssets = futureAnnual / withdrawalRate;
 
   // === 2. 현재 계획대로 적립 시 도달 자산 ===
-  // 적립기는 단순 복리 사용 (시세차익률에 배당성장 효과가 시장 효율성으로 이미 반영됨)
+  // 적립기는 단순 복리 사용 (주가성장률에 배당성장 효과가 시장 효율성으로 이미 반영됨)
   // 배당성장률은 인출기에서 yield on cost 증가 효과로만 사용
   // 연 수익률을 월 복리로 환산: (1+연수익률)^(1/12) − 1 → 12개월 뒤 정확히 연 수익률만큼 불어남
   // (연 ÷ 12로 나누면 실제 연 수익률이 입력값보다 높아지는 과대평가가 생김)
@@ -2383,8 +2388,8 @@ function simulate(ov) {
   // === 5. 인출기 시뮬레이션 (배당성장 모델) ===
   // 1) 매년 자산이 배당을 만들어냄 (배당률은 매년 성장)
   // 2) 인출 필요액 = 배당으로 우선 충당, 부족분만 자산 매도
-  // 3) 자산은 시세차익률로 성장
-  // 4) Forward yield = 배당성장률 / (1+시세차익률) 조정
+  // 3) 자산은 주가성장률로 성장
+  // 4) Forward yield = 배당성장률 / (1+주가성장률) 조정
   const withdrawYearly = [];
   let assetW = projectedAtRetire;
   let monthlyW = futureMonthly; // 첫 해 인출 목표 (인플레 반영)
@@ -2402,7 +2407,7 @@ function simulate(ov) {
 
     // 정확한 자산 변화 모델:
     // 자산 변화 = (연초 자산 − 인출액) × (1 + 총수익률)
-    // 여기서 총수익률 = 배당률 + 시세차익률
+    // 여기서 총수익률 = 배당률 + 주가성장률
     // 배당이 인출액을 충당하면 자산을 매도하지 않아도 됨 (정보용)
     // 자산 자체의 가치 변화는 같음 (이중계산 방지)
     const yearTotalReturn = currentDivYield + priceAppreciation;
@@ -2537,14 +2542,14 @@ function render(result) {
   const year20Dividend = result.withdrawYearly[year20Idx]?.monthlyDividend ?? firstYearDividend;
   // 실질가치 (1년차 기준 오늘 화폐 가치)
   const firstYearRealDiv = firstYearDividend / Math.pow(1 + inp.inflation, inp.accumYears);
-  // 배당성장 효과 (성장률이 시세차익보다 클 때만 의미있음)
+  // 배당성장 효과 (성장률이 주가성장보다 클 때만 의미있음)
   const dividendGrowsOverTime = inp.dividendGrowth > inp.priceAppreciation;
   const divRatio = (dp) => firstYearDividend > 0 ? (year20Dividend / firstYearDividend).toFixed(dp) + '배' : '-';
   const year20Sub = firstYearDividend <= 0
     ? (inp.dividendYield <= 0 ? `배당률 0%라 배당으로 받는 돈이 없습니다` : `은퇴 시점 자산이 없어 배당으로 받는 돈이 없습니다`)
     : dividendGrowsOverTime
-      ? `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}% 효과로 매년 늘어남 (${divRatio(1)} 증가) · 배당성장률이 시세차익률보다 커서 배당률이 해마다 올라가는 가정이라 결과가 낙관적일 수 있습니다`
-      : `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}%가 시세차익 ${(inp.priceAppreciation*100).toFixed(1)}%보다 낮아 거의 정체 (${divRatio(2)})`;
+      ? `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}% 효과로 매년 늘어남 (${divRatio(1)} 증가) · 배당성장률이 주가성장률보다 커서 배당률이 해마다 올라가는 가정이라 결과가 낙관적일 수 있습니다`
+      : `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}%가 주가성장률 ${(inp.priceAppreciation*100).toFixed(1)}%보다 낮아 거의 정체 (${divRatio(2)})`;
 
   if (surplusOk && depleted) {
     // 필요 자산은 모이지만 입력한 수익률·물가로는 인출 기간 중 바닥남 → 성공으로 보여주지 않는다
@@ -2590,7 +2595,7 @@ function render(result) {
       <div class="verdict-intro">현재 계획대로면 <strong>${progressText(result, result.progressPct)}</strong>까지 도달합니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
       목표 달성에는 다음 중 하나가 필요합니다.</div>
       <div class="verdict-list">
-        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(monthlyManwon)} → ${formatKRWManwon(neededManwon)}
+        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>월 적립액 늘리기</strong> — ${formatKRWManwon(monthlyManwon)} → ${formatKRWManwon(neededManwon)}
           <span class="verdict-sub">(월 ${formatKRWManwon(neededManwon - monthlyManwon)} 추가)</span></span></div>
         <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(currentAssetsManwon)} → ${formatKRWManwon(neededTotalAssetsManwon)}
           <span class="verdict-sub">(지금 ${formatKRWManwon(neededExtraAssetsManwon)} 추가 필요)</span></span></div>
@@ -2607,7 +2612,7 @@ function render(result) {
       <div class="verdict-intro">지금 페이스로는 부족분 <strong>${formatKRW(result.shortage)}원</strong>이 발생합니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
       도달하려면 다음 중 하나가 필요합니다.</div>
       <div class="verdict-list">
-        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(monthlyManwon)} → ${formatKRWManwon(neededManwon)}
+        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>월 적립액 늘리기</strong> — ${formatKRWManwon(monthlyManwon)} → ${formatKRWManwon(neededManwon)}
           <span class="verdict-sub">(월 ${formatKRWManwon(neededManwon - monthlyManwon)} 추가)</span></span></div>
         <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(currentAssetsManwon)} → ${formatKRWManwon(neededTotalAssetsManwon)}
           <span class="verdict-sub">(지금 ${formatKRWManwon(neededExtraAssetsManwon)} 추가 필요)</span></span></div>
@@ -2623,7 +2628,7 @@ function render(result) {
       <div class="verdict-intro">목표 자산 대비 <strong>${progressText(result, result.progressPct)}</strong>만 달성됩니다 (예상 월배당 <strong>${formatKRW(firstYearDividend)}원</strong>).
       한국 66세 이상 상대빈곤율이 37.7%(국가데이터처, 2025 가계금융복지조사)에 달하는 이유가 여기 있습니다.</div>
       <div class="verdict-list">
-        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>매월 적립금 늘리기</strong> — ${formatKRWManwon(neededManwon)}까지</span></div>
+        <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>월 적립액 늘리기</strong> — ${formatKRWManwon(neededManwon)}까지</span></div>
         <div class="verdict-item"><span class="verdict-num">②</span> <span><strong>현재 보유자산 늘리기</strong> — ${formatKRWManwon(neededTotalAssetsManwon)}까지</span></div>
         ${leverItemsHTML(result, 3)}
       </div>
@@ -2638,6 +2643,8 @@ function render(result) {
   document.getElementById('r-required').textContent = formatKRW(result.requiredAssets);
   document.getElementById('r-required-sub').textContent =
     `월 ${formatKRW(result.futureMonthly)}원 × 12개월 ÷ ${(inp.withdrawalRate * 100).toFixed(1)}%`;
+  document.getElementById('r-required-label').textContent =
+    Math.abs(inp.withdrawalRate - 0.04) < 1e-9 ? '필요 자산 (4% 룰)' : `필요 자산 (인출률 ${(inp.withdrawalRate * 100).toFixed(1)}%)`;
 
   document.getElementById('r-projected').textContent = formatKRW(result.projectedAtRetire);
   const diff = result.projectedAtRetire - result.requiredAssets;
@@ -2661,8 +2668,8 @@ function render(result) {
       current: Math.round(inp.currentAssets / 10000),
       monthly: Math.round(inp.monthlySaving / 10000),
       years: inp.accumYears,
-      rate: Math.round(inp.expectedReturn * 1000) / 10,
-      inflation: Math.round(inp.inflation * 1000) / 10,
+      rate: Math.round(inp.expectedReturn * 10000) / 100,
+      inflation: Math.round(inp.inflation * 10000) / 100,
       basis: 'future',
     });
     goalLink.href = 'https://ttokjaetv.github.io/goal-calc/?' + gq.toString();
@@ -2779,13 +2786,13 @@ function render(result) {
   updateChip('current-age', 'current-age-display', v => `만 ${Math.round(v)}세`, '만 0세');
   updateChip('retire-age', 'retire-age-display', v => `만 ${Math.round(v)}세`, '만 0세');
 
-  // === 총수익률 디스플레이 (배당 + 시세차익) ===
+  // === 총수익률 디스플레이 (배당 + 주가성장) ===
   const dyPct = (inp.dividendYield * 100).toFixed(1);
   const paPct = (inp.priceAppreciation * 100).toFixed(1);
   const trPct = (inp.expectedReturn * 100).toFixed(1);
   document.getElementById('total-return-display').textContent = `${trPct}%`;
   document.getElementById('total-return-formula').textContent =
-    `배당 ${dyPct}% + 시세차익 ${paPct}%`;
+    `배당 ${dyPct}% + 주가성장 ${paPct}%`;
 }
 
 // ============== 차트 1: 자산 곡선 ==============
@@ -2896,7 +2903,7 @@ function drawCompareChart(result) {
       labels: ['현재 계획대로', '필요 자산 (목표)'],
       datasets: [
         {
-          label: '명목가치 (미래 시점)',
+          label: '미래 금액(명목)',
           data: [result.projectedAtRetire, result.requiredAssets],
           backgroundColor: ['#D9542B', '#8B6F47'],
           borderRadius: 8,
@@ -2908,7 +2915,7 @@ function drawCompareChart(result) {
           }
         },
         {
-          label: '실질가치 (오늘 화폐 기준)',
+          label: '오늘 돈 가치(실질)',
           data: [realProjected, realRequiredToday],
           backgroundColor: ['#E89A6F', '#C4A57B'],
           borderRadius: 8,
@@ -3023,7 +3030,7 @@ function drawScenarioChart(result) {
           ...chartCommonOptions.scales.x,
           title: {
             display: true,
-            text: '매월 적립금 (만원)',
+            text: '월 적립액 (만원)',
             color: '#8B8276',
             font: { family: 'Pretendard', size: 12, weight: 700 }
           }
@@ -3286,7 +3293,7 @@ function bindEvents() {
       render(simulate());
     });
   });
-  // 프리셋 버튼: ETF 자산 (배당 + 성장 + 시세차익)
+  // 프리셋 버튼: ETF 자산 (배당 + 성장 + 주가성장)
   document.querySelectorAll('.etf-preset').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.etf-preset').forEach(b => b.classList.remove('active'));
@@ -3438,28 +3445,62 @@ const CX = (() => {
   const DATA_BASE = 'https://ttokjaetv.github.io/portfolio-sheet-data/data/';
   const MAX = 10;
   const COLORS = ['#D9542B', '#3A6F8F', '#8B6F47', '#7A9A3A', '#9C3D54', '#C4A57B', '#5A6B5A', '#E89A6F', '#7E6BA0', '#4F8A8B'];
-  // 주요 종목 성장률 프리셋 — 배당 재투자 계산기와 같은 값 [이름, 배당률(데이터 없을 때), 배당성장, 시세차익]
+  // 주요 종목 성장률 프리셋 — 배당 재투자 계산기와 같은 값 [이름, 배당률(데이터 없을 때), 배당성장, 주가성장]
   const PRESET = {
-    'KR:161510': ['PLUS 고배당주', 5.8, 10.5, 7.0], 'KR:466940': ['TIGER 은행고배당플러스TOP10', 6.5, 5.0, 6.0],
-    'KR:441800': ['TIME Korea플러스배당액티브', 4.5, 8.0, 9.0], 'KR:0052D0': ['TIGER 코리아배당다우존스', 4.2, 7.0, 7.0],
-    'KR:091170': ['KODEX 은행', 5.5, 4.0, 5.5], 'KR:484880': ['SOL 금융지주플러스고배당', 7.0, 5.0, 6.0],
-    'KR:0153K0': ['KODEX 주주환원고배당주', 5.0, 7.0, 7.0], 'KR:0089D0': ['KODEX 금융고배당TOP10', 6.2, 5.5, 6.0],
-    'KR:498400': ['KODEX 200타겟위클리커버드콜', 12.0, 0.5, 3.0],
-    'KR:005930': ['삼성전자', 2.5, 4.0, 6.0], 'KR:000660': ['SK하이닉스', 1.0, 5.0, 12.0], 'KR:033780': ['KT&G', 5.5, 4.0, 4.0],
-    'KR:105560': ['KB금융', 4.5, 8.0, 7.0], 'KR:055550': ['신한지주', 4.8, 7.0, 6.5], 'KR:086790': ['하나금융지주', 6.0, 6.0, 6.0],
-    'KR:316140': ['우리금융지주', 6.5, 5.0, 5.0], 'KR:024110': ['기업은행', 7.0, 4.0, 4.5], 'KR:005380': ['현대차', 4.0, 5.0, 7.0],
-    'KR:000270': ['기아', 4.5, 5.0, 7.0], 'KR:017670': ['SK텔레콤', 5.5, 3.0, 4.0], 'KR:030200': ['KT', 5.0, 4.0, 4.5],
-    'KR:005490': ['POSCO홀딩스', 3.5, 4.0, 5.0],
-    'KR:458730': ['TIGER 미국배당다우존스', 3.2, 9.0, 8.0], 'KR:0046Y0': ['ACE 미국배당퀄리티', 3.0, 9.0, 8.0],
-    'KR:441640': ['KODEX 미국배당커버드콜액티브', 9.4, 1.5, 4.5], 'KR:458760': ['TIGER 미국배당다우존스타겟커버드콜2호', 11.6, 1.0, 4.0],
-    'KR:494300': ['KODEX 미국나스닥100데일리커버드콜OTM', 19.7, 0.0, 1.5], 'KR:491620': ['RISE 미국테크100데일리고정커버드콜', 20.7, 0.0, 0.5],
-    'KR:473330': ['SOL 미국30년국채커버드콜(합성)', 10.1, 0.5, 2.0], 'KR:441680': ['TIGER 미국나스닥100커버드콜(합성)', 11.3, 0.5, 3.0],
-    'KR:0040Y0': ['SOL 팔란티어커버드콜OTM채권혼합', 26.2, 0.0, 0.0],
-    'US:SCHD': ['SCHD', 3.5, 11.0, 8.0], 'US:JEPI': ['JEPI', 7.5, 2.0, 4.0], 'US:JEPQ': ['JEPQ', 9.5, 3.0, 6.0],
-    'US:VYM': ['VYM', 3.0, 7.0, 7.0], 'US:VOO': ['VOO', 1.3, 6.0, 10.0], 'US:QQQ': ['QQQ', 0.6, 8.0, 12.0],
-    'US:O': ['O', 5.5, 4.0, 3.0], 'US:KO': ['KO', 3.1, 5.0, 6.0], 'US:PEP': ['PEP', 3.5, 6.0, 6.0], 'US:JNJ': ['JNJ', 3.0, 6.0, 6.0],
-    'US:PG': ['PG', 2.5, 5.0, 7.0], 'US:MCD': ['MCD', 2.4, 8.0, 8.0], 'US:MO': ['MO', 8.0, 4.0, 2.0], 'US:XOM': ['XOM', 3.5, 4.0, 5.0],
-    'US:CVX': ['CVX', 4.2, 5.0, 5.0], 'US:T': ['T', 6.5, 1.0, 3.0], 'US:VZ': ['VZ', 6.8, 2.0, 3.0], 'US:AAPL': ['AAPL', 0.5, 5.0, 12.0],
+    'KR:161510': ['PLUS 고배당주', 4.3, 10.5, 7.0],
+    'KR:489030': ['PLUS 고배당주위클리커버드콜', 23.7, 1.0, 1.0],
+    'KR:498400': ['KODEX 200타겟위클리커버드콜', 15.0, 0.5, 3.0],
+    'KR:498410': ['KODEX 금융고배당TOP10타겟위클리커버드콜', 16.5, 0.0, 0.0],
+    'KR:472150': ['TIGER 배당커버드콜액티브', 22.3, 1.0, 1.0],
+    'KR:466940': ['TIGER 은행고배당플러스TOP10', 4.0, 5.0, 6.0],
+    'KR:441800': ['TIME Korea플러스배당액티브', 8.0, 8.0, 9.0],
+    'KR:0052D0': ['TIGER 코리아배당다우존스', 4.4, 7.0, 7.0],
+    'KR:091170': ['KODEX 은행', 4.0, 4.0, 5.5],
+    'KR:484880': ['SOL 금융지주플러스고배당', 3.8, 5.0, 6.0],
+    'KR:0153K0': ['KODEX 주주환원고배당주', 2.4, 7.0, 7.0],
+    'KR:0089D0': ['KODEX 금융고배당TOP10', 4.3, 5.5, 6.0],
+    'KR:489250': ['KODEX 미국배당다우존스', 3.0, 9.0, 8.0],
+    'KR:458730': ['TIGER 미국배당다우존스', 3.1, 9.0, 8.0],
+    'KR:0046Y0': ['ACE 미국배당퀄리티', 1.4, 9.0, 8.0],
+    'KR:441640': ['KODEX 미국배당커버드콜액티브', 9.8, 1.5, 4.5],
+    'KR:458760': ['TIGER 미국배당다우존스타겟커버드콜2호', 10.7, 1.0, 4.0],
+    'KR:494300': ['KODEX 미국나스닥100데일리커버드콜OTM', 22.6, 0.0, 1.5],
+    'KR:491620': ['RISE 미국테크100데일리고정커버드콜', 21.4, 0.0, 0.5],
+    'KR:490600': ['RISE 미국배당100데일리고정커버드콜', 17.3, 2.0, 2.0],
+    'KR:441680': ['TIGER 미국나스닥100커버드콜(합성)', 12.6, 0.5, 3.0],
+    'KR:473330': ['SOL 미국30년국채커버드콜(합성)', 13.4, 0.5, 2.0],
+    'KR:0040Y0': ['SOL 팔란티어커버드콜OTM채권혼합', 27.7, 0.0, 0.0],
+    'KR:005930': ['삼성전자', 0.5, 4.0, 6.0],
+    'KR:000660': ['SK하이닉스', 0.2, 5.0, 12.0],
+    'KR:033780': ['KT&G', 3.7, 4.0, 4.0],
+    'KR:105560': ['KB금융', 2.9, 8.0, 7.0],
+    'KR:055550': ['신한지주', 2.8, 7.0, 6.5],
+    'KR:086790': ['하나금융지주', 3.5, 6.0, 6.0],
+    'KR:316140': ['우리금융지주', 4.2, 5.0, 5.0],
+    'KR:024110': ['기업은행', 6.2, 4.0, 4.5],
+    'KR:005380': ['현대차', 2.9, 5.0, 7.0],
+    'KR:000270': ['기아', 6.0, 5.0, 7.0],
+    'KR:017670': ['SK텔레콤', 1.9, 3.0, 4.0],
+    'KR:030200': ['KT', 4.6, 4.0, 4.5],
+    'KR:005490': ['POSCO홀딩스', 2.9, 4.0, 5.0],
+    'US:SCHD': ['SCHD', 3.2, 9.0, 8.0],
+    'US:JEPI': ['JEPI', 8.1, 2.0, 4.0],
+    'US:JEPQ': ['JEPQ', 11.2, 3.0, 6.0],
+    'US:VYM': ['VYM', 2.3, 7.0, 7.0],
+    'US:VOO': ['VOO', 1.0, 6.0, 10.0],
+    'US:QQQ': ['QQQ', 0.4, 8.0, 12.0],
+    'US:O': ['O', 6.0, 4.0, 3.0],
+    'US:KO': ['KO', 2.4, 5.0, 6.0],
+    'US:PEP': ['PEP', 4.6, 6.0, 6.0],
+    'US:JNJ': ['JNJ', 2.1, 6.0, 6.0],
+    'US:PG': ['PG', 2.9, 5.0, 7.0],
+    'US:MCD': ['MCD', 3.2, 8.0, 8.0],
+    'US:MO': ['MO', 6.2, 4.0, 2.0],
+    'US:XOM': ['XOM', 2.5, 4.0, 5.0],
+    'US:CVX': ['CVX', 3.4, 5.0, 5.0],
+    'US:T': ['T', 4.5, 1.0, 3.0],
+    'US:VZ': ['VZ', 6.1, 2.0, 3.0],
+    'US:AAPL': ['AAPL', 0.3, 5.0, 12.0],
     'US:MSFT': ['MSFT', 0.7, 10.0, 13.0],
   };
   // 유형별 기본값 (실데이터 아님 · 가정치) — 배당 재투자 계산기와 같은 표
@@ -3471,6 +3512,7 @@ const CX = (() => {
     overseasEtf: { label: '해외주식 ETF(국내상장)', dg: 6.0, pg: 8.0 }, krEqEtf: { label: '국내주식 ETF', dg: 5.0, pg: 6.0 },
     krStock: { label: '국내 개별주', dg: 4.0, pg: 5.0 }, spac: { label: '스팩', dg: 0, pg: 0 }, usDivEtf: { label: '미국 배당 ETF', dg: 6.0, pg: 7.0 },
     usEtf: { label: '미국 주식 ETF', dg: 6.0, pg: 8.0 }, usStock: { label: '미국 개별주', dg: 5.0, pg: 7.0 },
+    usDiv100: { label: '미국배당다우존스(SCHD형)', dg: 9.0, pg: 8.0 },
   };
   const RATE_RE = /금리|KOFR|SOFR|CD|머니마켓|단기자금/;
   function classify(it) {
@@ -3484,6 +3526,7 @@ const CX = (() => {
       if (it.asset === '원자재') return 'commod';
       if (it.asset === '통화') return RATE_RE.test(n) ? 'rate' : 'currency';
       if (it.asset === '기타') return RATE_RE.test(n) ? 'rate' : 'etc';
+      if (/미국배당다우존스/.test(n)) return 'usDiv100';   // Dow Jones U.S. Dividend 100 추종(커버드콜·타겟형은 위에서 cc)
       if (/배당/.test(n)) return 'krDivEtf';
       if (/미국|나스닥|S&P|글로벌|선진|일본|중국|차이나|인도|베트남|유럽|신흥|MSCI|필라델피아|월드/i.test(n)) return 'overseasEtf';
       return 'krEqEtf';
@@ -3624,7 +3667,7 @@ const CX = (() => {
     const B = base();
     const N = B.retireYears, units = 100 / opt.step;
     const E = holds.map(eff);
-    // T[i*N+y] = 그해 총수익률(배당률 + 시세차익) — 배당률은 (1+g)/(1+p)씩 변함
+    // T[i*N+y] = 그해 총수익률(배당률 + 주가성장) — 배당률은 (1+g)/(1+p)씩 변함
     const T = new Float64Array(n * N), D0 = new Float64Array(n), A0 = new Float64Array(n);
     E.forEach((e, i) => {
       const k = (1 + e.g) / (1 + e.p); let d = e.d;
@@ -3698,7 +3741,7 @@ const CX = (() => {
     box.innerHTML = holds.map((h, i) => {
       const e = eff(h);
       const effTxt = (Math.abs(e.p * 100 - h.pg) > 1e-9 || Math.abs(e.g * 100 - h.dg) > 1e-9)
-        ? `<div class="cx-eff">계산 적용값: 배당성장 ${(e.g * 100).toFixed(1)}% · 시세차익 ${(e.p * 100).toFixed(1)}% → 총수익률 ${((e.d + e.p) * 100).toFixed(1)}%${e.capped ? ' (상한 적용)' : ''}</div>` : '';
+        ? `<div class="cx-eff">계산 적용값: 배당성장 ${(e.g * 100).toFixed(1)}% · 주가성장 ${(e.p * 100).toFixed(1)}% → 총수익률 ${((e.d + e.p) * 100).toFixed(1)}%${e.capped ? ' (상한 적용)' : ''}</div>` : '';
       const warn = TYPE[h.type] && TYPE[h.type].warn ? `<div class="cx-warn">⚠ ${TYPE[h.type].warn}</div>` : '';
       const mk = h.market === 'KR' ? '국내상장' : '미국상장';
       return `<div class="cx-hold" style="--c:${h.color}">
@@ -3707,7 +3750,7 @@ const CX = (() => {
         <div class="cx-hold-in">
           <div class="cx-f"><label>배당률</label><div class="cx-num"><input type="number" step="0.1" min="0" max="40" value="${h.y}" data-i="${i}" data-k="y"><span>%</span></div><span class="src ${h.ySrc === 'real' ? 'real' : h.ySrc === 'man' ? 'man' : ''}">${srcLabel[h.ySrc]}</span></div>
           <div class="cx-f"><label>배당성장</label><div class="cx-num"><input type="number" step="0.5" min="-10" max="30" value="${h.dg}" data-i="${i}" data-k="dg"><span>%</span></div><span class="src ${h.gSrc === 'man' ? 'man' : ''}">${h.gSrc === 'preset' ? '프리셋 가정치' : h.gSrc === 'man' ? '직접 수정' : '유형 기본값'}</span></div>
-          <div class="cx-f"><label>시세차익</label><div class="cx-num"><input type="number" step="0.5" min="-10" max="30" value="${h.pg}" data-i="${i}" data-k="pg"><span>%</span></div><span class="src ${h.gSrc === 'man' ? 'man' : ''}">${h.gSrc === 'preset' ? '프리셋 가정치' : h.gSrc === 'man' ? '직접 수정' : '유형 기본값'}</span></div>
+          <div class="cx-f"><label>주가성장</label><div class="cx-num"><input type="number" step="0.5" min="-10" max="30" value="${h.pg}" data-i="${i}" data-k="pg"><span>%</span></div><span class="src ${h.gSrc === 'man' ? 'man' : ''}">${h.gSrc === 'preset' ? '프리셋 가정치' : h.gSrc === 'man' ? '직접 수정' : '유형 기본값'}</span></div>
         </div>${effTxt}${warn}</div>`;
     }).join('');
   }
@@ -3749,7 +3792,7 @@ const CX = (() => {
     const tgt = Math.round(B.target / 10000).toLocaleString();
     sum.innerHTML = `<div class="cx-sum-line">담은 ${RES.n}종목을 ${opt.step}% 단위로 섞은 <b>${count.toLocaleString()}가지</b> 조합을 모두 계산했습니다 <span style="color:var(--ink-mute);font-weight:600">(${(ms / 1000).toFixed(2)}초)</span></div>
       <div class="cx-sum-grid">
-        <div class="cx-sum-box"><div class="k">은퇴 때 필요 자산 범위</div><div class="v">${eok(mn)} ~ ${eok(mx)}</div><div class="s">오늘 돈 월 ${tgt}만원을 ${B.retireYears}년간 꺼내 쓰는 데 드는 돈</div></div>
+        <div class="cx-sum-box"><div class="k">필요 자산 범위 (평균 수익률 가정)</div><div class="v">${eok(mn)} ~ ${eok(mx)}</div><div class="s">오늘 돈 월 ${tgt}만원을 ${B.retireYears}년간 꺼내 쓰는 데 드는 돈</div></div>
         <div class="cx-sum-box"><div class="k">필요 자산이 가장 적은 조합</div><div class="v">${eok(mn)}</div><div class="s">${esc(minI >= 0 ? comboText(minI) : '-')}</div></div>
         <div class="cx-sum-box"><div class="k">배당만으로 첫해 생활비 충당</div><div class="v">${divOnly.toLocaleString()}가지</div><div class="s">첫해 배당 ≥ 첫해 생활비인 조합 수</div></div>
       </div>
@@ -3763,7 +3806,7 @@ const CX = (() => {
         <div class="cx-rank">${r + 1}</div>
         <div><div class="cx-chips">${chips(ci)}</div>
           <div class="cx-metrics">
-            <span><em>은퇴 때 필요 자산*</em><b>${eok(req[ci])}</b></span>
+            <span><em>필요 자산 (평균 수익률 가정)*</em><b>${eok(req[ci])}</b></span>
             <span><em>지금 계획 달성률</em><b class="${rate >= 100 ? 'good' : ''}">${rate >= 999 ? '999%+' : rate.toFixed(0) + '%'}</b></span>
             <span><em>첫해 배당 비중</em><b class="${cov[ci] >= 1 ? 'good' : ''}">${(cov[ci] * 100).toFixed(0)}%</b></span>
             <span><em>필요 월 적립</em><b class="${need[ci] <= B.saving ? 'good' : ''}">${need[ci] <= 0 ? '0원' : eok(need[ci])}</b></span>
@@ -3804,7 +3847,7 @@ const CX = (() => {
         } }),
       },
       scales: {
-        x: { type: 'linear', title: { display: true, text: '은퇴 때 필요 자산 (억원)', font: { family: 'Pretendard', size: 11, weight: 700 }, color: '#8B8276' }, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'Pretendard', size: 11, weight: 600 }, color: '#8B8276' } },
+        x: { type: 'linear', title: { display: true, text: '필요 자산 (평균 수익률 가정, 억원)', font: { family: 'Pretendard', size: 11, weight: 700 }, color: '#8B8276' }, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'Pretendard', size: 11, weight: 600 }, color: '#8B8276' } },
         y: { title: { display: true, text: '첫해 배당 비중 (%)', font: { family: 'Pretendard', size: 11, weight: 700 }, color: '#8B8276' }, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { family: 'Pretendard', size: 11, weight: 600 }, color: '#8B8276', callback: v => v + '%' }, suggestedMin: 0 },
       },
     };
@@ -3812,7 +3855,7 @@ const CX = (() => {
     else scatter = new Chart(cv, { type: 'scatter', data, options });
   }
 
-  // 조합을 아래 진단에 적용: 가중평균 배당률·시세차익 + 첫해 배당 변화와 같아지는 배당성장률
+  // 조합을 아래 진단에 적용: 가중평균 배당률·주가성장 + 첫해 배당 변화와 같아지는 배당성장률
   function applyCombo(ci) {
     const { W, n, units, E } = RES;
     let d0 = 0, d1 = 0, p = 0;
@@ -3971,14 +4014,18 @@ window.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('DOMContentLoaded', () => {
   let q;
   try { q = new URLSearchParams(location.search); } catch (e) { return; }
-  const ids = ['target-monthly', 'current-age', 'retire-age', 'current-assets', 'monthly-saving', 'retire-years', 'inflation'];
+  const ids = ['target-monthly', 'current-age', 'retire-age', 'current-assets', 'monthly-saving', 'retire-years', 'inflation',
+    'dividend-yield', 'dividend-growth', 'price-appreciation'];
+  // 수익률 칸은 입력칸과 같은 범위로 자른다 (주가성장률만 음수 허용) · 은퇴 기간은 계산과 같은 1~60년
+  const RANGE = { 'dividend-yield': [0, 20], 'dividend-growth': [0, 30], 'price-appreciation': [-5, 20], 'retire-years': [1, 60] };
   let filled = 0;
   ids.forEach(id => {
     const el = document.getElementById(id);
     if (!el || !q.has(id)) return;
-    const v = parseFloat(q.get(id));
-    if (!isFinite(v) || v < 0 || v > 1e7) return;
-    el.value = String(Math.round(v * 10) / 10);
+    let v = parseFloat(q.get(id));
+    if (!isFinite(v) || v > 1e7 || v < (RANGE[id] ? -1e7 : 0)) return;
+    if (RANGE[id]) v = Math.max(RANGE[id][0], Math.min(RANGE[id][1], v));
+    el.value = String(Math.round(v * 100) / 100);
     el.dispatchEvent(new Event('input', { bubbles: true }));
     filled++;
   });
@@ -3987,7 +4034,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (q.get('from') === 'guide') {
     const bar = document.createElement('div');
     bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:space-between;background:var(--accent-soft);border:1px solid var(--accent);border-radius:14px;padding:14px 18px;margin-bottom:24px;font-size:14.5px;font-weight:700;line-height:1.6;';
-    bar.innerHTML = '<span>은퇴 5년 전 점검 가이드에서 가져온 값으로 채웠습니다. 매월 적립액·은퇴 기간·수익률은 직접 확인해 주세요.</span>'
+    bar.innerHTML = '<span>은퇴 5년 전 점검 가이드에서 가져온 값으로 채웠습니다. 점검 가이드는 생활비에서 국민연금을 빼고 평균 수익률로 계산하고, 여기는 국민연금 없이 인출률(기본 4% 룰)로 계산해 필요 자산이 보통 더 크게 나옵니다.</span>'
       + '<a href="https://ttokjaetv.github.io/retire-check/" style="color:var(--accent);font-weight:800;white-space:nowrap;text-decoration:none;">← 점검 가이드로 돌아가기</a>';
     const first = document.querySelector('.card');
     if (first) first.parentNode.insertBefore(bar, first);
