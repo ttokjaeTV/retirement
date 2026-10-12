@@ -225,6 +225,9 @@
     color: var(--ink-mute);
     font-weight: 600;
   }
+  /* 숫자 바로 뒤에 붙는 단위 (만원·세·년·%) — 위치는 JS가 글자 폭을 재서 맞춘다 */
+  .input-unit { position: absolute; top: 50%; transform: translateY(-50%); left: 0; pointer-events: none;
+    font-size: 15px; font-weight: 700; color: var(--ink-mute); white-space: nowrap; visibility: hidden; }
 
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
@@ -1468,7 +1471,7 @@
         <div class="input-group">
           <label class="label">월 목표 (현재 가치 기준)</label>
           <div class="input-wrap">
-            <input type="number" id="target-monthly" value="300" step="10" min="50" max="3000">
+            <input type="number" id="target-monthly" data-unit="만원" value="300" step="10" min="50" max="3000">
             <span class="input-currency" id="target-monthly-display">월 300만원</span>
           </div>
           <div class="input-hint">단위: 만원 · 한국 평균 노후 생활비 기준</div>
@@ -1528,7 +1531,7 @@
         <div class="input-group">
           <label class="label">물가상승률 (연)</label>
           <div class="input-wrap">
-            <input type="number" id="inflation" value="2.5" step="0.1" min="0" max="10">
+            <input type="number" id="inflation" data-unit="%" value="2.5" step="0.1" min="0" max="10">
             <span class="input-currency" id="inflation-display">연 2.5%</span>
           </div>
           <div class="input-hint">한국은행 물가안정목표 <b>2%</b>(2019년~, 소비자물가 기준) · 실제 평균은 최근 20년 <b>2.3%</b>, 30년 <b>2.7%</b></div>
@@ -1583,7 +1586,7 @@
         <div class="input-group">
           <label class="label">은퇴 기간 (몇 년 동안 받을지)</label>
           <div class="input-wrap">
-            <input type="number" id="retire-years" value="30" step="1" min="10" max="60">
+            <input type="number" id="retire-years" data-unit="년" value="30" step="1" min="10" max="60">
             <span class="input-currency" id="retire-years-display">30년</span>
           </div>
           <div class="input-hint" id="life-hint">2024년 생명표 · 60세 기대여명: 남 23.7년 · 여 28.4년</div>
@@ -1654,7 +1657,7 @@
       <div class="input-group">
         <label class="label">인출률 (%)</label>
         <div class="input-wrap">
-          <input type="number" id="withdrawal-rate" value="4" step="0.1" min="2" max="10">
+          <input type="number" id="withdrawal-rate" data-unit="%" value="4" step="0.1" min="2" max="10">
           <span class="input-currency" id="withdrawal-rate-display">연 4.0%</span>
         </div>
         <div class="input-hint">기본값 4% (Trinity Study) · <span id="multiplier-display">자산의 25배 필요</span></div>
@@ -1740,7 +1743,7 @@
           <div class="input-group">
             <label class="label">현재 나이</label>
             <div class="input-wrap">
-              <input type="number" id="current-age" value="35" step="1" min="20" max="70">
+              <input type="number" id="current-age" data-unit="세" value="35" step="1" min="20" max="70">
               <span class="input-currency" id="current-age-display">만 35세</span>
             </div>
             <div class="input-hint">만 나이 기준</div>
@@ -1748,7 +1751,7 @@
           <div class="input-group">
             <label class="label">은퇴 희망 나이</label>
             <div class="input-wrap">
-              <input type="number" id="retire-age" value="60" step="1" min="40" max="85">
+              <input type="number" id="retire-age" data-unit="세" value="60" step="1" min="40" max="85">
               <span class="input-currency" id="retire-age-display">만 60세</span>
             </div>
             <div class="input-hint">국민연금(65세~)은 이 계산에 넣지 않습니다</div>
@@ -1762,7 +1765,7 @@
         <div class="input-group">
           <label class="label">현재 투자자산</label>
           <div class="input-wrap">
-            <input type="number" id="current-assets" value="3000" step="100" min="0">
+            <input type="number" id="current-assets" data-unit="만원" value="3000" step="100" min="0">
             <span class="input-currency" id="current-assets-display">3,000만원</span>
           </div>
           <div class="input-hint">단위: 만원 · 노후에 쓸 투자자산(연금계좌·ISA·일반계좌) · 비상금은 빼고 넣으세요</div>
@@ -1770,7 +1773,7 @@
         <div class="input-group">
           <label class="label">월 적립액</label>
           <div class="input-wrap">
-            <input type="number" id="monthly-saving" value="100" step="10" min="0">
+            <input type="number" id="monthly-saving" data-unit="만원" value="100" step="10" min="0">
             <span class="input-currency" id="monthly-saving-display">월 100만원</span>
           </div>
           <div class="input-hint">단위: 만원 · 연금저축+IRP+ISA+일반계좌 전체</div>
@@ -1811,7 +1814,7 @@
         <div class="input-group">
           <label class="label">배당률 (%)</label>
           <div class="input-wrap">
-            <input type="number" id="dividend-yield" value="2.5" step="0.1" min="0" max="20">
+            <input type="number" id="dividend-yield" data-unit="%" value="2.5" step="0.1" min="0" max="20">
             <span class="input-currency" id="dividend-yield-display">연 2.5%</span>
           </div>
           <div class="input-hint">현재 매수 시점 기준 연 배당</div>
@@ -1819,7 +1822,7 @@
         <div class="input-group">
           <label class="label">배당성장률 (연 %)</label>
           <div class="input-wrap">
-            <input type="number" id="dividend-growth" value="5.0" step="0.1" min="0" max="30">
+            <input type="number" id="dividend-growth" data-unit="%" value="5.0" step="0.1" min="0" max="30">
             <span class="input-currency" id="dividend-growth-display">연 5.0%</span>
           </div>
           <div class="input-hint">미래 배당이 매년 늘어나는 속도<br>※ 자산 총액 X, 인출기 월배당 ↑</div>
@@ -1827,7 +1830,7 @@
         <div class="input-group">
           <label class="label">주가성장률 (연 %)</label>
           <div class="input-wrap">
-            <input type="number" id="price-appreciation" value="3.5" step="0.1" min="-5" max="20">
+            <input type="number" id="price-appreciation" data-unit="%" value="3.5" step="0.1" min="-5" max="20">
             <span class="input-currency" id="price-appreciation-display">연 3.5%</span>
           </div>
           <div class="input-hint">배당을 뺀 주가 상승 가정</div>
@@ -3992,11 +3995,35 @@ const CX = (() => {
   return { init };
 })();
 
-// 메인 render 뒤에 공식 자료 패널 갱신
+// ============== 입력칸 숫자 뒤 단위 ==============
+// input에 data-unit이 있으면 입력한 숫자 바로 뒤에 단위(만원·세·년·%)를 붙여 보여 준다.
+const unitCanvas = document.createElement('canvas').getContext('2d');
+function placeUnits() {
+  document.querySelectorAll('.input-wrap input[data-unit]').forEach(inp => {
+    let tag = inp.parentNode.querySelector('.input-unit');
+    if (!tag) { tag = document.createElement('span'); tag.className = 'input-unit'; tag.textContent = inp.dataset.unit; inp.after(tag); }
+    const cs = getComputedStyle(inp);
+    if (inp.value === '' || !inp.offsetWidth) { tag.style.visibility = 'hidden'; return; }
+    unitCanvas.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    const w = unitCanvas.measureText(inp.value).width;
+    const left = parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth) + w + 4 - inp.scrollLeft;
+    tag.style.left = Math.round(left) + 'px';
+    tag.style.fontSize = cs.fontSize;
+    tag.style.visibility = left + tag.offsetWidth < inp.clientWidth - parseFloat(cs.paddingRight) + 8 ? 'visible' : 'hidden';
+  });
+}
+window.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('input', e => { if (e.target.matches && e.target.matches('.input-wrap input[data-unit]')) placeUnits(); });
+  let ut; window.addEventListener('resize', () => { clearTimeout(ut); ut = setTimeout(placeUnits, 200); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeUnits);   // 웹폰트가 늦게 뜨면 폭을 다시 잰다
+});
+
+// 메인 render 뒤에 공식 자료 패널 갱신 (+ 입력칸 단위 위치)
 const __baseRender = render;
 render = function (result) {
   __baseRender(result);
   try { updateInflPanel(result); updateLifePanel(result); } catch (e) { console.error(e); }
+  placeUnits();
 };
 window.addEventListener('DOMContentLoaded', () => {
   renderInflYearGrid();
