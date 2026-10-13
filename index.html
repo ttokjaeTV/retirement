@@ -1436,6 +1436,44 @@
     .copy-bar { margin-top: -10px; }
     .method-list { font-size: 13.5px; }
   }
+  /* ===== 배당으로 채우기: 자산 × 배당률 표 ===== */
+  .dm-mine { background: var(--bg-alt); border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 600; line-height: 1.65; color: var(--ink); margin-bottom: 14px; }
+  .dm-mine strong { color: var(--accent); }
+  .dm-bar { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; }
+  .dm-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-soft); font-weight: 600; }
+  .dm-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dm-sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; border: 1px solid var(--border); }
+  .dm-sw.ok { background: #DCE5DC; }
+  .dm-sw.near { background: #F6E7C8; }
+  .dm-sw.pick { background: transparent; border: 2px solid var(--accent); }
+  .dm-table { min-width: 640px; }
+  .dm-table th { text-align: center; vertical-align: bottom; }
+  .dm-table th .dm-tag { display: block; font-size: 10px; font-weight: 700; color: var(--brown); letter-spacing: 0; margin-top: 3px; white-space: normal; line-height: 1.3; }
+  .dm-table th.dm-mycol { background: var(--accent-soft); color: var(--accent); }
+  .dm-table th.dm-mycol .dm-tag { color: var(--accent); }
+  .dm-table td { padding: 3px 4px; text-align: center; }
+  .dm-table td:first-child { padding: 0 10px; white-space: nowrap; }
+  .dm-table td button {
+    all: unset; box-sizing: border-box; display: block; width: 100%; padding: 8px 6px; text-align: center; cursor: pointer;
+    border: 2px solid transparent; border-radius: 8px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink);
+  }
+  .dm-table td button:hover { border-color: var(--beige-gold); }
+  .dm-table td button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .dm-table td.ok button { background: #DCE5DC; color: var(--green-deep); font-weight: 800; }
+  .dm-table td.near button { background: #F6E7C8; }
+  .dm-table td button[aria-pressed="true"] { border-color: var(--accent); }
+  .dm-table td.dm-mycol button { box-shadow: inset 0 0 0 1px rgba(217,84,43,0.25); }
+  .dm-pick { margin-top: 14px; background: var(--white); border: 1.5px solid var(--accent); border-radius: 14px; padding: 14px 18px; font-size: 14px; font-weight: 600; line-height: 1.7; }
+  .dm-pick-main { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+  .dm-pick strong { color: var(--accent); }
+  .dm-pick .goal-link-btn { margin-top: 10px; }
+  @media (max-width: 768px) {
+    .dm-mine { font-size: 13.5px; padding: 12px 14px; }
+    .dm-bar { flex-direction: column; align-items: flex-start; }
+    .dm-pick { padding: 14px; }
+    .dm-pick-main { font-size: 15px; }
+    .dm-pick .goal-link-btn { white-space: normal; text-align: center; line-height: 1.4; }
+  }
 </style>
 </head>
 <body>
@@ -2064,6 +2102,40 @@
     </div>
   </div>
 
+  <!-- ========== 배당으로 채우기: 자산 × 배당률 표 ========== -->
+  <div class="card dm-card" id="dm-card">
+    <div class="step-label">
+      <div class="step-line"></div>
+      <span class="step-text">배당으로 채우기</span>
+    </div>
+    <h3 class="chart-title">자산 × 배당률, 배당만으로 생활비를 채우려면?</h3>
+    <p class="chart-subtitle" id="dm-subtitle">-</p>
+
+    <div class="dm-mine" id="dm-mine"></div>
+
+    <div class="dm-bar">
+      <div class="dm-legend">
+        <span><i class="dm-sw ok"></i>목표 생활비 이상</span>
+        <span><i class="dm-sw near"></i>목표의 70% 이상</span>
+        <span><i class="dm-sw pick"></i>선택한 칸</span>
+      </div>
+      <div class="cx-seg" id="dm-range" role="group" aria-label="표 범위">
+        <button type="button" data-range="focus" class="active">선택 칸 근처</button>
+        <button type="button" data-range="all">1억~20억 전체</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table dm-table" id="dm-table"></table>
+    </div>
+    <div class="dm-pick" id="dm-pick"></div>
+
+    <div class="preset-source" style="margin-top: 14px;">
+      ※ 칸의 숫자 = <b>자산 × 배당률 ÷ 12</b>(세전 월배당금, 오늘 돈 기준). 원금은 그대로 두고 배당만 쓴다고 볼 때의 금액입니다. 위 <b>필요 자산 (4% 룰)</b>은 원금도 조금씩 꺼내 쓰는 방식이라 숫자가 다릅니다.<br>
+      ※ 일반계좌는 배당소득세 15.4%(미국 직투는 15%)를 떼고 들어오며, 연금저축·IRP·ISA 안에서 받으면 과세 방식이 다릅니다. 일반계좌 배당이 연 1,000만원(월 약 83만원)을 넘으면 건보료에, 연 2,000만원(월 약 167만원)을 넘으면 금융소득종합과세에 걸릴 수 있습니다 — 표는 오늘 돈 기준이라 실제 은퇴 때는 금액이 더 커져 이 기준을 더 빨리 넘습니다.<br>
+      ※ 배당률 아래 종목 이름은 위 투자 포트폴리오 프리셋의 배당률을 가장 가까운 칸에 붙인 것입니다. 배당률이 높다고 총수익률이 높은 것은 아닙니다(커버드콜처럼 분배한 만큼 가격이 빠지는 상품이 있습니다). 특정 상품을 권하는 표가 아닙니다.
+    </div>
+  </div>
+
   <!-- ========== 차트 1: 자산 적립 + 인출 곡선 ========== -->
   <div class="card">
     <h3 class="chart-title">📈 자산 곡선 (적립기 → 인출기)</h3>
@@ -2165,6 +2237,7 @@
       <li><strong>인출기</strong>: 매년 초 1년치 생활비를 먼저 꺼내고 남은 자산이 1년간 총수익률만큼 굴러갑니다. 생활비는 해마다 물가만큼 늘리고, 연초 자산보다 많이 꺼낼 수는 없습니다.</li>
       <li><strong>배당</strong>은 "자산 × 그해 배당률"로 보여 주는 정보값입니다. 생활비에 먼저 쓰인다고 보고 자산 증감에는 이중으로 넣지 않습니다. 배당률은 해마다 배당성장률만큼 늘고 주가성장률만큼 낮아집니다.</li>
       <li><strong>해결 방법</strong>(은퇴 늦추기·생활비 줄이기)은 "필요 자산 도달 + 인출 기간 동안 바닥나지 않음"을 처음 만족하는 은퇴 나이·최대 생활비를 찾아 보여 줍니다. 생활비는 만원 단위로 내림합니다.</li>
+      <li><strong>배당으로 채우기 표</strong>: 칸 = 자산(오늘 돈) × 배당률 ÷ 12. 원금은 쓰지 않고 배당만 쓴다고 볼 때의 세전 월배당금입니다. 표 위 '지금 계획' 줄은 은퇴 때 모이는 자산을 (1 + 물가)<sup>남은 햇수</sup>로 나눠 오늘 돈으로 바꾼 뒤 입력한 배당률을 곱한 값으로, 인출기 첫해 배당과 같은 기준입니다.</li>
       <li>표·차트의 금액은 그해 돈(명목) 기준이고, "오늘 가치"는 그 금액을 물가로 나눠 지금 돈으로 바꾼 값입니다.</li>
     </ul>
     <div class="method-h">계산에 넣지 않은 것</div>
@@ -4136,6 +4209,146 @@ function updateFinWarn(result) {
   box.style.display = 'block';
 }
 
+// ============== 배당으로 채우기: 자산 × 배당률 표 ==============
+// 칸 = 자산(오늘 돈) × 배당률 ÷ 12 = 세전 월배당금(오늘 돈). 목표 생활비(오늘 돈)와 같은 기준으로 비교한다.
+const DM_ASSETS = Array.from({ length: 20 }, (_, k) => (k + 1) * 1e8);   // 1억 ~ 20억
+const DM_YIELDS = [2, 3, 4, 5, 6, 7, 8, 10];                               // 배당률(%) 칸
+const DM = { range: 'focus', pick: null };                                 // pick = { T, y } (사용자가 누른 칸)
+
+function dmEok(n) {   // 1억 → "1억", 12억 → "12억"
+  const e = n / 1e8;
+  return (Number.isInteger(e) ? e.toLocaleString() : (Math.round(e * 10) / 10).toLocaleString()) + '억';
+}
+function dmMan(won) {  // 월배당금 표시: "250만"
+  const m = won / 10000;
+  return (m >= 10 ? Math.round(m).toLocaleString() : (Math.round(m * 10) / 10).toLocaleString()) + '만';
+}
+const dmYTxt = y => (Number.isInteger(y) ? String(y) : y.toFixed(2)) + '%';   // 칸은 3%, 입력값은 2.50%처럼 소수 2자리
+// 위 투자 포트폴리오 프리셋(SCHD·JEPI 등)의 배당률을 가장 가까운 칸에 이름표로 붙인다 (2% 미만은 표 밖이라 생략)
+function dmPresetTags(cols) {
+  const tags = {};
+  document.querySelectorAll('.etf-preset:not(.etf-custom)').forEach(b => {
+    const y = parseFloat(b.dataset.yield);
+    if (!isFinite(y) || y < cols[0] - 0.5) return;
+    let best = cols[0];
+    cols.forEach(c => { if (Math.abs(c - y) < Math.abs(best - y) - 1e-9) best = c; });
+    const name = (b.childNodes[0] && b.childNodes[0].textContent || '').trim();
+    if (!name) return;
+    (tags[best] = tags[best] || []).push(name);
+  });
+  return tags;
+}
+function dmLink(inp, assetWon) {
+  const q = new URLSearchParams({
+    mode: 'pmt',
+    goal: Math.round(assetWon / 10000),
+    current: Math.round(inp.currentAssets / 10000),
+    monthly: Math.round(inp.monthlySaving / 10000),
+    years: inp.accumYears,
+    rate: Math.round(inp.expectedReturn * 10000) / 100,
+    inflation: Math.round(inp.inflation * 10000) / 100,
+    basis: inp.inflation > 0 ? 'today' : 'future',   // 표는 오늘 돈 기준 → 목표금액 계산기에서 물가만큼 키워 계산
+  });
+  return 'https://ttokjaetv.github.io/goal-calc/?' + q.toString();
+}
+function updateDivMatrix(result) {
+  const card = document.getElementById('dm-card');
+  if (!card) return;
+  const inp = result.inputs;
+  const want = inp.targetMonthly;                         // 목표 월 생활비 (오늘 돈)
+  const wantTxt = formatKRWManwon(Math.round(want / 10000));
+  const myY = Math.round(inp.dividendYield * 10000) / 100; // 입력한 배당률(%)
+  const cols = DM_YIELDS.slice();
+  const hasMy = myY > 0;
+  if (hasMy && !cols.some(c => Math.abs(c - myY) < 0.005)) cols.push(myY);
+  cols.sort((a, b) => a - b);
+  const isMy = c => hasMy && Math.abs(c - myY) < 0.005;
+  const div = (T, y) => T * (y / 100) / 12;
+  const cls = (T, y) => want > 0 && div(T, y) >= want - 0.5 ? 'ok' : (want > 0 && div(T, y) >= want * 0.7 ? 'near' : '');
+
+  document.getElementById('dm-subtitle').textContent =
+    `오늘 돈 기준 자산과 배당률을 맞춰 보면 매달 받는 월배당금(세전)이 나옵니다. 목표 생활비 월 ${wantTxt} 이상인 칸은 초록, 70% 이상은 노랑입니다. 칸을 누르면 아래에 풀어서 보여 드립니다.`;
+
+  // 지금 계획 기준 한 줄: 은퇴 때 자산을 오늘 돈으로 바꿔, 입력한 배당률로 받는 월배당금
+  const realDefl = Math.pow(1 + inp.inflation, inp.accumYears);
+  const projReal = result.projectedAtRetire / realDefl;
+  const mine = document.getElementById('dm-mine');
+  if (hasMy && result.projectedAtRetire > 0) {
+    const md = div(projReal, myY);
+    mine.innerHTML = `지금 계획대로면 은퇴 때(만 ${inp.retireAge}세) 자산은 <strong>${formatKRW(result.projectedAtRetire)}원</strong>, 오늘 돈으로 약 <strong>${formatKRW(projReal)}원</strong>입니다. ` +
+      `입력한 배당률 ${dmYTxt(myY)}면 첫해 월배당금은 오늘 돈 기준 약 <strong>${dmMan(md)}원</strong>으로, 목표 생활비의 <strong>${want > 0 ? Math.round(md / want * 100) : 0}%</strong>를 배당이 채웁니다.`;
+  } else {
+    mine.innerHTML = hasMy ? '지금 계획으로는 은퇴 때 모이는 자산이 없습니다. 아래 표에서 자산·배당률 조합만 확인해 보세요.'
+      : '배당률을 0%로 넣어 배당으로 받는 돈이 없습니다. 아래 표에서 자산·배당률 조합을 확인해 보세요.';
+  }
+
+  // 선택 칸: 사용자가 누른 칸이 있으면 유지, 없으면 입력 배당률(없으면 4%) 열에서 목표를 처음 넘는 자산
+  let pick = DM.pick;
+  if (!pick || !cols.some(c => Math.abs(c - pick.y) < 0.005)) {
+    const y = hasMy ? myY : 4;
+    const T = DM_ASSETS.find(t => div(t, y) >= want - 0.5) || DM_ASSETS[DM_ASSETS.length - 1];
+    pick = { T, y };
+    if (DM.pick) DM.pick = null;
+  }
+
+  // 보여 줄 행: '선택 칸 근처'면 선택한 배당률 열에서 월배당금이 목표의 60~140%인 행 ±1억 + 선택한 행
+  let lo = DM_ASSETS[0], hi = DM_ASSETS[DM_ASSETS.length - 1];
+  if (DM.range === 'focus' && want > 0) {
+    const band = DM_ASSETS.filter(T => { const r = div(T, pick.y) / want; return r >= 0.6 && r <= 1.4; });
+    if (band.length) {
+      lo = Math.max(lo, Math.min(band[0] - 1e8, pick.T));
+      hi = Math.min(hi, Math.max(band[band.length - 1] + 1e8, pick.T));
+    }
+  }
+  document.querySelectorAll('#dm-range button').forEach(b => b.classList.toggle('active', b.dataset.range === DM.range));
+
+  const tags = dmPresetTags(cols);
+  let h = '<thead><tr><th>자산<br><span class="th-sub">오늘 돈</span></th>';
+  cols.forEach(c => {
+    const tg = [];
+    if (isMy(c)) tg.push('입력값');
+    if (tags[c]) tg.push(...tags[c]);
+    h += `<th class="${isMy(c) ? 'dm-mycol' : ''}">${dmYTxt(c)}${tg.length ? `<span class="dm-tag">${tg.join('·')}</span>` : ''}</th>`;
+  });
+  h += '</tr></thead><tbody>';
+  DM_ASSETS.filter(T => T >= lo && T <= hi).forEach(T => {
+    h += `<tr><td>${dmEok(T)}</td>`;
+    cols.forEach(y => {
+      const on = T === pick.T && Math.abs(y - pick.y) < 0.005;
+      const d = div(T, y);
+      h += `<td class="${[cls(T, y), isMy(y) ? 'dm-mycol' : ''].join(' ').trim()}"><button type="button" data-t="${T}" data-y="${y}" aria-pressed="${on}" title="월 ${formatKRWFull(d)}">${dmMan(d)}</button></td>`;
+    });
+    h += '</tr>';
+  });
+  document.getElementById('dm-table').innerHTML = h + '</tbody>';
+
+  // 선택 칸 풀이
+  const pd = div(pick.T, pick.y);
+  const needReal = want > 0 && pick.y > 0 ? want * 12 / (pick.y / 100) : 0;   // 배당만으로 목표를 채우는 자산 (오늘 돈)
+  const needNom = needReal * realDefl;
+  const ratio = want > 0 ? pd / want * 100 : 0;
+  document.getElementById('dm-pick').innerHTML =
+    `<div class="dm-pick-main">자산 ${dmEok(pick.T)} × 배당률 ${dmYTxt(pick.y)} → 월배당금 <strong>${dmMan(pd)}원</strong> <span style="font-size:13px;color:var(--ink-mute);font-weight:700;">세전 · 오늘 돈</span></div>` +
+    `<div>목표 생활비 월 ${wantTxt}의 <strong>${Math.round(ratio)}%</strong>${ratio >= 100 ? '로, 배당만으로 생활비를 채웁니다.' : `입니다. 모자라는 월 ${dmMan(Math.max(0, want - pd))}원은 원금을 꺼내 써야 합니다.`}</div>` +
+    (needReal > 0 ? `<div>배당률 ${dmYTxt(pick.y)}로 배당만으로 월 ${wantTxt}을 받으려면 오늘 돈 기준 <strong>${formatKRW(needReal)}원</strong>(목표 × 12 ÷ 배당률)이 필요합니다.` +
+      (inp.inflation > 0 && inp.accumYears > 0 ? ` 은퇴 때(${inp.accumYears}년 뒤) 금액으로는 약 ${formatKRW(needNom)}원입니다.` : '') + '</div>' : '') +
+    `<a class="goal-link-btn" href="${dmLink(inp, pick.T)}" target="_blank" rel="noopener">${dmEok(pick.T)}(오늘 돈) 모으려면? 목표금액 계산기 →</a>`;
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const tbl = document.getElementById('dm-table');
+  if (!tbl) return;
+  tbl.addEventListener('click', e => {
+    const b = e.target.closest('button[data-t]'); if (!b) return;
+    DM.pick = { T: +b.dataset.t, y: +b.dataset.y };
+    updateDivMatrix(lastResult || simulate());
+  });
+  document.getElementById('dm-range').addEventListener('click', e => {
+    const b = e.target.closest('button[data-range]'); if (!b) return;
+    DM.range = b.dataset.range;
+    updateDivMatrix(lastResult || simulate());
+  });
+});
+
 // ============== 결과 복사 (카페 댓글·카톡용 텍스트) ==============
 function buildResultText(result) {
   const inp = result.inputs;
@@ -4199,6 +4412,7 @@ render = function (result) {
   lastResult = result;
   try { updateInflPanel(result); updateLifePanel(result); } catch (e) { console.error(e); }
   try { updateFinWarn(result); } catch (e) { console.error(e); }
+  try { updateDivMatrix(result); } catch (e) { console.error(e); }
   placeUnits();
 };
 window.addEventListener('DOMContentLoaded', () => {
