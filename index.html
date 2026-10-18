@@ -2615,10 +2615,14 @@ function simulate(ov) {
 function planOk(r) { return r.progressPct >= 100 && r.depletedAtYear < 0; }
 function computeLevers(result) {
   const inp = result.inputs;
-  const out = { delayYears: -1, delayAge: -1, maxTarget: -1 };
+  const out = { delayYears: -1, delayAge: -1, maxTarget: -1, noDepAge: -1 };
   // ① 은퇴 나이를 1년씩 늦춰 가며 처음 성공하는 나이 (최대 95세)
   for (let age = inp.retireAge + 1; age <= 95; age++) {
     if (planOk(simulate({ retireAge: age }))) { out.delayAge = age; out.delayYears = age - inp.retireAge; break; }
+  }
+  // ①-보조: 필요 자산(인출률) 기준은 빼고 '인출 기간 동안 바닥나지 않음'만 보면 몇 세부터 되는지 (원금은 줄어들 수 있음)
+  for (let age = inp.retireAge; age <= 95; age++) {
+    if (simulate({ retireAge: age }).depletedAtYear < 0) { out.noDepAge = age; break; }
   }
   // ② 지금 은퇴 나이 그대로 둘 때 버틸 수 있는 최대 월 생활비 (오늘 화폐 기준, 이분 탐색)
   if (inp.targetMonthly > 0) {
@@ -2642,7 +2646,12 @@ function leverItemsHTML(result, startNum) {
   html += `<div class="verdict-item"><span class="verdict-num">${nums[i++]}</span> <span><strong>은퇴 늦추기</strong> — ` +
     (L.delayAge > 0
       ? `만 ${inp.retireAge}세 → <strong>만 ${L.delayAge}세</strong> <span class="verdict-sub">(${L.delayYears}년 연기 · 지금 적립금 그대로 · ${basisTxt})</span>`
-      : `만 95세까지 늦춰도 이 조건으로는 어렵습니다 <span class="verdict-sub">(수익률이 물가를 충분히 넘지 못함)</span>`) + `</span></div>`;
+      : `만 95세까지 늦춰도 이 조건으로는 어렵습니다 <span class="verdict-sub">(수익률이 물가를 충분히 넘지 못함)</span>`)
+    + (L.noDepAge > 0 && (L.delayAge < 0 || L.noDepAge < L.delayAge)
+      ? `<br><span class="verdict-sub">${rateTxt} 기준은 빼고 인출 ${inp.retireYears}년 동안 바닥나지만 않으면 된다면: `
+        + (L.noDepAge === inp.retireAge ? '지금 은퇴 나이 그대로도 됩니다' : `<strong>만 ${L.noDepAge}세</strong>`)
+        + ` (원금은 줄어들며, 그 뒤 기간은 장담 못 함)</span>`
+      : '') + `</span></div>`;
   const tgtM = Math.round(inp.targetMonthly / 10000);
   const maxM = Math.round(L.maxTarget / 10000);
   const cutPct = tgtM > 0 ? Math.round((1 - maxM / tgtM) * 100) : 0;
