@@ -2548,7 +2548,8 @@ function simulate(ov) {
   for (let y = 1; y <= retireYears; y++) {
     const ageNow = retireAge + y;
     const annualWithdraw = monthlyW * 12; // 필요 인출액
-    const annualDividend = assetW * currentDivYield; // 자산이 만드는 배당 (정보용)
+    // 자산이 만드는 배당 (정보용): 연초 인출 후 남은 자산이 1년간 굴러가며 배당을 낸다 (아래 자산 변화 모델과 같은 기준)
+    const annualDividend = Math.max(0, assetW - annualWithdraw) * currentDivYield;
     const yearStart = assetW;
 
     // 정확한 자산 변화 모델:
