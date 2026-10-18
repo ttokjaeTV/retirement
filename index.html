@@ -1920,7 +1920,7 @@
 
       <div class="preset-source" style="margin-top: 12px;">
         ※ 한국 투자자 관점 보수적 가정치 — 배당 재투자 계산기와 같은 프리셋에 아래 조합 탐색기 기본 설정(주가성장률 2.5%p 낮춰 잡기·총수익률 상한 10%, 커버드콜 8%·배당성장은 주가성장 이하)을 적용한 값입니다. 배당률은 2026-10-17 기준 고정값이라, 매일 갱신되는 조합 탐색기 배당률과 조금 다를 수 있습니다<br>
-        ※ 인출기에는 배당률이 매년 (1+배당성장률)÷(1+주가성장률)배로 바뀝니다. <strong>배당성장률이 주가성장률보다 크면</strong> 배당률(=총수익률)이 해마다 올라가 결과가 더 낙관적으로 나옵니다.
+        ※ 인출기에는 배당률이 매년 (1+배당성장률)÷(1+주가성장률)배로 바뀝니다. <strong>배당성장률이 주가성장률보다 크면</strong> 배당으로 받는 몫이 해마다 커지지만, 그만큼 주가 상승 몫이 줄어든다고 보고 총수익률(배당률+주가성장률)은 적립기와 같게 유지합니다.
       </div>
     </div>
 
@@ -2534,8 +2534,8 @@ function simulate(ov) {
   // === 5. 인출기 시뮬레이션 (배당성장 모델) ===
   // 1) 매년 자산이 배당을 만들어냄 (배당률은 매년 성장)
   // 2) 인출 필요액 = 배당으로 우선 충당, 부족분만 자산 매도
-  // 3) 자산은 주가성장률로 성장
-  // 4) Forward yield = 배당성장률 / (1+주가성장률) 조정
+  // 3) 자산은 적립기와 같은 총수익률(배당 + 주가성장)로 성장 — 배당률이 올라가도 총수익률은 그대로
+  // 4) Forward yield = 배당성장률 / (1+주가성장률) 조정 → 총수익률 중 배당 몫만 커진다 (총수익률을 넘지는 않음)
   const withdrawYearly = [];
   let assetW = projectedAtRetire;
   let monthlyW = futureMonthly; // 첫 해 인출 목표 (인플레 반영)
@@ -2554,10 +2554,11 @@ function simulate(ov) {
 
     // 정확한 자산 변화 모델:
     // 자산 변화 = (연초 자산 − 인출액) × (1 + 총수익률)
-    // 여기서 총수익률 = 배당률 + 주가성장률
+    // 여기서 총수익률 = 입력한 배당률 + 주가성장률 (적립기와 같은 값, 매년 고정)
     // 배당이 인출액을 충당하면 자산을 매도하지 않아도 됨 (정보용)
     // 자산 자체의 가치 변화는 같음 (이중계산 방지)
-    const yearTotalReturn = currentDivYield + priceAppreciation;
+    // 배당률이 해마다 올라가도 그만큼 주가 몫이 줄어드는 것으로 본다 — 배당성장 때문에 총수익률이 매년 커지지 않게
+    const yearTotalReturn = expectedReturn;
     // 연초 인출(4% 룰 표준·보수적): 연초에 1년치 생활비를 먼저 꺼내고, 남은 자산이 1년간 굴러간다
     // 실제로 받을 수 있는 돈 = 연초 자산 한도 안에서만 (소진 후에는 0)
     const paid = Math.max(0, Math.min(annualWithdraw, assetW));
@@ -2591,7 +2592,8 @@ function simulate(ov) {
     // - 인출 목표: 인플레만큼 증가
     monthlyW = monthlyW * (1 + inflation);
     // - 배당률: 배당성장만큼 늘지만, 주가가 오른만큼 forward yield는 조정
-    currentDivYield = currentDivYield * (1 + dividendGrowth) / (1 + priceAppreciation);
+    //   단, 배당이 총수익률보다 많을 수는 없으므로 총수익률(또는 처음 배당률 중 큰 값)에서 멈춘다
+    currentDivYield = Math.min(currentDivYield * (1 + dividendGrowth) / (1 + priceAppreciation), Math.max(expectedReturn, dividendYield));
   }
 
   // === 6. 실질 인출률 검증 ===
@@ -2698,7 +2700,7 @@ function render(result) {
   const year20Sub = firstYearDividend <= 0
     ? (inp.dividendYield <= 0 ? `배당률 0%라 배당으로 받는 돈이 없습니다` : `은퇴 시점 자산이 없어 배당으로 받는 돈이 없습니다`)
     : dividendGrowsOverTime
-      ? `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}% 효과로 매년 늘어남 (${divRatio(1)} 증가) · 배당성장률이 주가성장률보다 커서 배당률이 해마다 올라가는 가정이라 결과가 낙관적일 수 있습니다`
+      ? `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}% 효과로 매년 늘어남 (${divRatio(1)} 증가) · 배당률이 오르는 만큼 주가 상승 몫이 줄어드는 가정이라 총수익률(${(inp.expectedReturn*100).toFixed(1)}%)은 그대로입니다`
       : `배당성장 ${(inp.dividendGrowth*100).toFixed(1)}%가 주가성장률 ${(inp.priceAppreciation*100).toFixed(1)}%보다 낮아 거의 정체 (${divRatio(2)})`;
 
   if (surplusOk && depleted) {
