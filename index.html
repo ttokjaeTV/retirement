@@ -7,6 +7,7 @@
 <title>현금흐름 역산 계산기 · 똑재TV</title>
 <meta name="description" content="은퇴 후 월 얼마가 필요한지 입력하면, 모아야 할 자산과 매달 적립금을 역산해드립니다. 4% Rule + 한국 통계 데이터 기반.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<script src="https://ttokjaetv.github.io/rules/v2026.1/rules.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 <style>
@@ -2266,6 +2267,16 @@
 <!-- 공용 프리셋 (못 불러오면 아래 내장 값 사용) -->
 <script src="https://ttokjaetv.github.io/portfolio-sheet-data/data/presets.js"></script>
 <script>
+if (!window.TTOKJAE_RULES) {
+  var TJR_MSG = '기준값 파일(rules.js)을 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 새로고침해 주세요.';
+  var tjrShow = function () { document.body.insertAdjacentHTML('afterbegin', '<div role="alert" style="background:#fdecea;color:#b3261e;padding:12px 16px;text-align:center;font-weight:600">' + TJR_MSG + '</div>'); };
+  document.body ? tjrShow() : document.addEventListener('DOMContentLoaded', tjrShow);
+  throw new Error(TJR_MSG);
+}
+// 공용 제도 상수(rules.js). 세율 % 글자·만원 글자는 아래 두 함수로 만든다
+const TR = TTOKJAE_RULES;
+const trPct = r => String(+(r * 100).toFixed(4));          // 0.099 → '9.9'
+const trMan = v => (v / 1e4).toLocaleString('ko-KR');      // 20000000 → '2,000'
 // ============== 표 내려받기 (CSV · 엑셀 .xlsx) — 외부 라이브러리 없이 동작 ==============
 // TJX.csv('파일이름', rows) · TJX.xlsx('파일이름', [{ name: '시트', rows, widths }])
 // rows = [[머리글...], [값...], ...]  숫자는 숫자 그대로 넣으면 엑셀에서 계산 가능한 숫자 칸이 됩니다
@@ -3385,7 +3396,7 @@ function drawInsight(result) {
       이 통계의 본질은 "노후 준비를 시작 못한 사람들의 기록"이기도 합니다.<br><br>
       절망하지 마세요. <strong>지금이 가장 중요한 변곡점</strong>입니다.
       ① 매월 적립 금액 자체를 확보하는 부업·소득 증대,
-      ② 절세계좌(연금저축 600만원 + IRP 300만원 = 연 900만원 세액공제),
+      ② 절세계좌(연금저축 ${trMan(TR.PENSION_SAVINGS.creditLimitPensionSavings)}만원 + IRP ${trMan(TR.PENSION_SAVINGS.creditLimitTotal - TR.PENSION_SAVINGS.creditLimitPensionSavings)}만원 = 연 ${trMan(TR.PENSION_SAVINGS.creditLimitTotal)}만원 세액공제),
       ③ <strong>인출 시점이 아닌 적립기부터 배당으로 현금흐름을 만드는 전략</strong>으로
       목표를 다시 세워야 합니다.
     `;
@@ -4199,8 +4210,8 @@ window.addEventListener('DOMContentLoaded', () => {
 //  · 연 1,000만원 초과 → 건보료(지역가입자 소득보험료·피부양자 소득 판정)에 전액 반영 (국민건강보험법 시행규칙 제44조 제1항 단서)
 //  · 연 2,000만원 초과 → 금융소득종합과세 대상 (소득세법 제14조 제3항 제6호)
 // 기존 계산 결과(withdrawYearly[0].annualDividend)를 읽기만 하고 아무 값도 바꾸지 않는다.
-const FIN_NHIS_LINE = 10000000;   // 1,000만원
-const FIN_TAX_LINE = 20000000;    // 2,000만원
+const FIN_NHIS_LINE = TR.NHIS.finIncomeThreshold;   // 1,000만원
+const FIN_TAX_LINE = TR.FIN_INCOME.threshold;    // 2,000만원
 let lastResult = null;
 function finIncomeInfo(result) {
   const d = result.withdrawYearly[0]?.annualDividend || 0;
@@ -4218,27 +4229,27 @@ function updateFinWarn(result) {
   const realText = formatKRWManwon(Math.round(f.real / 10000));
   const link = 'https://ttokjaetv.github.io/fin-income-tax/?' + new URLSearchParams({ i: 0, dg: 0, do: dMan, ob: 0 }).toString();
   const title = f.tax
-    ? `1년차 배당 연 <strong>${dText}</strong> — 일반계좌라면 금융소득 2,000만원 초과로 <strong>종합과세 대상</strong>입니다`
-    : `1년차 배당 연 <strong>${dText}</strong> — 일반계좌라면 건보료에 <strong>전액 반영</strong>되는 1,000만원을 넘습니다`;
+    ? `1년차 배당 연 <strong>${dText}</strong> — 일반계좌라면 금융소득 ${trMan(FIN_TAX_LINE)}만원 초과로 <strong>종합과세 대상</strong>입니다`
+    : `1년차 배당 연 <strong>${dText}</strong> — 일반계좌라면 건보료에 <strong>전액 반영</strong>되는 ${trMan(FIN_NHIS_LINE)}만원을 넘습니다`;
   const taxLine = f.tax
-    ? `<li>이자·배당을 합친 금융소득이 <strong>연 2,000만원을 넘으면</strong> 넘는 몫이 다른 소득과 합쳐져 기본세율로 다시 계산됩니다(사람별 기준, 부부 합산 없음).</li>`
-    : `<li>종합과세 기준(연 2,000만원 초과)까지는 아니지만, 배당이 해마다 늘면 몇 년 안에 넘을 수 있습니다.</li>`;
+    ? `<li>이자·배당을 합친 금융소득이 <strong>연 ${trMan(FIN_TAX_LINE)}만원을 넘으면</strong> 넘는 몫이 다른 소득과 합쳐져 기본세율로 다시 계산됩니다(사람별 기준, 부부 합산 없음).</li>`
+    : `<li>종합과세 기준(연 ${trMan(FIN_TAX_LINE)}만원 초과)까지는 아니지만, 배당이 해마다 늘면 몇 년 안에 넘을 수 있습니다.</li>`;
   box.innerHTML = `
     <div class="fin-warn-label">금융소득·건보료 체크 (인출 1년차 기준)</div>
     <div class="fin-warn-title">${title}</div>
     <ul class="fin-warn-list">
       ${taxLine}
-      <li><strong>연 1,000만원을 넘는 순간부터</strong> 금융소득이 건보료에 <strong>전액</strong> 반영됩니다. 지역가입자는 소득보험료가 붙고, 피부양자는 이 금액 전체가 자격 판정 소득(연 2,000만원 이하)에 들어갑니다.</li>
+      <li><strong>연 ${trMan(FIN_NHIS_LINE)}만원을 넘는 순간부터</strong> 금융소득이 건보료에 <strong>전액</strong> 반영됩니다. 지역가입자는 소득보험료가 붙고, 피부양자는 이 금액 전체가 자격 판정 소득(연 ${trMan(TR.NHIS.dependent.income)}만원 이하)에 들어갑니다.</li>
     </ul>
-    <div class="fin-warn-rule">판단 기준 — 연금저축·IRP·ISA <strong>계좌 안</strong>에서 받은 배당은 금융소득 집계에서 빠집니다. 연금계좌는 꺼낼 때 연금소득으로, ISA는 비과세·9.9% 분리과세로 끝나기 때문입니다. 은퇴 자산 중 일반계좌 비중이 클수록 이 박스의 상황에 가까워집니다.</div>
+    <div class="fin-warn-rule">판단 기준 — 연금저축·IRP·ISA <strong>계좌 안</strong>에서 받은 배당은 금융소득 집계에서 빠집니다. 연금계좌는 꺼낼 때 연금소득으로, ISA는 비과세·${trPct(TR.ISA.excessRate)}% 분리과세로 끝나기 때문입니다. 은퇴 자산 중 일반계좌 비중이 클수록 이 박스의 상황에 가까워집니다.</div>
     <a class="goal-link-btn" href="${link}" target="_blank" rel="noopener">금융소득종합과세·건보료 계산기로 보기 →</a>
     <div class="fin-warn-note">
-      ※ 배당은 은퇴 첫해의 <strong>명목 금액</strong>(그해 돈)입니다. 오늘 돈으로는 연 ${realText}이지만, 2,000만·1,000만원 기준은 물가에 맞춰 오르지 않아 명목 금액으로 비교했습니다.
+      ※ 배당은 은퇴 첫해의 <strong>명목 금액</strong>(그해 돈)입니다. 오늘 돈으로는 연 ${realText}이지만, ${trMan(FIN_TAX_LINE)}만·${trMan(FIN_NHIS_LINE)}만원 기준은 물가에 맞춰 오르지 않아 명목 금액으로 비교했습니다.
       은퇴 자산을 모두 일반계좌에 둔다고 가정한 값이며, 다른 이자·배당이나 국내상장 해외 ETF를 팔아 생긴 차익(배당소득으로 과세)이 있으면 더 빨리 넘습니다.
       ISA 안의 소득은 건보료 규정상 부과 근거가 있지만 현재는 부과하지 않는 운영이라 바뀔 수 있습니다.<br>
       기준 출처(2026-10-12 확인):
-      <a href="https://taxlaw.nts.go.kr/downloadPDFFile.do?fleId=300000000001047678&fleSn=923559" target="_blank" rel="noopener">국세청 「해외주식과 세금」 신고안내(소득세법 제14조 제3항 제6호 · 2천만원)</a> ·
-      <a href="https://www.nepla.ai/wiki/복지와-건강/사회복지/-유권해석-국민건강보험법-시행규칙-제44조-소득-산정방법-및-평가기준-ov59rpxq3n06" target="_blank" rel="noopener">국민건강보험법 시행규칙 제44조 제1항(1천만원 이하 미합산)</a> ·
+      <a href="https://taxlaw.nts.go.kr/downloadPDFFile.do?fleId=300000000001047678&fleSn=923559" target="_blank" rel="noopener">국세청 「해외주식과 세금」 신고안내(소득세법 제14조 제3항 제6호 · ${FIN_TAX_LINE / 1e7}천만원)</a> ·
+      <a href="https://www.nepla.ai/wiki/복지와-건강/사회복지/-유권해석-국민건강보험법-시행규칙-제44조-소득-산정방법-및-평가기준-ov59rpxq3n06" target="_blank" rel="noopener">국민건강보험법 시행규칙 제44조 제1항(${FIN_NHIS_LINE / 1e7}천만원 이하 미합산)</a> ·
       <a href="https://wikidocs.net/blog/@mythos/21343/" target="_blank" rel="noopener">피부양자 소득요건 해설(2026)</a> ·
       <a href="https://v.daum.net/v/20260312060303432" target="_blank" rel="noopener">매일경제 2026-03-12(ISA 등 분리과세 소득 건보료 미부과 운영)</a>
     </div>`;
