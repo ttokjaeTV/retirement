@@ -8,6 +8,7 @@
 <meta name="description" content="은퇴 후 월 얼마가 필요한지 입력하면, 모아야 할 자산과 매달 적립금을 역산해드립니다. 4% Rule + 한국 통계 데이터 기반.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <script src="https://ttokjaetv.github.io/rules/v2026.1/rules.js"></script>
+<script src="https://ttokjaetv.github.io/rules/fill-v1.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 <style>
@@ -2134,7 +2135,7 @@
 
     <div class="preset-source" style="margin-top: 14px;">
       ※ 칸의 숫자 = <b>자산 × 배당률 ÷ 12</b>(세전 월배당금, 오늘 돈 기준). 원금은 그대로 두고 배당만 쓴다고 볼 때의 금액입니다. 위 <b>필요 자산 (4% 룰)</b>은 원금도 조금씩 꺼내 쓰는 방식이라 숫자가 다릅니다.<br>
-      ※ 일반계좌는 배당소득세 15.4%(미국 직투는 15%)를 떼고 들어오며, 연금저축·IRP·ISA 안에서 받으면 과세 방식이 다릅니다. 일반계좌 배당이 연 1,000만원(월 약 83만원)을 넘으면 건보료에, 연 2,000만원(월 약 167만원)을 넘으면 금융소득종합과세에 걸릴 수 있습니다 — 표는 오늘 돈 기준이라 실제 은퇴 때는 금액이 더 커져 이 기준을 더 빨리 넘습니다.<br>
+      ※ 일반계좌는 배당소득세 <span data-rule="FIN_INCOME.withholdingWithLocal*100">15.4</span>%(미국 직투는 <span data-rule="FIN_INCOME.usWithholding*100">15</span>%)를 떼고 들어오며, 연금저축·IRP·ISA 안에서 받으면 과세 방식이 다릅니다. 일반계좌 배당이 연 <span data-rule="NHIS.finIncomeThreshold/1e4">1,000</span>만원(월 약 <span data-rule="NHIS.finIncomeThreshold/12/1e4" data-fmt="n0">83</span>만원)을 넘으면 건보료에, 연 <span data-rule="FIN_INCOME.threshold/1e4">2,000</span>만원(월 약 <span data-rule="FIN_INCOME.threshold/12/1e4" data-fmt="n0">167</span>만원)을 넘으면 금융소득종합과세에 걸릴 수 있습니다 — 표는 오늘 돈 기준이라 실제 은퇴 때는 금액이 더 커져 이 기준을 더 빨리 넘습니다.<br>
       ※ 배당률 아래 종목 이름은 위 투자 포트폴리오 프리셋의 배당률을 가장 가까운 칸에 붙인 것입니다. 배당률이 높다고 총수익률이 높은 것은 아닙니다(커버드콜처럼 분배한 만큼 가격이 빠지는 상품이 있습니다). 특정 상품을 권하는 표가 아닙니다.
     </div>
   </div>
