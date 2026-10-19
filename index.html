@@ -1828,6 +1828,7 @@
               <span class="input-currency" id="retire-age-display">만 60세</span>
             </div>
             <div class="input-hint">국민연금(65세~)은 이 계산에 넣지 않습니다</div>
+            <div class="input-hint" id="retire-age-note" style="display:none; color: var(--red-warn);"></div>
           </div>
         </div>
       </div>
@@ -2176,6 +2177,7 @@
     <p class="chart-subtitle">
       적립기와 인출기 전체 연도별 자산 변화. 명목·실질가치, 연 인출액까지 포함합니다.
       인출기에는 매년 초 1년치 생활비를 먼저 꺼내고 남은 자산이 굴러간다고 계산합니다(4% 룰 표준 방식).
+      나이는 적립기는 그해 말, 인출기는 생활비를 꺼내는 연초 기준이고, 총자산은 모두 그해 말 금액입니다.
     </p>
     <div class="dl-bar">
       <button type="button" class="dl-btn" id="dl-csv" data-member-click="엑셀 내려받기">CSV 내려받기</button>
@@ -2576,7 +2578,8 @@ function simulate(ov) {
 
     withdrawYearly.push({
       yearIdx: y,
-      age: ageNow,
+      age: ageNow,            // 그해 말 나이 (연말 총자산 기준 — 차트·실질가치 환산용)
+      startAge: ageNow - 1,   // 그해 생활비를 꺼내는 연초 나이 (바닥나는 나이·표의 인출 행)
       yearStart,
       monthlyWithdraw: monthlyW,
       annualWithdraw,
@@ -2719,7 +2722,7 @@ function render(result) {
     verdictLabel.textContent = '인출 중 소진 위험';
     verdictTitle.innerHTML = `필요 자산은 모이지만 ${result.depletedAtYear}년차에 바닥납니다`;
     verdictDesc.innerHTML = `
-      <div class="verdict-intro">필요 자산은 모이지만, 입력한 수익률·물가로는 <strong>${result.depletedAtYear}년차(만 ${depRow.age}세)</strong>에 자산이 바닥납니다
+      <div class="verdict-intro">필요 자산은 모이지만, 입력한 수익률·물가로는 <strong>${result.depletedAtYear}년차(만 ${depRow.startAge}세)</strong>에 자산이 바닥납니다
       → <strong>인출률을 낮추거나 기간을 줄이세요</strong>.</div>
       <div class="verdict-list">
         <div class="verdict-item"><span class="verdict-num">①</span> <span><strong>은퇴 시점 자산</strong> — ${formatKRW(result.projectedAtRetire)}원
@@ -2946,6 +2949,14 @@ function render(result) {
   // 나이
   updateChip('current-age', 'current-age-display', v => `만 ${Math.round(v)}세`, '만 0세');
   updateChip('retire-age', 'retire-age-display', v => `만 ${Math.round(v)}세`, '만 0세');
+  // 은퇴 나이 ≤ 현재 나이면 계산은 현재 나이 + 1세로 한다 — 입력값은 그대로 두고 알려만 준다
+  const raNote = document.getElementById('retire-age-note');
+  if (raNote) {
+    const raIn = Number(document.getElementById('retire-age').value);
+    const raFixed = raIn > 0 && raIn <= inp.currentAge;
+    raNote.textContent = raFixed ? `은퇴 나이가 현재 나이 이하라 만 ${inp.retireAge}세로 계산했어요` : '';
+    raNote.style.display = raFixed ? '' : 'none';
+  }
 
   // === 총수익률 디스플레이 (배당 + 주가성장) ===
   const dyPct = (inp.dividendYield * 100).toFixed(1);
@@ -3225,7 +3236,7 @@ function exportRowsYearly(result) {
   result.withdrawYearly.forEach(r => {
     const df = Math.pow(1 + inp.inflation, r.age - inp.currentAge);
     const dfM = Math.pow(1 + inp.inflation, inp.accumYears + r.yearIdx - 1);
-    rows.push([r.age, r.yearIdx, r.depleted ? '인출(소진)' : '인출', 0, R(r.paid), R(r.annualDividend), R(r.asset), R(r.asset / df), R(r.paid / 12), R(r.paid / 12 / dfM)]);
+    rows.push([r.startAge, r.yearIdx, r.depleted ? '인출(소진)' : '인출', 0, R(r.paid), R(r.annualDividend), R(r.asset), R(r.asset / df), R(r.paid / 12), R(r.paid / 12 / dfM)]);
   });
   return rows;
 }
@@ -3290,7 +3301,7 @@ function drawDataTable(result) {
     const tr = document.createElement('tr');
     const depletedCls = row.depleted ? 'col-depleted' : '';
     tr.innerHTML = `
-      <td>${row.age}세</td>
+      <td>${row.startAge}세</td>
       <td>${row.yearIdx}년차</td>
       <td>인출</td>
       <td class="col-withdraw">${row.paid > 0 ? '−' + formatKRW(row.paid) : '0'}${shortPaid ? '<div class="cell-real">필요 ' + formatKRW(row.annualWithdraw) + '</div>' : ''}</td>
@@ -3325,7 +3336,7 @@ function drawInsight(result) {
   // 진행률에 따라 다른 인사이트
   if (result.progressPct >= 100 && result.depletedAtYear > 0) {
     // 필요 자산은 모이지만 인출 기간 중 소진 → '충분합니다'라고 하지 않는다
-    const depAge = result.withdrawYearly[result.depletedAtYear - 1].age;
+    const depAge = result.withdrawYearly[result.depletedAtYear - 1].startAge;   // 연초 인출이라 그해 연초 나이에 생활비가 모자란다
     titleEl.innerHTML = `⚠️ 목표 자산은 모이지만, ${result.depletedAtYear}년차에 바닥납니다`;
     descEl.innerHTML = `
       ${accumYears}년 후 필요한 자산 <strong>${requiredEok}억원</strong>은 모이지만(예상 ${formatKRW(result.projectedAtRetire)}원),
@@ -4393,7 +4404,7 @@ function buildResultText(result) {
   }
   if (result.depletedAtYear > 0) {
     const dep = result.withdrawYearly[result.depletedAtYear - 1];
-    lines.push(`바닥나는 나이: 만 ${dep.age}세 (인출 ${result.depletedAtYear}년차)`);
+    lines.push(`바닥나는 나이: 만 ${dep.startAge}세 (인출 ${result.depletedAtYear}년차)`);
   }
   const f = finIncomeInfo(result);
   if (f.nhis) lines.push(`1년차 배당 연 ${formatKRWManwon(Math.round(f.d / 10000))}(명목) — 일반계좌라면 ${f.tax ? '종합과세·' : ''}건보료 기준 초과`);
