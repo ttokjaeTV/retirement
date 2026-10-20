@@ -1661,16 +1661,17 @@
         <div class="input-group">
           <label class="label">은퇴 기간 (몇 년 동안 받을지)</label>
           <div class="input-wrap">
-            <input type="number" id="retire-years" data-unit="년" value="30" step="1" min="10" max="60">
-            <span class="input-currency" id="retire-years-display">30년</span>
+            <input type="number" id="retire-years" data-unit="년" value="31" step="1" min="10" max="60">
+            <span class="input-currency" id="retire-years-display">31년</span>
           </div>
           <div class="input-hint" id="life-hint">2024년 생명표 · 60세 기대여명: 남 23.7년 · 여 28.4년</div>
           <div class="preset-row cols-4 until-row" style="margin-top: 12px;">
-            <button class="preset-btn" data-until-age="85" data-retire-years="25">85세까지<br><span class="preset-sub">25년</span></button>
-            <button class="preset-btn active" data-until-age="90" data-retire-years="30">90세까지<br><span class="preset-sub">30년</span></button>
-            <button class="preset-btn" data-until-age="95" data-retire-years="35">95세까지<br><span class="preset-sub">35년</span></button>
-            <button class="preset-btn" data-until-age="100" data-retire-years="40">100세까지<br><span class="preset-sub">40년</span></button>
+            <button class="preset-btn" data-until-age="85" data-retire-years="26">85세까지<br><span class="preset-sub">26년</span></button>
+            <button class="preset-btn active" data-until-age="90" data-retire-years="31">90세까지<br><span class="preset-sub">31년</span></button>
+            <button class="preset-btn" data-until-age="95" data-retire-years="36">95세까지<br><span class="preset-sub">36년</span></button>
+            <button class="preset-btn" data-until-age="100" data-retire-years="41">100세까지<br><span class="preset-sub">41년</span></button>
           </div>
+          <div class="input-hint">'○세까지'는 은퇴한 해부터 <b>그 나이 해까지 포함</b>해 해마다 생활비를 꺼내는 기간입니다.</div>
 
           <div class="input-hint infl-impact" id="life-impact"></div>
 
@@ -2461,7 +2462,7 @@ function simulate(ov) {
   // 입력값 파싱 (만원 → 원, % → 소수)
   const targetMonthly = ov.targetMonthly != null ? ov.targetMonthly : (Number(document.getElementById('target-monthly').value) || 0) * 10000;
   const inflation = (Number(document.getElementById('inflation').value) || 0) / 100;
-  const retireYears = Math.max(1, Math.min(60, Number(document.getElementById('retire-years').value) || 30));
+  const retireYears = Math.max(1, Math.min(60, Number(document.getElementById('retire-years').value) || 31));
   const withdrawalRate = (Number(document.getElementById('withdrawal-rate').value) || 4) / 100;
 
   const currentAge = Math.max(20, Math.min(85, Number(document.getElementById('current-age').value) || 35));
@@ -3579,7 +3580,8 @@ function updateInflPanel(result) {
 
 function updateLifePanel(result) {
   const inp = result.inputs;
-  const ra = inp.retireAge, yrs = inp.retireYears, end = ra + yrs;
+  // '○세까지' = 그 나이 해까지 포함 (retire-drawdown·freedom과 같은 기준): 은퇴 나이 ra부터 yrs번 인출 → 마지막 인출 나이 = ra + yrs − 1
+  const ra = inp.retireAge, yrs = inp.retireYears, end = ra + yrs - 1;
   const hint = document.getElementById('life-hint');
   const panel = document.getElementById('life-panel');
   const inTable = LIFE_EX.m[ra] != null;
@@ -3588,9 +3590,9 @@ function updateLifePanel(result) {
       ? `2024년 생명표 · ${ra}세 기대여명: 남 ${LIFE_EX.m[ra].toFixed(1)}년 · 여 ${LIFE_EX.f[ra].toFixed(1)}년`
       : '2024년 생명표 · 60세 기대여명: 남 23.7년 · 여 28.4년 (은퇴 나이 50~85세일 때 그 나이 값으로 바뀝니다)';
   }
-  // '○세까지' 버튼: 은퇴 나이에 맞춰 받는 햇수 갱신
+  // '○세까지' 버튼: 은퇴 나이에 맞춰 받는 햇수 갱신 (은퇴한 해와 그 나이 해를 모두 세므로 + 1)
   document.querySelectorAll('[data-until-age]').forEach(btn => {
-    const y = Number(btn.dataset.untilAge) - ra;
+    const y = Number(btn.dataset.untilAge) - ra + 1;
     const ok = y >= 10 && y <= 60;
     btn.dataset.retireYears = String(Math.max(10, Math.min(60, y)));
     btn.disabled = !ok;
@@ -3843,7 +3845,7 @@ const CX = (() => {
     const target = v('target-monthly') * 10000;
     return {
       target, inflation, accumYears, retireAge,
-      retireYears: Math.max(1, Math.min(60, v('retire-years') || 30)),
+      retireYears: Math.max(1, Math.min(60, v('retire-years') || 31)),
       assets: Math.max(0, v('current-assets') * 10000),
       saving: Math.max(0, v('monthly-saving') * 10000),
       futureAnnual: target * Math.pow(1 + inflation, accumYears) * 12,
